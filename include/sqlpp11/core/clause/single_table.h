@@ -75,17 +75,10 @@ namespace sqlpp
   // NO TABLE YET
   struct no_single_table_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_single_table_t, Statement> : public clause_data<no_single_table_t, Statement>
-  {
-    using clause_data<no_single_table_t, Statement>::clause_data;
-
-    template <StaticRawTable _Table>
-    auto single_table(_Table table) const
+    template <typename Statement, StaticRawTable _Table>
+    auto single_table(this Statement&& statement, _Table table)
     {
-      return new_statement(*this, single_table_t<_Table>{table});
+      return new_statement<no_single_table_t>(std::forward<Statement>(statement), single_table_t<_Table>{table});
     }
   };
 

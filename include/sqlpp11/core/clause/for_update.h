@@ -46,16 +46,10 @@ namespace sqlpp
 
   struct no_for_update_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_for_update_t, Statement> : public clause_data<no_for_update_t, Statement>
-  {
-    using clause_data<no_for_update_t, Statement>::clause_data;
-
-    auto for_update() const -> decltype(new_statement(*this, for_update_t{}))
+    template <typename Statement>
+    auto for_update(this Statement&& statement)
     {
-      return new_statement(*this, for_update_t{});
+      return new_statement<no_for_update_t>(std::forward<Statement>(statement), for_update_t{});
     }
   };
 
@@ -75,7 +69,7 @@ namespace sqlpp
     return  " FOR UPDATE";
   }
 
-  inline auto for_update() -> decltype(statement_t<no_for_update_t>().for_update())
+  inline auto for_update()
   {
     return statement_t<no_for_update_t>().for_update();
   }

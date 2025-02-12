@@ -85,18 +85,10 @@ namespace sqlpp
   // NO INTO YET
   struct no_into_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_into_t, Statement> : public clause_data<no_into_t, Statement>
-  {
-    using clause_data<no_into_t, Statement>::clause_data;
-
-
-    template <StaticRawTable _Table>
-    auto into(_Table table) const
+    template <typename Statement, StaticRawTable _Table>
+    auto into(this Statement&& statement, _Table table)
     {
-      return new_statement(*this, into_t<_Table>{table});
+      return new_statement<no_into_t>(std::forward<Statement>(statement), into_t<_Table>{table});
     }
   };
 

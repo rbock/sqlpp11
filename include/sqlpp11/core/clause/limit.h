@@ -72,17 +72,10 @@ namespace sqlpp
 
   struct no_limit_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_limit_t, Statement> : public clause_data<no_limit_t, Statement>
-  {
-    using clause_data<no_limit_t, Statement>::clause_data;
-
-    template <typename Arg, typename = std::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
-    auto limit(Arg arg) const -> decltype(new_statement(*this, limit_t<Arg>{std::move(arg)}))
+    template <typename Statement, typename Arg, typename = std::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
+    auto limit(this Statement&& statement, Arg arg)
     {
-      return new_statement(*this, limit_t<Arg>{std::move(arg)});
+      return new_statement<no_limit_t>(std::forward<Statement>(statement), limit_t<Arg>{std::move(arg)});
     }
   };
 
@@ -116,7 +109,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto limit(T&& t) -> decltype(statement_t<no_limit_t>().limit(std::forward<T>(t)))
+  auto limit(T&& t)
   {
     return statement_t<no_limit_t>().limit(std::forward<T>(t));
   }

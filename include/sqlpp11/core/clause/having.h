@@ -89,17 +89,10 @@ namespace sqlpp
   // NO HAVING YET
   struct no_having_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_having_t, Statement> : public clause_data<no_having_t, Statement>
-  {
-    using clause_data<no_having_t, Statement>::clause_data;
-
-    template <typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
-    auto having(Expression expression) const -> decltype(new_statement(*this, having_t<Expression>{expression}))
+    template <typename Statement, typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    auto having(this Statement&& statement, Expression expression)
     {
-      return new_statement(*this, having_t<Expression>{expression});
+      return new_statement<no_having_t>(std::forward<Statement>(statement), having_t<Expression>{expression});
     }
   };
 

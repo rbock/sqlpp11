@@ -127,37 +127,15 @@ namespace sqlpp
   template <typename... Columns>
   struct column_list_t
   {
-    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-    column_list_t(Columns... cols) : _columns(simple_column(std::move(cols))...)
-    {
-    }
-
-    column_list_t(const column_list_t&) = default;
-    column_list_t(column_list_t&&) = default;
-    column_list_t& operator=(const column_list_t&) = default;
-    column_list_t& operator=(column_list_t&&) = default;
-    ~column_list_t() = default;
-
-    using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
     std::tuple<make_simple_column_t<Columns>...> _columns;
+    using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
     std::vector<_value_tuple_t> _insert_values;
-  };
-
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
-                               "at least one column requires a table which is otherwise not known in the statement");
-
-  template <typename Statement, typename... Columns>
-  struct clause_base<column_list_t<Columns...>, Statement> : public clause_data<column_list_t<Columns...>, Statement>
-  {
-    using clause_data<column_list_t<Columns...>, Statement>::clause_data;
-    using clause_data<column_list_t<Columns...>, Statement>::_data;
-
-    using _value_tuple_t = typename column_list_t<Columns...>::_value_tuple_t;
 
     template <typename... Assignments,
               typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto add_values(Assignments... assignments) -> void
     {
+#warning: use if constexpr
       using _arg_value_tuple = std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
       constexpr bool _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>::value;
       SQLPP_STATIC_ASSERT(_args_correct, "add_values() arguments have to match columns() arguments");
@@ -184,9 +162,12 @@ namespace sqlpp
     template <typename... Assignments>
     auto add_values_impl(std::true_type, Assignments... assignments) -> void
     {
-      _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+      _insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
     }
   };
+
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
+                               "at least one column requires a table which is otherwise not known in the statement");
 
   template <typename... Columns>
   struct is_clause<column_list_t<Columns...>> : public std::true_type
@@ -213,21 +194,15 @@ namespace sqlpp
   // NO INSERT COLUMNS/VALUES YET
   struct no_insert_value_list_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_insert_value_list_t, Statement> : public clause_data<no_insert_value_list_t, Statement>
-  {
-    using clause_data<no_insert_value_list_t, Statement>::clause_data;
-
-    auto default_values() const -> decltype(new_statement(*this, insert_default_values_t{}))
+    template <typename Statement>
+    auto default_values(this Statement&& statement)
     {
-      return new_statement(*this, insert_default_values_t{});
+      return new_statement<no_insert_value_list_t>(std::forward<Statement>(statement), insert_default_values_t{});
     }
 
-    template <typename... Columns,
+    template <typename Statement, typename... Columns,
               typename = std::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
-    auto columns(Columns... cols) const -> decltype(new_statement(*this, column_list_t<Columns...>{cols...}))
+    auto columns(this Statement&& statement, Columns... cols)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in columns()");
       SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
@@ -235,12 +210,12 @@ namespace sqlpp
       SQLPP_STATIC_ASSERT(detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
                           "columns() contains columns from several tables");
 
-      return new_statement(*this, column_list_t<Columns...>{cols...});
+      return new_statement<no_insert_value_list_t>(std::forward<Statement>(statement), column_list_t<Columns...>{cols...});
     }
 
-    template <typename... Assignments,
+    template <typename Statement, typename... Assignments,
               typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
-    auto set(Assignments... assignments) const -> decltype(new_statement(*this, insert_set_t<Assignments...>{std::make_tuple(std::move(assignments)...)}))
+    auto set(this Statement&& statement, Assignments... assignments)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
 
@@ -252,7 +227,7 @@ namespace sqlpp
           detail::are_same<typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value;
       SQLPP_STATIC_ASSERT(uses_exactly_one_table, "set() arguments must be assignment for exactly one table");
 
-      return new_statement(*this, insert_set_t<Assignments...>{std::make_tuple(std::move(assignments)...)});
+      return new_statement<no_insert_value_list_t>(std::forward<Statement>(statement), insert_set_t<Assignments...>{std::make_tuple(std::move(assignments)...)});
     }
   };
 
@@ -365,21 +340,18 @@ namespace sqlpp
 
   template <typename... Assignments>
   auto insert_default_values()
-      -> decltype(statement_t<no_insert_value_list_t>().default_values())
   {
     return statement_t<no_insert_value_list_t>().default_values();
   }
 
   template <typename... Assignments>
   auto insert_set(Assignments... assignments)
-      -> decltype(statement_t<no_insert_value_list_t>().set(assignments...))
   {
     return statement_t<no_insert_value_list_t>().set(assignments...);
   }
 
   template <typename... Columns>
   auto insert_columns(Columns... cols)
-      -> decltype(statement_t<no_insert_value_list_t>().columns(cols...))
   {
     return statement_t<no_insert_value_list_t>().columns(cols...);
   }

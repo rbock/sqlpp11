@@ -65,23 +65,17 @@ namespace sqlpp
 
   struct no_select_flag_list_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_select_flag_list_t, Statement> : public clause_data<no_select_flag_list_t, Statement>
-  {
-    using clause_data<no_select_flag_list_t, Statement>::clause_data;
-
-    template <typename... Flags,
+    template <typename Statement,
+              typename... Flags,
               typename = std::enable_if_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value>>
-    auto flags(Flags... flags) const -> decltype(new_statement(*this, select_flag_list_t<Flags...>{flags...}))
+    auto flags(this Statement&& statement, Flags... flags)
     {
-      SQLPP_STATIC_ASSERT(sizeof...(Flags),
-                    "at least one flag required in select_flags()");
+      SQLPP_STATIC_ASSERT(sizeof...(Flags), "at least one flag required in select_flags()");
       SQLPP_STATIC_ASSERT(not detail::has_duplicates<remove_dynamic_t<Flags>...>::value,
-                    "at least one duplicate argument detected in select_flags()");
+                          "at least one duplicate argument detected in select_flags()");
 
-      return new_statement(*this, select_flag_list_t<Flags...>{flags...});
+      return new_statement<no_select_flag_list_t>(std::forward<Statement>(statement),
+                                                  select_flag_list_t<Flags...>{flags...});
     }
   };
 
@@ -105,7 +99,7 @@ namespace sqlpp
   }
 
   template <typename... T>
-  auto select_flags(T... t) -> decltype(statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)...))
+  auto select_flags(T... t)
   {
     return statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)...);
   }

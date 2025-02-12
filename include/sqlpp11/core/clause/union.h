@@ -106,38 +106,31 @@ namespace sqlpp
 
   struct no_union_t
   {
+    template <typename Statement, typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    auto union_distinct(this Statement&& statement, Rhs rhs)
+    {
+      check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
+
+      return statement_t<union_t<union_distinct_t, Statement, Rhs>, no_union_t>{
+          statement_constructor_arg<union_t<union_distinct_t, Statement, Rhs>, no_union_t>{
+              union_t<union_distinct_t, Statement, Rhs>{std::forward<Statement>(statement), rhs}, no_union_t{}}};
+    }
+
+    template <typename Statement, typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    auto union_all(this Statement&& statement, Rhs rhs)
+    {
+      check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
+
+      return statement_t<union_t<union_all_t, Statement, Rhs>, no_union_t>{
+          statement_constructor_arg<union_t<union_all_t, Statement, Rhs>, no_union_t>{
+              union_t<union_all_t, Statement, Rhs>{std::forward<Statement>(statement), rhs}, no_union_t{}}};
+    }
   };
 
   template <typename Statement>
   struct consistency_check<Statement, no_union_t>
   {
     using type = consistent_t;
-  };
-
-  template <typename Statement>
-  struct clause_base<no_union_t, Statement> : public clause_data<no_union_t, Statement>
-  {
-    using clause_data<no_union_t, Statement>::clause_data;
-
-    template <typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
-    auto union_distinct(Rhs rhs) const -> statement_t<union_t<union_distinct_t, Statement, Rhs>, no_union_t>
-    {
-      check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
-
-      return statement_t<union_t<union_distinct_t, Statement, Rhs>, no_union_t>{
-          statement_constructor_arg<union_t<union_distinct_t, Statement, Rhs>, no_union_t>{
-              union_t<union_distinct_t, Statement, Rhs>{static_cast<const Statement&>(*this), rhs}, no_union_t{}}};
-    }
-
-    template <typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
-    auto union_all(Rhs rhs) const -> statement_t<union_t<union_all_t, Statement, Rhs>, no_union_t>
-    {
-      check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
-
-      return statement_t<union_t<union_all_t, Statement, Rhs>, no_union_t>{
-          statement_constructor_arg<union_t<union_all_t, Statement, Rhs>, no_union_t>{
-              union_t<union_all_t, Statement, Rhs>{static_cast<const Statement&>(*this), rhs}, no_union_t{}}};
-    }
   };
 
   // Interpreters
@@ -169,13 +162,13 @@ namespace sqlpp
   }
 
   template <typename Lhs, typename Rhs>
-  auto union_all(Lhs lhs, Rhs rhs)->decltype(lhs.union_all(rhs))
+  auto union_all(Lhs lhs, Rhs rhs)
   {
     return lhs.union_all(std::move(rhs));
   }
 
   template <typename Lhs, typename Rhs>
-  auto union_distinct(Lhs lhs, Rhs rhs)->decltype(lhs.union_distinct(rhs))
+  auto union_distinct(Lhs lhs, Rhs rhs)
   {
     return lhs.union_distinct(std::move(rhs));
   }

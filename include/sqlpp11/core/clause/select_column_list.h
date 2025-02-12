@@ -168,10 +168,6 @@ namespace sqlpp
 
   SQLPP_WRAPPED_STATIC_ASSERT(assert_columns_selected_t, "selecting columns required");
 
-  struct no_select_column_list_t
-  {
-  };
-
   template <typename ColumnTuple>
   struct make_select_column_list;
   template <typename... Columns>
@@ -182,19 +178,16 @@ namespace sqlpp
   template <typename... Columns>
   using make_select_column_list_t = typename make_select_column_list<detail::flat_tuple_t<Columns...>>::type;
 
-  template <typename Statement>
-  struct clause_base<no_select_column_list_t, Statement> : public clause_data<no_select_column_list_t, Statement>
+  struct no_select_column_list_t
   {
-    using clause_data<no_select_column_list_t, Statement>::clause_data;
-
-    template <DynamicSelectColumn... _Columns>
-    auto columns(_Columns... args) const
+    template <typename Statement, DynamicSelectColumn... _Columns>
+    auto columns(this Statement&& statement, _Columns... args)
     {
       SQLPP_STATIC_ASSERT(sizeof...(_Columns), "at least one selected column required");
 
-      return new_statement(*this,
-              make_select_column_list_t<_Columns...>{
-                  std::tuple_cat(detail::tupelize(std::move(args))...)});
+      return new_statement<no_select_column_list_t>(
+          std::forward<Statement>(statement),
+          make_select_column_list_t<_Columns...>{std::tuple_cat(detail::tupelize(std::move(args))...)});
     }
   };
 

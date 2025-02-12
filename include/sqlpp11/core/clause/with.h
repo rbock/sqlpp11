@@ -89,18 +89,10 @@ namespace sqlpp
 
   struct no_with_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_with_t, Statement> : public clause_data<no_with_t, Statement>
-  {
-    using clause_data<no_with_t, Statement>::clause_data;
-
-    template <typename... Ctes>
-    auto with(with_t<Ctes...> with) const
-        -> decltype(new_statement(*this, with))
+    template <typename Statement, typename... Ctes>
+    auto with(this Statement&& statement, with_t<Ctes...> with)
     {
-      return new_statement(*this, with);
+      return new_statement<no_with_t>(std::forward<Statement>(statement), with);
     }
   };
 

@@ -134,15 +134,8 @@ namespace sqlpp
   // NO ORDER BY YET
   struct no_order_by_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_order_by_t, Statement> : public clause_data<no_order_by_t, Statement>
-  {
-    using clause_data<no_order_by_t, Statement>::clause_data;
-
-    template <DynamicSortOrder... Expressions>
-    auto order_by(Expressions... expressions) const
+    template <typename Statement, DynamicSortOrder... Expressions>
+    auto order_by(this Statement&& statement, Expressions... expressions)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Expressions),
                           "at least one sort-order expression (e.g. column.asc()) required in order_by()");
@@ -150,7 +143,8 @@ namespace sqlpp
       SQLPP_STATIC_ASSERT(not detail::has_duplicates<remove_dynamic_t<Expressions>...>::value,
                           "at least one duplicate argument detected in order_by()");
 
-      return new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...});
+      return new_statement<no_order_by_t>(std::forward<Statement>(statement),
+                                          order_by_t<Expressions...>{std::move(expressions)...});
     }
   };
 

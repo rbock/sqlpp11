@@ -88,17 +88,11 @@ namespace sqlpp
   // NO USING YET
   struct no_using_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_using_t, Statement> : public clause_data<no_using_t, Statement>
-  {
-    using clause_data<no_using_t, Statement>::clause_data;
-
-    template <DynamicTable _Table>
-    auto using_(_Table table) const
+    template <typename Statement, DynamicTable _Table>
+    auto using_(this Statement&& statement, _Table table)
     {
-      return new_statement(*this, using_t<table_ref_t<_Table>>{make_table_ref(table)});
+      return new_statementi<no_using_t>(std::forward<Statement>(statement),
+                                        using_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
   };
 

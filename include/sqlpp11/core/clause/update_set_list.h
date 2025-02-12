@@ -81,17 +81,11 @@ namespace sqlpp
 
   struct no_update_set_list_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_update_set_list_t, Statement> : public clause_data<no_update_set_list_t, Statement>
-  {
-    using clause_data<no_update_set_list_t, Statement>::clause_data;
-
-    template <typename... Assignments,
+    template <typename Statement,
+              typename... Assignments,
               typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
-    auto set(Assignments... assignments) const
-        -> decltype(new_statement(*this, update_set_list_t<Assignments...>{std::make_tuple(assignments...)}))
+    auto set(this Statement&& statement, Assignments... assignments)
+
     {
       SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
       SQLPP_STATIC_ASSERT(not detail::has_duplicates<lhs_t<remove_dynamic_t<Assignments>>...>::value,
@@ -99,7 +93,8 @@ namespace sqlpp
       SQLPP_STATIC_ASSERT(detail::make_joined_set_t<required_tables_of_t<lhs_t<Assignments>>...>::size() == 1,
                           "set() contains assignments for columns from more than one table");
 
-      return new_statement(*this, update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
+      return new_statement<no_update_set_list_t>(std::forward<Statement>(statement),
+                                               update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
     }
   };
 
@@ -126,7 +121,7 @@ namespace sqlpp
   }
 
   template <typename... T>
-  auto update_set(T&&... t) -> decltype(statement_t<no_update_set_list_t>().set(std::forward<T>(t)...))
+  auto update_set(T&&... t)
   {
     return statement_t<no_update_set_list_t>().set(std::forward<T>(t)...);
   }

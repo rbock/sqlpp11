@@ -75,17 +75,11 @@ namespace sqlpp
 
   struct no_from_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_from_t, Statement> : public clause_data<no_from_t, Statement>
-  {
-    using clause_data<no_from_t, Statement>::clause_data;
-
-    template <DynamicTable _Table>
-    auto from(_Table table) const
+    template <typename Statement, DynamicTable _Table>
+    auto from(this Statement&& statement, _Table table)
     {
-      return new_statement(*this, from_t<table_ref_t<_Table>>{make_table_ref(table)});
+      return new_statement<no_from_t>(std::forward<Statement>(statement),
+                                       from_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
   };
 

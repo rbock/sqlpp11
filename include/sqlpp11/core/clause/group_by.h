@@ -120,16 +120,9 @@ namespace sqlpp
   // NO GROUP BY YET
   struct no_group_by_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_group_by_t, Statement> : public clause_data<no_group_by_t, Statement>
-  {
-    using clause_data<no_group_by_t, Statement>::clause_data;
-
-    template <typename... Columns,
+    template <typename Statement, typename... Columns,
               typename = std::enable_if_t<logic::all<has_value_type<remove_dynamic_t<Columns>>::value...>::value>>
-    auto group_by(Columns... columns) const -> decltype(new_statement(*this, group_by_t<Columns...>{columns...}))
+    auto group_by(this Statement&& statement, Columns... columns)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in group_by()");
       SQLPP_STATIC_ASSERT(
@@ -139,7 +132,7 @@ namespace sqlpp
           logic::none<contains_aggregate_function<raw_group_by_column_t<remove_dynamic_t<Columns>>>::value...>::value,
           "arguments for group_by() must not contain aggregate functions");
 
-      return new_statement(*this, group_by_t<Columns...>{columns...});
+      return new_statement<no_group_by_t>(std::forward<Statement>(statement), group_by_t<Columns...>{columns...});
     }
   };
 
@@ -169,7 +162,7 @@ namespace sqlpp
   }
 
   template <typename... Columns>
-  auto group_by(Columns... columns) -> decltype(statement_t<no_group_by_t>().group_by(std::move(columns)...))
+  auto group_by(Columns... columns)
   {
     return statement_t<no_group_by_t>().group_by(std::move(columns)...);
   }
