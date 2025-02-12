@@ -63,7 +63,8 @@ namespace sqlpp
     using result_methods_t = typename result_type_provider_t<Clauses...>::template _result_methods_t<statement_t<Clauses...>>;
 
   template <typename... Clauses>
-  struct statement_t : public clause_base<Clauses, statement_t<Clauses...>>...,
+  struct statement_t : public Clauses...,
+#warning: Consider https://en.cppreference.com/w/cpp/language/member_functions#Explicit_object_member_functions also for result methods
                        public result_methods_t<Clauses...>
   {
     // Calculate provided/required CTEs and tables across all clauses
@@ -116,7 +117,7 @@ namespace sqlpp
     statement_t() = default;
 
     template <typename... Fragments>
-    statement_t(statement_constructor_arg<Fragments...> arg) : clause_base<Clauses, statement_t>(arg)...
+    statement_t(statement_constructor_arg<Fragments...> arg) : Clauses{arg}...
     {
     }
 
@@ -286,11 +287,11 @@ namespace sqlpp
   };
 
   template <typename OldClause, typename... Clauses, typename NewClause>
-  auto new_statement(const clause_base<OldClause, statement_t<Clauses...>>& oldBase, NewClause newClause)
+  auto new_statement(statement_t<Clauses...> oldStatement, NewClause newClause)
       -> statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>...>
   {
     return statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>...>{
-        statement_constructor_arg(static_cast<const statement_t<Clauses...>&>(oldBase), newClause)};
+        statement_constructor_arg(oldStatement, newClause)};
   }
 
   template <typename T> struct core_statement;

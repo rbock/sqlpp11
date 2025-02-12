@@ -89,25 +89,20 @@ namespace sqlpp
   // NO WHERE YET
   struct no_where_t
   {
-  };
-
-  template <typename Statement>
-  struct clause_base<no_where_t, Statement> : public clause_data<no_where_t, Statement>
-  {
-    using clause_data<no_where_t, Statement>::clause_data;
-
-    auto unconditionally() const -> decltype(new_statement(*this, where_t<unconditional_t>{}))
+    template <typename Statement>
+#warning: consider removing "unconditionally"
+    auto unconditionally(this Statement&& statement)
     {
-      return new_statement(*this, where_t<unconditional_t>{});
+      return new_statement<no_where_t>(std::forward<Statement>(statement), where_t<unconditional_t>{});
     }
 
-    template <typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
-    auto where(Expression expression) const -> decltype(new_statement(*this, where_t<Expression>{expression}))
+    template <typename Statement, typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    auto where(this Statement&& statement, Expression expression)
     {
       SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
                           "where() must not contain aggregate functions");
 
-      return new_statement(*this, where_t<Expression>{expression});
+      return new_statement<no_where_t>(std::forward<Statement>(statement), where_t<Expression>{expression});
     }
   };
 
@@ -151,12 +146,12 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto where(T t) -> decltype(statement_t<no_where_t>().where(std::move(t)))
+  auto where(T t)
   {
     return statement_t<no_where_t>().where(std::move(t));
   }
 
-  inline auto unconditionally() -> decltype(statement_t<no_where_t>().unconditionally())
+  inline auto unconditionally()
   {
     return statement_t<no_where_t>().unconditionally();
   }
