@@ -121,7 +121,7 @@ namespace
     then_check<sqlpp::consistent_t>(t.gamma, "true");
     then_check<sqlpp::consistent_t>(t.gamma, 42);
     then_check<sqlpp::consistent_t>(t.gamma, 'c');
-    then_check<sqlpp::consistent_t>(t.gamma, nullptr);
+    then_check<sqlpp::consistent_t>(t.gamma, sqlpp::null);
 
     // Try to use an assignment as "then"
     then_check<sqlpp::assert_case_then_expression_t>(t.gamma, t.gamma = true);
