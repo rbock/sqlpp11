@@ -30,29 +30,13 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `group_by(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_group_by_with_impl : public std::false_type
-  {
-  };
-
-  template <typename... Expressions>
-  struct can_call_group_by_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::group_by(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
-
-  template <typename... Expressions>
-  struct can_call_group_by_with : public can_call_group_by_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
-
+  template<typename... Expressions>
+    concept can_call_group_by_with = requires(Expressions... expressions) {
+#warning: Do this for the other can_call_with tests, too
+      sqlpp::group_by(expressions...);
+      sqlpp::statement_t<sqlpp::no_group_by_t>{}.group_by(expressions...);
+    };
 }  // namespace
-
-namespace test {
-  SQLPP_CREATE_NAME_TAG(max_id);
-}
 
 int main()
 {
@@ -64,12 +48,12 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(), "at least one column required in group_by()");
 
   // group_by(<arguments with no value>) cannot be called.
-  static_assert(can_call_group_by_with<decltype(bar.boolNn)>::value, "OK, argument a column");
-  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>::value, "OK, argument a column");
-  static_assert(can_call_group_by_with<decltype(sqlpp::declare_group_by_column(bar.id + 7))>::value, "OK, declared group by column");
-  static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>::value, "OK, but will fail later: 7 has a value, but is not a column");
-  static_assert(not can_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not value: assignment");
-  static_assert(not can_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>::value, "not value: tuple");
+  static_assert(can_call_group_by_with<decltype(bar.boolNn)>, "OK, argument a column");
+  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>, "OK, argument a column");
+  static_assert(can_call_group_by_with<decltype(sqlpp::declare_group_by_column(bar.id + 7))>, "OK, declared group by column");
+  static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>, "OK, but will fail later: 7 has a value, but is not a column");
+  static_assert(not can_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>, "not value: assignment");
+  static_assert(not can_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>, "not value: tuple");
 
 
   // group_by(<at least one non-group-by column>) is inconsistent and cannot be constructed.

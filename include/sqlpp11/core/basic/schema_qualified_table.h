@@ -39,7 +39,7 @@ namespace sqlpp
 {
   template <typename TableSpec, typename NameTag>
   struct schema_qualified_table_as_t
-   : public TableSpec::_table_columns<schema_qualified_table_as_t<TableSpec, NameTag>>, public enable_join<schema_qualified_table_as_t<TableSpec, NameTag>>
+   : public TableSpec::template _table_columns<schema_qualified_table_as_t<TableSpec, NameTag>>, public enable_join<schema_qualified_table_as_t<TableSpec, NameTag>>
   {
     schema_qualified_table_as_t(schema_t schema) : _schema(std::move(schema))
     {

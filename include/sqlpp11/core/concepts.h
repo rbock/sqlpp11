@@ -47,4 +47,7 @@ namespace sqlpp
   template <typename T>
   concept DynamicSortOrder = is_sort_order_v<remove_dynamic_t<T>>;
 
+  template <typename T>
+  concept DynamicValue = has_value_type_v<remove_dynamic_t<T>>;
+
 }  // namespace sqlpp

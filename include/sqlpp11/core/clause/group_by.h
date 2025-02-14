@@ -38,16 +38,6 @@ namespace sqlpp
   template <typename... Columns>
   struct group_by_t
   {
-    group_by_t(Columns... columns) : _columns(columns...)
-    {
-    }
-
-    group_by_t(const group_by_t&) = default;
-    group_by_t(group_by_t&&) = default;
-    group_by_t& operator=(const group_by_t&) = default;
-    group_by_t& operator=(group_by_t&&) = default;
-    ~group_by_t() = default;
-
     std::tuple<Columns...> _columns;
   };
 
@@ -120,9 +110,8 @@ namespace sqlpp
   // NO GROUP BY YET
   struct no_group_by_t
   {
-    template <typename Statement, typename... Columns,
-              typename = std::enable_if_t<logic::all<has_value_type<remove_dynamic_t<Columns>>::value...>::value>>
-    auto group_by(this Statement&& statement, Columns... columns)
+    template <typename Statement, DynamicValue... Columns>
+    auto group_by(this Statement&& statement, Columns... columns) 
     {
       SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in group_by()");
       SQLPP_STATIC_ASSERT(
@@ -132,7 +121,7 @@ namespace sqlpp
           logic::none<contains_aggregate_function<raw_group_by_column_t<remove_dynamic_t<Columns>>>::value...>::value,
           "arguments for group_by() must not contain aggregate functions");
 
-      return new_statement<no_group_by_t>(std::forward<Statement>(statement), group_by_t<Columns...>{columns...});
+      return new_statement<no_group_by_t>(std::forward<Statement>(statement), group_by_t<Columns...>{std::make_tuple(std::move(columns)...)});
     }
   };
 
@@ -162,9 +151,9 @@ namespace sqlpp
   }
 
   template <typename... Columns>
-  auto group_by(Columns... columns)
+  auto group_by(Columns... columns) -> decltype(statement_t<no_group_by_t>{}.group_by(std::move(columns)...))
   {
-    return statement_t<no_group_by_t>().group_by(std::move(columns)...);
+    return statement_t<no_group_by_t>{}.group_by(std::move(columns)...);
   }
 
 }  // namespace sqlpp
