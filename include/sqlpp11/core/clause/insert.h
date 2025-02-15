@@ -38,35 +38,32 @@ namespace sqlpp
 {
   struct insert_t
   {
-    template <typename Statement>
-    struct _result_methods_t
-    {
-      using _statement_t = Statement;
-
-      const _statement_t& _get_statement() const
-      {
-        return static_cast<const _statement_t&>(*this);
-      }
-
-      // Execute
-      template <typename Db>
-      auto _run(Db& db) const -> decltype(db.insert(this->_get_statement()))
-      {
-        return db.insert(_get_statement());
-      }
-
-      // Prepare
-      template <typename Db>
-      auto _prepare(Db& db) const -> prepared_insert_t<Db, _statement_t>
-      {
-        return {{}, db.prepare_insert(_get_statement())};
-      }
-    };
   };
 
   template <>
   struct is_clause<insert_t> : public std::true_type
   {
+  };
+
+  template <>
+  struct result_methods_of<insert_t>
+  {
+    struct type
+    {
+      // Execute
+      template <typename Statement, typename Db>
+      auto _run(this Statement&& statement, Db& db)
+      {
+        return db.insert(std::forward<Statement>(statement));
+      }
+
+      // Prepare
+      template <typename Statement, typename Db>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_insert_t<Db, std::decay_t<Statement>>
+      {
+        return {{}, db.prepare_insert(std::forward<Statement>(statement))};
+      }
+    };
   };
 
   template<typename Statement>

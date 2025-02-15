@@ -72,10 +72,8 @@ namespace sqlpp
 
   struct no_offset_t
   {
-    template <typename Statement,
-              typename Arg,
-              typename = std::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or
-                                          is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
+    template <typename Statement, typename Arg>
+      requires(is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value)
     auto offset(this Statement&& statement, Arg arg)
     {
       return new_statement<no_offset_t>(std::forward<Statement>(statement), offset_t<Arg>{std::move(arg)});
@@ -109,9 +107,10 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto offset(T&& t)
+      requires(is_integral<remove_dynamic_t<T>>::value or is_unsigned_integral<remove_dynamic_t<T>>::value)
+  auto offset(T t)
   {
-    return statement_t<no_offset_t>().offset(std::forward<T>(t));
+    return statement_t<no_offset_t>().offset(std::move(t));
   }
 
 }  // namespace sqlpp

@@ -66,8 +66,8 @@ namespace sqlpp
   struct no_select_flag_list_t
   {
     template <typename Statement,
-              typename... Flags,
-              typename = std::enable_if_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value>>
+              typename... Flags>
+              requires(logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)
     auto flags(this Statement&& statement, Flags... flags)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Flags), "at least one flag required in select_flags()");
@@ -98,10 +98,11 @@ namespace sqlpp
     return tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{""});
   }
 
-  template <typename... T>
-  auto select_flags(T... t)
+  template <typename... Flags>
+              requires(logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)
+  auto select_flags(Flags... flags)
   {
-    return statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)...);
+    return statement_t<no_select_flag_list_t>().flags(std::move(flags)...);
   }
 
 }  // namespace sqlpp

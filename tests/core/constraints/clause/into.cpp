@@ -26,21 +26,26 @@
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
 
-namespace test
+namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `into(declval<Expression>())` is a valid function call.
-  template <typename Expression, typename = void>
-  struct can_call_into_with : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_into_with_standalone = requires(Expressions... expressions) {
+    sqlpp::into(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_into_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_into_t>{}.into(expressions...);
   };
 
-  template <typename Expression>
-  struct can_call_into_with<Expression, std::void_t<decltype(sqlpp::into(std::declval<Expression>()))>>
-      : public std::true_type
-  {
-  };
+  template <typename... Expressions>
+  concept can_call_into_with =
+      can_call_into_with_standalone<Expressions...> and can_call_into_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_into_with =
+      not(can_call_into_with_standalone<Expressions...> or can_call_into_with_in_statement<Expressions...>);
 };
 
 int main()
@@ -49,11 +54,11 @@ int main()
   const auto bar = test::TabBar{};
 
   // into() arg must be a table
-  static_assert(test::can_call_into_with<decltype(bar)>::value, "");
-  static_assert(not test::can_call_into_with<decltype(bar.as(test::something))>::value, "");
-  static_assert(not test::can_call_into_with<decltype(bar.id)>::value, "");
-  static_assert(not test::can_call_into_with<decltype(foo.join(bar))>::value, "");
-  static_assert(not test::can_call_into_with<decltype(foo.cross_join(bar))>::value, "");
+  static_assert(can_call_into_with<decltype(bar)>::value, "");
+  static_assert(cannot_call_into_with<decltype(bar.as(test::something))>::value, "");
+  static_assert(cannot_call_into_with<decltype(bar.id)>::value, "");
+  static_assert(cannot_call_into_with<decltype(foo.join(bar))>::value, "");
+  static_assert(cannot_call_into_with<decltype(foo.cross_join(bar))>::value, "");
 
   // Try omitting required into
   {

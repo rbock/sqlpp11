@@ -30,17 +30,22 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `single_table(declval<Expression>())` is a valid function call.
-  template <typename Expression, typename = void>
-  struct can_call_single_table_with : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_single_table_with_standalone = requires(Expressions... expressions) {
+    sqlpp::single_table(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_single_table_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_single_table_t>{}.single_table(expressions...);
   };
 
-  template <typename Expression>
-  struct can_call_single_table_with<Expression, std::void_t<decltype(sqlpp::single_table(std::declval<Expression>()))>>
-      : public std::true_type
-  {
-  };
+  template <typename... Expressions>
+  concept can_call_single_table_with =
+      can_call_single_table_with_standalone<Expressions...> and can_call_single_table_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_single_table_with =
+      not(can_call_single_table_with_standalone<Expressions...> or can_call_single_table_with_in_statement<Expressions...>);
 }  // namespace
 
 int main()
@@ -51,27 +56,27 @@ int main()
   const auto c = cte(something).as(select(bar.id).from(bar).where(true));
 
   // OK
-  static_assert(can_call_single_table_with<decltype(bar)>::value);
+  static_assert(can_call_single_table_with<decltype(bar)>);
 
   // Try dyanamic table
-  static_assert(not can_call_single_table_with<decltype(dynamic(maybe, bar))>::value);
+  static_assert(cannot_call_single_table_with<decltype(dynamic(maybe, bar))>);
 
   // Try assignment as table
-  static_assert(not can_call_single_table_with<decltype(bar.boolNn = true)>::value);
+  static_assert(cannot_call_single_table_with<decltype(bar.boolNn = true)>);
 
   // Try a column
-  static_assert(not can_call_single_table_with<decltype(bar.id)>::value);
+  static_assert(cannot_call_single_table_with<decltype(bar.id)>);
 
   // Try some other types as tables
-  static_assert(not can_call_single_table_with<decltype("true")>::value);
-  static_assert(not can_call_single_table_with<decltype(17)>::value);
-  static_assert(not can_call_single_table_with<decltype('c')>::value);
-  static_assert(not can_call_single_table_with<decltype(nullptr)>::value);
+  static_assert(cannot_call_single_table_with<decltype("true")>);
+  static_assert(cannot_call_single_table_with<decltype(17)>);
+  static_assert(cannot_call_single_table_with<decltype('c')>);
+  static_assert(cannot_call_single_table_with<decltype(nullptr)>);
 
   // Cannot call with cte or table alias.
-  static_assert(not can_call_single_table_with<decltype(bar.as(something))>::value);
-  static_assert(not can_call_single_table_with<decltype(c)>::value);
-  static_assert(not can_call_single_table_with<decltype(foo.cross_join(bar))>::value);
+  static_assert(cannot_call_single_table_with<decltype(bar.as(something))>);
+  static_assert(cannot_call_single_table_with<decltype(c)>);
+  static_assert(cannot_call_single_table_with<decltype(foo.cross_join(bar))>);
 
   // `single_table` is required
   {

@@ -30,41 +30,26 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `declval<Lhs>().as(declval<Rhs>)` is a valid function call.
-  template <typename Lhs, typename Rhs, typename = void>
-  struct can_call_cte_as_with : public std::false_type
-  {
-  };
-
-  template <typename Lhs, typename Rhs>
-  struct can_call_cte_as_with<Lhs, Rhs, std::void_t<decltype(std::declval<Lhs>().as(std::declval<Rhs>()))>>
-      : public std::true_type
-  {
-  };
+  template<typename Lhs, typename Rhs>
+    concept can_call_cte_as_with = requires(Lhs lhs, Rhs rhs) {
+      lhs.as(rhs);
+    };
 
   // Returns true if `declval<Lhs>().UNION(declval<Rhs>)` is a valid function call.
 #define MAKE_CAN_CALL_CTE_UNION_WITH(UNION) \
-  template <typename Lhs, typename Rhs, typename = void>\
-  struct can_call_cte_##UNION##_with : public std::false_type\
-  {\
-  };\
-\
-  template <typename Lhs, typename Rhs>\
-  struct can_call_cte_##UNION##_with<Lhs, Rhs, std::void_t<decltype(std::declval<Lhs>().UNION(std::declval<Rhs>()))>>\
-      : public std::true_type\
-  {\
-  };
+  template <typename Lhs, typename Rhs>     \
+  concept can_call_cte_##UNION##_with = requires(Lhs lhs, Rhs rhs) { lhs.UNION(rhs); };
 
-MAKE_CAN_CALL_CTE_UNION_WITH(union_all);
-MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
+  MAKE_CAN_CALL_CTE_UNION_WITH(union_all);
+  MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
 
 #define CAN_CALL_ALL_CTE_UNIONS_WITH(LHS, RHS) \
-  static_assert(can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>::value, "");\
-  static_assert(can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>::value, "");
+  static_assert(can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>, "");\
+  static_assert(can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
 
 #define CANNOT_CALL_ANY_UNION_WITH(LHS, RHS) \
-  static_assert(not can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>::value, "");\
-  static_assert(not can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>::value, "");
+  static_assert(not can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>, "");\
+  static_assert(not can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
 
 #define CHECK_CTE_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE)     \
 SQLPP_CHECK_STATIC_ASSERT(LHS.union_all(RHS), MESSAGE); \
@@ -87,17 +72,17 @@ int main()
   const auto cte = sqlpp::cte(something).as(s1);
 
   // OK
-  static_assert(can_call_cte_as_with<decltype(ref), decltype(s1)>::value, "");
-  static_assert(can_call_cte_as_with<decltype(ref), decltype(s2)>::value, "");
+  static_assert(can_call_cte_as_with<decltype(ref), decltype(s1)>, "");
+  static_assert(can_call_cte_as_with<decltype(ref), decltype(s2)>, "");
 
   // No statement
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo)>::value, "");
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo.id)>::value, "");
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(all_of(foo))>::value, "");
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo)>, "");
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo.id)>, "");
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(all_of(foo))>, "");
 
   // No statement
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(insert_into(foo))>::value, "");
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>::value, "");
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(insert_into(foo))>, "");
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>, "");
 
   // Missing where condition
   SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s1), "calling where() or unconditionally() required");

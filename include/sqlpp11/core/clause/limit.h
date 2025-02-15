@@ -72,7 +72,8 @@ namespace sqlpp
 
   struct no_limit_t
   {
-    template <typename Statement, typename Arg, typename = std::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
+    template <typename Statement, typename Arg>
+      requires(is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value)
     auto limit(this Statement&& statement, Arg arg)
     {
       return new_statement<no_limit_t>(std::forward<Statement>(statement), limit_t<Arg>{std::move(arg)});
@@ -109,9 +110,10 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto limit(T&& t)
+      requires(is_integral<remove_dynamic_t<T>>::value or is_unsigned_integral<remove_dynamic_t<T>>::value)
+  auto limit(T t)
   {
-    return statement_t<no_limit_t>().limit(std::forward<T>(t));
+    return statement_t<no_limit_t>().limit(std::move(t));
   }
 
 }  // namespace sqlpp

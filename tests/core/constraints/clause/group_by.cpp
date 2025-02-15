@@ -30,12 +30,23 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  template<typename... Expressions>
-    concept can_call_group_by_with = requires(Expressions... expressions) {
-#warning: Do this for the other can_call_with tests, too
-      sqlpp::group_by(expressions...);
-      sqlpp::statement_t<sqlpp::no_group_by_t>{}.group_by(expressions...);
-    };
+#warning : Do this for the other can_call_with tests, too
+  template <typename... Expressions>
+  concept can_call_group_by_with_standalone = requires(Expressions... expressions) {
+    sqlpp::group_by(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_group_by_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_group_by_t>{}.group_by(expressions...);
+  };
+
+  template <typename... Expressions>
+  concept can_call_group_by_with =
+      can_call_group_by_with_standalone<Expressions...> and can_call_group_by_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_group_by_with =
+      not(can_call_group_by_with_standalone<Expressions...> or can_call_group_by_with_in_statement<Expressions...>);
 }  // namespace
 
 int main()
@@ -52,8 +63,8 @@ int main()
   static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>, "OK, argument a column");
   static_assert(can_call_group_by_with<decltype(sqlpp::declare_group_by_column(bar.id + 7))>, "OK, declared group by column");
   static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>, "OK, but will fail later: 7 has a value, but is not a column");
-  static_assert(not can_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>, "not value: assignment");
-  static_assert(not can_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>, "not value: tuple");
+  static_assert(cannot_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>, "not value: assignment");
+  static_assert(cannot_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>, "not value: tuple");
 
 
   // group_by(<at least one non-group-by column>) is inconsistent and cannot be constructed.

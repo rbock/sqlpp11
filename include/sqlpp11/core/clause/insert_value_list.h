@@ -200,8 +200,7 @@ namespace sqlpp
       return new_statement<no_insert_value_list_t>(std::forward<Statement>(statement), insert_default_values_t{});
     }
 
-    template <typename Statement, typename... Columns,
-              typename = std::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
+    template <typename Statement, DynamicColumn... Columns>
     auto columns(this Statement&& statement, Columns... cols)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in columns()");
@@ -210,11 +209,10 @@ namespace sqlpp
       SQLPP_STATIC_ASSERT(detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
                           "columns() contains columns from several tables");
 
-      return new_statement<no_insert_value_list_t>(std::forward<Statement>(statement), column_list_t<Columns...>{cols...});
+      return new_statement<no_insert_value_list_t>(std::forward<Statement>(statement), column_list_t<Columns...>{std::make_tuple(std::move(cols)...), {}});
     }
 
-    template <typename Statement, typename... Assignments,
-              typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+    template <typename Statement, DynamicAssignment... Assignments>
     auto set(this Statement&& statement, Assignments... assignments)
     {
       SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
@@ -344,13 +342,13 @@ namespace sqlpp
     return statement_t<no_insert_value_list_t>().default_values();
   }
 
-  template <typename... Assignments>
+  template <DynamicAssignment... Assignments>
   auto insert_set(Assignments... assignments)
   {
     return statement_t<no_insert_value_list_t>().set(assignments...);
   }
 
-  template <typename... Columns>
+  template <DynamicColumn... Columns>
   auto insert_columns(Columns... cols)
   {
     return statement_t<no_insert_value_list_t>().columns(cols...);

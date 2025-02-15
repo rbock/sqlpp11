@@ -50,4 +50,10 @@ namespace sqlpp
   template <typename T>
   concept DynamicValue = has_value_type_v<remove_dynamic_t<T>>;
 
+  template <typename T>
+  concept DynamicColumn = is_column_v<remove_dynamic_t<T>>;
+
+  template <typename T>
+  concept DynamicAssignment = is_assignment_v<remove_dynamic_t<T>>;
+
 }  // namespace sqlpp

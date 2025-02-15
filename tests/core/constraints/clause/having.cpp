@@ -30,17 +30,22 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `having(declval<Expression>())` is a valid function call.
-  template <typename Expression, typename = void>
-  struct can_call_having_with : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_having_with_standalone = requires(Expressions... expressions) {
+    sqlpp::having(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_having_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_having_t>{}.having(expressions...);
   };
 
-  template <typename Expression>
-  struct can_call_having_with<Expression, std::void_t<decltype(sqlpp::having(std::declval<Expression>()))>>
-      : public std::true_type
-  {
-  };
+  template <typename... Expressions>
+  concept can_call_having_with =
+      can_call_having_with_standalone<Expressions...> and can_call_having_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_having_with =
+      not(can_call_having_with_standalone<Expressions...> or can_call_having_with_in_statement<Expressions...>);
 }  // namespace
 
 int main()
@@ -50,23 +55,23 @@ int main()
   const auto foo = test::TabFoo{};
 
     // OK
-  static_assert(can_call_having_with<decltype(bar.boolNn)>::value, "");
-  static_assert(can_call_having_with<decltype(bar.boolNn == true)>::value, "");
+  static_assert(can_call_having_with<decltype(bar.boolNn)>, "");
+  static_assert(can_call_having_with<decltype(bar.boolNn == true)>, "");
 
   // Try assignment as condition
-  static_assert(not can_call_having_with<decltype(bar.boolNn = true)>::value, "");
+  static_assert(cannot_call_having_with<decltype(bar.boolNn = true)>, "");
 
   // Try non-boolean expression
-  static_assert(not can_call_having_with<decltype(bar.id)>::value, "");
+  static_assert(cannot_call_having_with<decltype(bar.id)>, "");
 
   // Try some other types as expressions
-  static_assert(not can_call_having_with<decltype("true")>::value, "");
-  static_assert(not can_call_having_with<decltype(17)>::value, "");
-  static_assert(not can_call_having_with<decltype('c')>::value, "");
-  static_assert(not can_call_having_with<decltype(nullptr)>::value, "");
+  static_assert(cannot_call_having_with<decltype("true")>, "");
+  static_assert(cannot_call_having_with<decltype(17)>, "");
+  static_assert(cannot_call_having_with<decltype('c')>, "");
+  static_assert(cannot_call_having_with<decltype(nullptr)>, "");
 
   // Try alias bool column (can only be used as select column, but not as a value in `having`).
-  static_assert(not can_call_having_with<decltype(bar.boolNn.as(something))>::value, "");
+  static_assert(cannot_call_having_with<decltype(bar.boolNn.as(something))>, "");
 
   // --------------------------------
   // consistency checks

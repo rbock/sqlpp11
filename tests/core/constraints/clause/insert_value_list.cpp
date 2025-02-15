@@ -28,43 +28,39 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
-  // Returns true if `insert_set(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_insert_set_with_impl : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_insert_set_with_standalone = requires(Expressions... expressions) {
+    sqlpp::insert_set(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_insert_set_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_insert_value_list_t>{}.set(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_insert_set_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::insert_set(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
+  concept can_call_insert_set_with =
+      can_call_insert_set_with_standalone<Expressions...> and can_call_insert_set_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_insert_set_with =
+      not(can_call_insert_set_with_standalone<Expressions...> or can_call_insert_set_with_in_statement<Expressions...>);
+
+  template <typename... Expressions>
+  concept can_call_insert_columns_with_standalone = requires(Expressions... expressions) {
+    sqlpp::insert_columns(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_insert_columns_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_insert_value_list_t>{}.columns(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_insert_set_with : public can_call_insert_set_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
+  concept can_call_insert_columns_with =
+      can_call_insert_columns_with_standalone<Expressions...> and can_call_insert_columns_with_in_statement<Expressions...>;
 
-  // Returns true if `insert_columns(declval<Columns>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_insert_columns_with_impl : public std::false_type
-  {
-  };
-
-  template <typename... Columns>
-  struct can_call_insert_columns_with_impl<sqlpp::detail::type_vector<Columns...>,
-                                  std::void_t<decltype(sqlpp::insert_columns(std::declval<Columns>()...))>>
-      : public std::true_type
-  {
-  };
-
-  template <typename... Columns>
-  struct can_call_insert_columns_with : public can_call_insert_columns_with_impl<sqlpp::detail::type_vector<Columns...>>
-  {
-  };
+  template <typename... Expressions>
+  concept cannot_call_insert_columns_with =
+      not(can_call_insert_columns_with_standalone<Expressions...> or can_call_insert_columns_with_in_statement<Expressions...>);
 
 }  // namespace
 
@@ -86,9 +82,9 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(), "at least one assignment expression required in set()");
 
   // insert_set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
-  static_assert(can_call_insert_set_with<decltype(bar.id = 7)>::value, "assignment is OK");
-  static_assert(not can_call_insert_set_with<decltype(bar.id == 7)>::value, "not an assignment: comparison");
-  static_assert(not can_call_insert_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not an assignment: boolNn");
+  static_assert(can_call_insert_set_with<decltype(bar.id = 7)>, "assignment is OK");
+  static_assert(cannot_call_insert_set_with<decltype(bar.id == 7)>, "not an assignment: comparison");
+  static_assert(cannot_call_insert_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>, "not an assignment: boolNn");
 
   // insert_into(table).set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.boolNn = true, bar.boolNn = false), "at least one duplicate column detected in set()");
@@ -127,8 +123,8 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(), "at least one column required in columns()");
 
   // insert_into(table).columns(<arguments including non-columns>) is inconsistent and cannot be constructed.
-  static_assert(can_call_insert_columns_with<decltype(bar.id)>::value, "OK, argument is a column");
-  static_assert(not can_call_insert_columns_with<decltype(bar.id = 7)>::value, "OK, argument is not a column");
+  static_assert(can_call_insert_columns_with<decltype(bar.id)>, "OK, argument is a column");
+  static_assert(cannot_call_insert_columns_with<decltype(bar.id = 7)>, "OK, argument is not a column");
 
   // insert_into(table).columns(<arguments including non-columns>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.boolNn, bar.id, bar.boolNn), "at least one duplicate column detected in columns()");

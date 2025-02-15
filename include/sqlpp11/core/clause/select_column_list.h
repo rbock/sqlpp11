@@ -68,50 +68,6 @@ namespace sqlpp
 
     std::tuple<Columns...> _columns;
 
-    // Result methods
-    template <typename Statement>
-    struct _result_methods_t
-    {
-      using _statement_t = Statement;
-
-      const _statement_t& _get_statement() const
-      {
-        return static_cast<const _statement_t&>(*this);
-      }
-
-      using _result_row_t = result_row_t<make_field_spec_t<_statement_t, Columns>...>;
-
-      template <typename NameTagProvider>
-      auto as(const NameTagProvider&) const
-          -> select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>
-      {
-        // This ensures that the sub select is free of table/CTE dependencies and consistent (e.g. not missing where
-        // condition).
-        statement_prepare_check_t<_statement_t>::verify();
-
-        using table = select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>;
-        return table(_get_statement());
-      }
-
-      size_t get_no_of_result_columns() const
-      {
-        return sizeof...(Columns);
-      }
-
-      // Execute
-      template <typename Db>
-      auto _run(Db& db) const -> result_t<decltype(db.select(std::declval<_statement_t>())), _result_row_t>
-      {
-        return {db.select(_get_statement())};
-      }
-
-      // Prepare
-      template <typename Db>
-      auto _prepare(Db& db) const -> prepared_select_t<Db, _statement_t>
-      {
-        return {{}, db.prepare_select(_get_statement())};
-      }
-    };
   };
 
   template <typename... Columns>
@@ -122,6 +78,54 @@ namespace sqlpp
   template <typename... Columns>
   struct has_result_row<select_column_list_t<Columns...>> : public std::true_type
   {
+  };
+
+  template <typename Statement, typename... Columns>
+  struct result_row_of<Statement, select_column_list_t<Columns...>>
+  {
+    using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
+  };
+
+  template <typename... Columns>
+  struct result_methods_of<select_column_list_t<Columns...>>
+  {
+    struct type
+    {
+      template <typename Statement, typename NameTagProvider>
+      auto as(this Statement&& statement, const NameTagProvider&)
+          -> select_as_t<std::decay_t<Statement>,
+                         name_tag_of_t<NameTagProvider>,
+                         make_field_spec_t<std::decay_t<Statement>, Columns>...>
+      {
+        // This ensures that the sub select is free of table/CTE dependencies and consistent (e.g. not missing where
+        // condition).
+        statement_prepare_check_t<std::decay_t<Statement>>::verify();
+
+        using table = select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
+                                  make_field_spec_t<std::decay_t<Statement>, Columns>...>;
+        return table(std::forward<Statement>(statement));
+      }
+
+      size_t get_no_of_result_columns() const
+      {
+        return sizeof...(Columns);
+      }
+
+      // Execute
+      template <typename Statement, typename Db>
+      auto _run(this Statement&& statement, Db& db)
+          -> result_t<decltype(db.select(std::declval<std::decay_t<Statement>>())), result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>>
+      {
+        return {db.select(std::forward<Statement>(statement))};
+      }
+
+      // Prepare
+      template <typename Statement, typename Db>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_select_t<Db, std::decay_t<Statement>>
+      {
+        return {{}, db.prepare_select(std::forward<Statement>(statement))};
+      }
+    };
   };
 
   template <typename Statement, typename... Columns>

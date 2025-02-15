@@ -38,30 +38,6 @@ namespace sqlpp
 {
   struct delete_t
   {
-    template <typename Statement>
-    struct _result_methods_t
-    {
-      using _statement_t = Statement;
-
-      const _statement_t& _get_statement() const
-      {
-        return static_cast<const _statement_t&>(*this);
-      }
-
-      // Execute
-      template <typename Db>
-      auto _run(Db& db) const -> decltype(db.remove(this->_get_statement()))
-      {
-        return db.remove(_get_statement());
-      }
-
-      // Prepare
-      template <typename Db>
-      auto _prepare(Db& db) const -> prepared_delete_t<Db, _statement_t>
-      {
-        return {{}, db.prepare_remove(_get_statement())};
-      }
-    };
   };
 
   template <>
@@ -74,6 +50,27 @@ namespace sqlpp
 
   template<>
     struct is_result_clause<delete_t> : public std::true_type {};
+
+  template <>
+  struct result_methods_of<delete_t>
+  {
+    struct type
+    {
+      // Execute
+      template <typename Statement, typename Db>
+      auto _run(this Statement&& statement, Db& db) -> decltype(db.remove(std::forward<Statement>(statement)))
+      {
+        return db.remove(std::forward<Statement>(statement));
+      }
+
+      // Prepare
+      template <typename Statement, typename Db>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_delete_t<Db, std::decay_t<Statement>>
+      {
+        return {{}, db.prepare_remove(std::forward<Statement>(statement))};
+      }
+    };
+  };
 
   template <typename Context>
   auto to_sql_string(Context& , const delete_t&) -> std::string

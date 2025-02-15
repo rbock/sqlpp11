@@ -28,31 +28,23 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
-  // Returns true if `order_by(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_order_by_with_impl : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_order_by_with_standalone = requires(Expressions... expressions) {
+    sqlpp::order_by(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_order_by_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_order_by_t>{}.order_by(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_order_by_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::order_by(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
+  concept can_call_order_by_with =
+      can_call_order_by_with_standalone<Expressions...> and can_call_order_by_with_in_statement<Expressions...>;
 
   template <typename... Expressions>
-  struct can_call_order_by_with : public can_call_order_by_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
-
+  concept cannot_call_order_by_with =
+      not(can_call_order_by_with_standalone<Expressions...> or can_call_order_by_with_in_statement<Expressions...>);
 }  // namespace
-
-namespace test {
-  SQLPP_CREATE_NAME_TAG(max_id);
-}
 
 int main()
 {
@@ -64,13 +56,13 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(), "at least one sort-order expression (e.g. column.asc()) required in order_by()");
 
   // order_by(<non-sort-order arguments>) cannot be called.
-  static_assert(can_call_order_by_with<decltype(bar.boolNn.asc())>::value, "OK, argument a column ascending");
-  static_assert(can_call_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc()))>::value, "OK, argument a dynamic column");
-  static_assert(can_call_order_by_with<decltype((bar.id + 7).asc())>::value, "OK, declared order by column");
-  static_assert(not can_call_order_by_with<decltype(bar.id)>::value, "not sort order: column");
-  static_assert(not can_call_order_by_with<decltype(7)>::value, "not sort order: integer");
-  static_assert(not can_call_order_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not sort order: assignment");
-  static_assert(not can_call_order_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>::value, "not sort order: tuple");
+  static_assert(can_call_order_by_with<decltype(bar.boolNn.asc())>, "OK, argument a column ascending");
+  static_assert(can_call_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc()))>, "OK, argument a dynamic column");
+  static_assert(can_call_order_by_with<decltype((bar.id + 7).asc())>, "OK, declared order by column");
+  static_assert(cannot_call_order_by_with<decltype(bar.id)>, "not sort order: column");
+  static_assert(cannot_call_order_by_with<decltype(7)>, "not sort order: integer");
+  static_assert(cannot_call_order_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>, "not sort order: assignment");
+  static_assert(cannot_call_order_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>, "not sort order: tuple");
 
   // order_by(<duplicate sort order expressions>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(bar.id.asc(), bar.id.asc()), "at least one duplicate argument detected in order_by()");

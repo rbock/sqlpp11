@@ -28,26 +28,22 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
-  // Returns true if `select_flags(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_select_flags_with_impl : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_select_flags_with_standalone = requires(Expressions... expressions) {
+    sqlpp::select_flags(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_select_flags_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_select_flag_list_t>{}.flags(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_select_flags_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::select_flags(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
+  concept can_call_select_flags_with =
+      can_call_select_flags_with_standalone<Expressions...> and can_call_select_flags_with_in_statement<Expressions...>;
 
   template <typename... Expressions>
-  struct can_call_select_flags_with : public can_call_select_flags_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
-
+  concept cannot_call_select_flags_with =
+      not(can_call_select_flags_with_standalone<Expressions...> or can_call_select_flags_with_in_statement<Expressions...>);
 }  // namespace
 
 
@@ -63,11 +59,11 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_flags(), "at least one flag required in select_flags()");
 
   // select_flags requires select flags as arguments
-  static_assert(can_call_select_flags_with<decltype(sqlpp::all)>::value, "");
-  static_assert(not can_call_select_flags_with<decltype(sqlpp::union_all_t{})>::value, "");
-  static_assert(not can_call_select_flags_with<decltype("all")>::value, "");
-  static_assert(not can_call_select_flags_with<decltype(sqlpp::distinct, sqlpp::union_all_t{})>::value, "");
-  static_assert(not can_call_select_flags_with<decltype(sqlpp::distinct, "all")>::value, "");
+  static_assert(can_call_select_flags_with<decltype(sqlpp::all)>, "");
+  static_assert(cannot_call_select_flags_with<decltype(sqlpp::union_all_t{})>, "");
+  static_assert(cannot_call_select_flags_with<decltype("all")>, "");
+  static_assert(cannot_call_select_flags_with<decltype(sqlpp::distinct, sqlpp::union_all_t{})>, "");
+  static_assert(cannot_call_select_flags_with<decltype(sqlpp::distinct, "all")>, "");
 
   // Try duplicate flags
   SQLPP_CHECK_STATIC_ASSERT(select_flags(sqlpp::all, sqlpp::all), "at least one duplicate argument detected in select_flags()");

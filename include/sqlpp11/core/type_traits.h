@@ -194,6 +194,9 @@ namespace sqlpp
   };
 
   template <typename T>
+  static inline constexpr bool is_assignment_v = is_assignment<T>::value;
+
+  template <typename T>
   struct lhs
   {
     using type = void;
@@ -254,6 +257,9 @@ namespace sqlpp
 
   template <typename T>
   struct is_column : public std::false_type{};
+
+  template <typename T>
+  static inline constexpr bool is_column_v = is_column<T>::value;
 
   template <typename NameTagProvider, typename Member>
   using member_t = typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
@@ -392,6 +398,7 @@ namespace sqlpp
 
   template <typename Statement>
   using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;
+
   template<typename Statement>
     struct statement_run_check
   {
@@ -400,6 +407,23 @@ namespace sqlpp
 
   template <typename Statement>
   using statement_run_check_t = typename statement_run_check<Statement>::type;
+
+  template<typename Clause>
+    struct result_methods_of
+  {
+  };
+
+  template <typename Clause>
+  using result_methods_of_t = typename result_methods_of<Clause>::type;
+
+  template<typename Statement, typename Clause>
+    struct result_row_of
+  {
+    using type = void;
+  };
+
+  template <typename Statement, typename Clause>
+  using result_row_of_t = typename result_row_of<Statement, Clause>::type;
 
   template <typename T>
   struct is_select_column

@@ -50,9 +50,6 @@ namespace sqlpp
     union_t& operator=(union_t&&) = default;
     ~union_t() = default;
 
-    template <typename Statement>
-    using _result_methods_t = typename Lhs::_result_methods_t;
-
     Lhs _lhs;
     Rhs _rhs;
   };
@@ -61,6 +58,13 @@ namespace sqlpp
   struct has_result_row<union_t<Flag, Lhs, Rhs>> : public std::true_type
   {
   };
+
+  template <typename Flag, typename Lhs, typename Rhs>
+    struct result_methods_of<union_t<Flag, Lhs, Rhs>>
+    {
+    using type = result_methods_of_t<Lhs>;
+    };
+
 
   template <typename Flag, typename Lhs, typename Rhs>
   struct is_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type
@@ -106,24 +110,26 @@ namespace sqlpp
 
   struct no_union_t
   {
-    template <typename Statement, typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    template <typename Statement, typename Rhs> requires(is_statement<remove_dynamic_t<Rhs>>::value)
     auto union_distinct(this Statement&& statement, Rhs rhs)
     {
-      check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
+      using S = std::decay_t<Statement>;
+      check_union_args_t<S, remove_dynamic_t<Rhs>>::verify();
 
-      return statement_t<union_t<union_distinct_t, Statement, Rhs>, no_union_t>{
-          statement_constructor_arg<union_t<union_distinct_t, Statement, Rhs>, no_union_t>{
-              union_t<union_distinct_t, Statement, Rhs>{std::forward<Statement>(statement), rhs}, no_union_t{}}};
+      return statement_t<union_t<union_distinct_t, S, Rhs>, no_union_t>{
+          statement_constructor_arg<union_t<union_distinct_t, S, Rhs>, no_union_t>{
+              union_t<union_distinct_t, S, Rhs>{std::forward<Statement>(statement), rhs}, no_union_t{}}};
     }
 
-    template <typename Statement, typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    template <typename Statement, typename Rhs> requires(is_statement<remove_dynamic_t<Rhs>>::value)
     auto union_all(this Statement&& statement, Rhs rhs)
     {
-      check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
+      using S = std::decay_t<Statement>;
+      check_union_args_t<S, remove_dynamic_t<Rhs>>::verify();
 
-      return statement_t<union_t<union_all_t, Statement, Rhs>, no_union_t>{
-          statement_constructor_arg<union_t<union_all_t, Statement, Rhs>, no_union_t>{
-              union_t<union_all_t, Statement, Rhs>{std::forward<Statement>(statement), rhs}, no_union_t{}}};
+      return statement_t<union_t<union_all_t, S, Rhs>, no_union_t>{
+          statement_constructor_arg<union_t<union_all_t, S, Rhs>, no_union_t>{
+              union_t<union_all_t, S, Rhs>{std::forward<Statement>(statement), rhs}, no_union_t{}}};
     }
   };
 
@@ -162,12 +168,14 @@ namespace sqlpp
   }
 
   template <typename Lhs, typename Rhs>
+    requires(is_statement<Lhs>::value and is_statement<remove_dynamic_t<Rhs>>::value)
   auto union_all(Lhs lhs, Rhs rhs)
   {
     return lhs.union_all(std::move(rhs));
   }
 
   template <typename Lhs, typename Rhs>
+    requires(is_statement<Lhs>::value and is_statement<remove_dynamic_t<Rhs>>::value)
   auto union_distinct(Lhs lhs, Rhs rhs)
   {
     return lhs.union_distinct(std::move(rhs));

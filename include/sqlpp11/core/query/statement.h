@@ -60,7 +60,7 @@ namespace sqlpp
                                "cannot run statements with parameters directly, use prepare instead");
 
   template <typename... Clauses>
-    using result_methods_t = typename result_type_provider_t<Clauses...>::template _result_methods_t<statement_t<Clauses...>>;
+    using result_methods_t = result_methods_of_t<result_type_provider_t<Clauses...>>;
 
   template <typename... Clauses>
   struct statement_t : public Clauses...,
@@ -161,6 +161,12 @@ namespace sqlpp
     }
   };
 
+  template <typename... Clauses>
+    struct result_methods_of<statement_t<Clauses...>>
+    {
+      using type = result_methods_t<Clauses...>;
+    };
+
   template<typename... Clauses>
     struct is_statement<statement_t<Clauses...>> : public std::true_type {};
 
@@ -185,8 +191,7 @@ namespace sqlpp
   template <typename... Clauses>
   struct get_result_row<statement_t<Clauses...>> 
   {
-    using type = typename detail::get_result_row_impl<statement_t<Clauses...>,
-                                                      has_result_row<statement_t<Clauses...>>::value>::type;
+    using type = result_row_of_t<statement_t<Clauses...>, result_methods_t<Clauses...>>;
   };
 
   template<typename... Clauses>

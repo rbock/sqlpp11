@@ -150,8 +150,8 @@ namespace sqlpp
     return " GROUP BY " + columns;
   }
 
-  template <typename... Columns>
-  auto group_by(Columns... columns) -> decltype(statement_t<no_group_by_t>{}.group_by(std::move(columns)...))
+  template <DynamicValue... Columns>
+  auto group_by(Columns... columns)
   {
     return statement_t<no_group_by_t>{}.group_by(std::move(columns)...);
   }

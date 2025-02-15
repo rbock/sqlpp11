@@ -35,28 +35,41 @@ namespace sqlpp
   struct noop
   {
     // This represents a void result.
-    template <typename Statement>
     struct _result_methods_t
     {
-      using _statement_t = Statement;
-
-      const _statement_t& _get_statement() const
-      {
-        return static_cast<const _statement_t&>(*this);
-      }
-
       // Execute
-      template <typename Db>
-      auto _run(Db& db) const -> size_t
+      template <typename Statement, typename Db>
+      auto _run(this Statement&& statement, Db& db)
       {
-        return db.execute(_get_statement());
+        return db.execute(std::forward<Statement>(statement));
       }
 
       // Prepare
-      template <typename Db>
-      auto _prepare(Db& db) const -> prepared_execute_t<Db, _statement_t>
+      template <typename Statement, typename Db>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_execute_t<Db, std::decay_t<Statement>>
       {
-        return {{}, db.prepare_execute(_get_statement())};
+        return {{}, db.prepare_execute(std::forward<Statement>(statement))};
+      }
+    };
+  };
+
+  template <>
+  struct result_methods_of<noop>
+  {
+    struct type
+    {
+      // Execute
+      template <typename Statement, typename Db>
+      auto _run(this Statement&& statement, Db& db)
+      {
+        return db.execute(std::forward<Statement>(statement));
+      }
+
+      // Prepare
+      template <typename Statement, typename Db>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_execute_t<Db, std::decay_t<Statement>>
+      {
+        return {{}, db.prepare_execute(std::forward<Statement>(statement))};
       }
     };
   };

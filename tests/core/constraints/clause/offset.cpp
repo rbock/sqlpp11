@@ -28,19 +28,22 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
-  // Returns true if `offset(declval<Expression>())` is a valid function call.
-  template <typename Expression, typename = void>
-  struct can_call_offset_with : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_offset_with_standalone = requires(Expressions... expressions) {
+    sqlpp::offset(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_offset_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_offset_t>{}.offset(expressions...);
   };
 
-  template <typename Expression>
-  struct can_call_offset_with<Expression, std::void_t<decltype(sqlpp::offset(std::declval<Expression>()))>>
-      : public std::true_type
-  {
-  };
+  template <typename... Expressions>
+  concept can_call_offset_with =
+      can_call_offset_with_standalone<Expressions...> and can_call_offset_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_offset_with =
+      not(can_call_offset_with_standalone<Expressions...> or can_call_offset_with_in_statement<Expressions...>);
 }  // namespace
 
 int main()
@@ -50,26 +53,26 @@ int main()
   const auto bar = test::TabBar{};
 
   // OK
-  static_assert(can_call_offset_with<decltype(7u)>::value, "");
-  static_assert(can_call_offset_with<decltype(7)>::value, "");
-  static_assert(can_call_offset_with<decltype(bar.id)>::value, "");
-  static_assert(can_call_offset_with<decltype(bar.intN)>::value, "nullable is OK");
+  static_assert(can_call_offset_with<decltype(7u)>, "");
+  static_assert(can_call_offset_with<decltype(7)>, "");
+  static_assert(can_call_offset_with<decltype(bar.id)>, "");
+  static_assert(can_call_offset_with<decltype(bar.intN)>, "nullable is OK");
 
-  static_assert(can_call_offset_with<decltype(sqlpp::dynamic(maybe, 7u))>::value, "");
-  static_assert(can_call_offset_with<decltype(sqlpp::dynamic(maybe, 7))>::value, "");
-  static_assert(can_call_offset_with<decltype(dynamic(maybe, bar.id))>::value, "");
+  static_assert(can_call_offset_with<decltype(sqlpp::dynamic(maybe, 7u))>, "");
+  static_assert(can_call_offset_with<decltype(sqlpp::dynamic(maybe, 7))>, "");
+  static_assert(can_call_offset_with<decltype(dynamic(maybe, bar.id))>, "");
 
   // Try assignment or comparison
-  static_assert(not can_call_offset_with<decltype(bar.id = 7)>::value, "");
-  static_assert(not can_call_offset_with<decltype(bar.id == 7)>::value, "");
+  static_assert(cannot_call_offset_with<decltype(bar.id = 7)>, "");
+  static_assert(cannot_call_offset_with<decltype(bar.id == 7)>, "");
 
   // Try non-integral expression
-  static_assert(not can_call_offset_with<decltype(bar.textN)>::value, "");
+  static_assert(cannot_call_offset_with<decltype(bar.textN)>, "");
 
   // Try some other types as expressions
-  static_assert(not can_call_offset_with<decltype("true")>::value, "");
-  static_assert(not can_call_offset_with<decltype('c')>::value, "");
-  static_assert(not can_call_offset_with<decltype(nullptr)>::value, "");
+  static_assert(cannot_call_offset_with<decltype("true")>, "");
+  static_assert(cannot_call_offset_with<decltype('c')>, "");
+  static_assert(cannot_call_offset_with<decltype(nullptr)>, "");
 
   // `offset` isn't required
   {

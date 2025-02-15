@@ -49,28 +49,6 @@ namespace sqlpp
     template <typename InsertOrAlternative>
     struct insert_or_t
     {
-      template <typename Statement>
-      struct _result_methods_t
-      {
-        using _statement_t = Statement;
-
-        const _statement_t& _get_statement() const
-        {
-          return static_cast<const _statement_t&>(*this);
-        }
-
-        template <typename Db>
-        auto _run(Db& db) const -> decltype(db.insert(this->_get_statement()))
-        {
-          return db.insert(_get_statement());
-        }
-
-        template <typename Db>
-        auto _prepare(Db& db) const -> prepared_insert_t<Db, _statement_t>
-        {
-          return {{}, db.prepare_insert(_get_statement())};
-        }
-      };
     };
   }
 
@@ -83,6 +61,25 @@ namespace sqlpp
   template <typename InsertOrAlternative>
   struct is_result_clause<sqlite3::insert_or_t<InsertOrAlternative>> : public std::true_type
   {
+  };
+
+  template <typename InsertOrAlternative>
+  struct result_methods_of<sqlite3::insert_or_t<InsertOrAlternative>>
+  {
+    struct type
+    {
+      template <typename Statement, typename Db>
+      auto _run(this Statement&& statement, Db& db)
+      {
+        return db.insert(std::forward<Statement>(statement));
+      }
+
+      template <typename Statement, typename Db>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_insert_t<Db, std::decay_t<Statement>>
+      {
+        return {{}, db.prepare_insert(std::forward<Statement>(statement))};
+      }
+    };
   };
 
   namespace sqlite3 {
