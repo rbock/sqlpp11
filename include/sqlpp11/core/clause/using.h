@@ -91,7 +91,7 @@ namespace sqlpp
     template <typename Statement, DynamicTable _Table>
     auto using_(this Statement&& statement, _Table table)
     {
-      return new_statementi<no_using_t>(std::forward<Statement>(statement),
+      return new_statement<no_using_t>(std::forward<Statement>(statement),
                                         using_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
   };

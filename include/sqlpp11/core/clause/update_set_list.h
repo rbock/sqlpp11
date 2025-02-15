@@ -37,16 +37,6 @@ namespace sqlpp
   template <typename... Assignments>
   struct update_set_list_t
   {
-    update_set_list_t(std::tuple<Assignments...> assignments) : _assignments(assignments)
-    {
-    }
-
-    update_set_list_t(const update_set_list_t&) = default;
-    update_set_list_t(update_set_list_t&&) = default;
-    update_set_list_t& operator=(const update_set_list_t&) = default;
-    update_set_list_t& operator=(update_set_list_t&&) = default;
-    ~update_set_list_t() = default;
-
     std::tuple<Assignments...> _assignments;
   };
 
@@ -82,8 +72,7 @@ namespace sqlpp
   struct no_update_set_list_t
   {
     template <typename Statement,
-              typename... Assignments,
-              typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+              DynamicAssignment... Assignments>
     auto set(this Statement&& statement, Assignments... assignments)
 
     {
@@ -120,10 +109,10 @@ namespace sqlpp
     return " SET " + tuple_to_sql_string(context, t._assignments, tuple_operand_no_dynamic{", "});
   }
 
-  template <typename... T>
-  auto update_set(T&&... t)
+  template <DynamicAssignment... T>
+  auto update_set(T... t)
   {
-    return statement_t<no_update_set_list_t>().set(std::forward<T>(t)...);
+    return statement_t<no_update_set_list_t>().set(std::move(t)...);
   }
 
 }  // namespace sqlpp

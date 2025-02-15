@@ -30,39 +30,39 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  template <typename... Expressions>
-  concept can_call_union_all_with_standalone = requires(Expressions... expressions) {
-    sqlpp::union_all(expressions...);
+  template <typename Lhs, typename Rhs>
+  concept can_call_union_all_with_standalone = requires(Lhs lhs, Rhs rhs) {
+    sqlpp::union_all(lhs, rhs);
   };
-  template <typename... Expressions>
-  concept can_call_union_all_with_in_statement = requires(Expressions... expressions) {
-    sqlpp::statement_t<sqlpp::no_union_t>{}.union_all(expressions...);
+  template <typename Lhs, typename Rhs>
+  concept can_call_union_all_with_in_statement = requires(Lhs lhs, Rhs rhs) {
+    lhs.union_all(rhs);
   };
 
-  template <typename... Expressions>
+  template <typename Lhs, typename Rhs>
   concept can_call_union_all_with =
-      can_call_union_all_with_standalone<Expressions...> and can_call_union_all_with_in_statement<Expressions...>;
+      can_call_union_all_with_standalone<Lhs, Rhs> and can_call_union_all_with_in_statement<Lhs, Rhs>;
 
-  template <typename... Expressions>
+  template <typename Lhs, typename Rhs>
   concept cannot_call_union_all_with =
-      not(can_call_union_all_with_standalone<Expressions...> or can_call_union_all_with_in_statement<Expressions...>);
+      not(can_call_union_all_with_standalone<Lhs, Rhs> or can_call_union_all_with_in_statement<Lhs, Rhs>);
 
-  template <typename... Expressions>
-  concept can_call_union_distinct_with_standalone = requires(Expressions... expressions) {
-    sqlpp::union_distinct(expressions...);
+  template <typename Lhs, typename Rhs>
+  concept can_call_union_distinct_with_standalone = requires(Lhs lhs, Rhs rhs) {
+    sqlpp::union_distinct(lhs, rhs);
   };
-  template <typename... Expressions>
-  concept can_call_union_distinct_with_in_statement = requires(Expressions... expressions) {
-    sqlpp::statement_t<sqlpp::no_union_t>{}.union_distinct(expressions...);
+  template <typename Lhs, typename Rhs>
+  concept can_call_union_distinct_with_in_statement = requires(Lhs lhs, Rhs rhs) {
+    lhs.union_distinct(rhs);
   };
 
-  template <typename... Expressions>
+  template <typename Lhs, typename Rhs>
   concept can_call_union_distinct_with =
-      can_call_union_distinct_with_standalone<Expressions...> and can_call_union_distinct_with_in_statement<Expressions...>;
+      can_call_union_distinct_with_standalone<Lhs, Rhs> and can_call_union_distinct_with_in_statement<Lhs, Rhs>;
 
-  template <typename... Expressions>
+  template <typename Lhs, typename Rhs>
   concept cannot_call_union_distinct_with =
-      not(can_call_union_distinct_with_standalone<Expressions...> or can_call_union_distinct_with_in_statement<Expressions...>);
+      not(can_call_union_distinct_with_standalone<Lhs, Rhs> or can_call_union_distinct_with_in_statement<Lhs, Rhs>);
 
 #define CAN_CALL_ALL_UNIONS_WITH(LHS, RHS) \
   static_assert(can_call_union_all_with<decltype(LHS), decltype(RHS)>, "");\
@@ -92,8 +92,6 @@ int main()
   union_distinct(lhs, rhs);
   static_assert(can_call_union_all_with_in_statement<decltype(lhs), decltype(rhs)>, "");\
   // OK
-#warning: reactivate
-  /*
   CAN_CALL_ALL_UNIONS_WITH(lhs, rhs);
   CAN_CALL_ALL_UNIONS_WITH(lhs, dynamic(maybe, rhs));
 
@@ -135,7 +133,5 @@ int main()
     // Different name
     CHECK_UNION_STATIC_ASSERTS(s_value_id, dynamic(maybe, s_value_oid), "both arguments in a union have to have the same result columns (type and name)");
   }
-  */
-
 }
 

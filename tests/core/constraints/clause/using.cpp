@@ -31,29 +31,23 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `using_(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_using_with_impl : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_using_with_standalone = requires(Expressions... expressions) {
+    sqlpp::using_(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_using_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_using_t>{}.using_(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_using_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::using_(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
+  concept can_call_using_with =
+      can_call_using_with_standalone<Expressions...> and can_call_using_with_in_statement<Expressions...>;
 
   template <typename... Expressions>
-  struct can_call_using_with : public can_call_using_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
-
+  concept cannot_call_using_with =
+      not(can_call_using_with_standalone<Expressions...> or can_call_using_with_in_statement<Expressions...>);
 }  // namespace
-
-namespace test {
-  SQLPP_CREATE_NAME_TAG(max_id);
-}
 
 int main()
 {
@@ -63,20 +57,20 @@ int main()
   const auto c = cte(something).as(select(foo.id).from(foo).where(true));
 
   // using_(<non arguments>) is inconsistent and cannot be constructed.
-  static_assert(not can_call_using_with<>::value, "");
+  static_assert(cannot_call_using_with<>, "");
 
   // using_(<non table>) cannot be called.
-  static_assert(not can_call_using_with<decltype(foo.id)>::value, "");
-  static_assert(not can_call_using_with<decltype(dynamic(true, foo.id))>::value, "");
+  static_assert(cannot_call_using_with<decltype(foo.id)>, "");
+  static_assert(cannot_call_using_with<decltype(dynamic(true, foo.id))>, "");
 
   // using_(<table or join>) can be called, even if it is dynamic (we might not need the using).
-  static_assert(can_call_using_with<decltype(foo)>::value, "");
-  static_assert(can_call_using_with<decltype(foo.cross_join(bar))>::value, "");
-  static_assert(can_call_using_with<decltype(c)>::value, "");
+  static_assert(can_call_using_with<decltype(foo)>, "");
+  static_assert(can_call_using_with<decltype(foo.cross_join(bar))>, "");
+  static_assert(can_call_using_with<decltype(c)>, "");
 
-  static_assert(can_call_using_with<decltype(dynamic(maybe, foo))>::value, "");
-  static_assert(can_call_using_with<decltype(dynamic(maybe, foo.cross_join(bar)))>::value, "");
-  static_assert(can_call_using_with<decltype(dynamic(maybe, c))>::value, "");
+  static_assert(can_call_using_with<decltype(dynamic(maybe, foo))>, "");
+  static_assert(can_call_using_with<decltype(dynamic(maybe, foo.cross_join(bar)))>, "");
+  static_assert(can_call_using_with<decltype(dynamic(maybe, c))>, "");
 
   // using_ is not required
   {
@@ -101,6 +95,5 @@ int main()
     static_assert(
         std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_duplicate_table_providers_t>::value, "");
   }
-
 }
 

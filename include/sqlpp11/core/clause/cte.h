@@ -268,8 +268,8 @@ namespace sqlpp
   template <typename NameTagProvider>
   struct cte_ref_t
   {
-    template <typename Statement,
-              typename = std::enable_if_t<is_statement<Statement>::value and has_result_row<Statement>::value>>
+    template <typename Statement>
+      requires(is_statement<Statement>::value and has_result_row<Statement>::value)
     auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement>
     {
       statement_consistency_check_t<Statement>::verify();

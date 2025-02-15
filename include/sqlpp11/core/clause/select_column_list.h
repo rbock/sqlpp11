@@ -87,9 +87,7 @@ namespace sqlpp
   };
 
   template <typename... Columns>
-  struct result_methods_of<select_column_list_t<Columns...>>
-  {
-    struct type
+    struct select_result_methods
     {
       template <typename Statement, typename NameTagProvider>
       auto as(this Statement&& statement, const NameTagProvider&)
@@ -126,6 +124,11 @@ namespace sqlpp
         return {{}, db.prepare_select(std::forward<Statement>(statement))};
       }
     };
+
+  template <typename... Columns>
+  struct result_methods_of<select_column_list_t<Columns...>>
+  {
+    using type = select_result_methods<Columns...>;
   };
 
   template <typename Statement, typename... Columns>

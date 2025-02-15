@@ -28,26 +28,22 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
-  // Returns true if `update_set(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_update_set_with_impl : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_update_set_with_standalone = requires(Expressions... expressions) {
+    sqlpp::update_set(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_update_set_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_update_set_list_t>{}.set(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_update_set_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::update_set(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
+  concept can_call_update_set_with =
+      can_call_update_set_with_standalone<Expressions...> and can_call_update_set_with_in_statement<Expressions...>;
 
   template <typename... Expressions>
-  struct can_call_update_set_with : public can_call_update_set_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
-
+  concept cannot_call_update_set_with =
+      not(can_call_update_set_with_standalone<Expressions...> or can_call_update_set_with_in_statement<Expressions...>);
 }  // namespace
 
 
@@ -70,9 +66,9 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::update_set(), "at least one assignment expression required in set()");
 
   // update_set requires assignments as arguments and cannot be called with anything else.
-  static_assert(can_call_update_set_with<decltype(bar.boolNn = true)>::value, "OK, argument is an assignment");
-  static_assert(not can_call_update_set_with<decltype(bar.id == 7)>::value, "not an assignment: comparison");
-  static_assert(not can_call_update_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not an assignment: boolNn");
+  static_assert(can_call_update_set_with<decltype(bar.boolNn = true)>, "OK, argument is an assignment");
+  static_assert(cannot_call_update_set_with<decltype(bar.id == 7)>, "not an assignment: comparison");
+  static_assert(cannot_call_update_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>, "not an assignment: boolNn");
 
   // Try duplicate columns
   SQLPP_CHECK_STATIC_ASSERT(update_set(bar.boolNn = true, bar.boolNn = false), "at least one duplicate column detected in set()");
