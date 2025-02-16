@@ -227,9 +227,9 @@ int SelectType(int, char*[])
   }
 
   {
-    auto find_query = sqlpp::select(t.id.as(alias::a), dynamic(true, f.doubleN.as(alias::b)))
-                          .from(t.join(dynamic(true, f)).on(t.id == f.doubleN))
-                          .where(true);
+    [[maybe_unused]] auto find_query = sqlpp::select(t.id.as(alias::a), dynamic(true, f.doubleN.as(alias::b)))
+                                           .from(t.join(dynamic(true, f)).on(t.id == f.doubleN))
+                                           .where(true);
   }
 
   // Test that verbatim_table compiles
@@ -253,7 +253,7 @@ int SelectType(int, char*[])
   auto r = select(t.boolNn.as(alias::a)).from(t).where(t.boolNn == true).as(alias::right);
   static_assert(sqlpp::is_boolean<decltype(select(t.boolNn).from(t).where(true))>::value, "select(bool) has to be a bool");
   static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r).where(true))>::value, "select(bool) has to be a bool");
-  auto s1 = sqlpp::select()
+  [[maybe_unused]] auto s1 = sqlpp::select()
                 .flags(sqlpp::distinct)
                 .columns(l.boolNn, r.a)
                 .from(r.cross_join(t).cross_join(l))

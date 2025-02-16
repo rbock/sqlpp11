@@ -104,7 +104,7 @@ namespace sqlpp
         return table(std::forward<Statement>(statement));
       }
 
-      size_t get_no_of_result_columns() const
+      constexpr size_t get_no_of_result_columns() const
       {
         return sizeof...(Columns);
       }
@@ -112,7 +112,7 @@ namespace sqlpp
       // Execute
       template <typename Statement, typename Db>
       auto _run(this Statement&& statement, Db& db)
-          -> result_t<decltype(db.select(std::declval<std::decay_t<Statement>>())), result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>>
+          -> result_t<decltype(db.select(std::forward<Statement>(statement))), result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>>
       {
         return {db.select(std::forward<Statement>(statement))};
       }

@@ -153,10 +153,8 @@ void test_contains_aggregate_function()
 void test_is_aggregate_expression()
 {
   const auto maybe = true;
-  auto v_not_null = sqlpp::value(17);
 
   auto v = sqlpp::value(17);
-  auto t = sqlpp::value("");
   auto agg_int = test::TabFoo{}.id;
   auto agg_txt = test::TabFoo{}.textNnD;
 
@@ -226,10 +224,8 @@ void test_is_aggregate_expression()
 void test_is_non_aggregate_expression()
 {
   const auto maybe = true;
-  auto v_not_null = sqlpp::value(17);
 
   auto v = sqlpp::value(17);
-  auto t = sqlpp::value("");
   auto agg_int = test::TabFoo{}.id;
   auto agg_txt = test::TabFoo{}.textNnD;
 

@@ -36,17 +36,17 @@ namespace test
   SQLPP_CREATE_NAME_TAG(alias);
 }  // namespace
 
-template<typename BlankWith>
+template<typename SelectWith>
 struct extract_with;
 
 template<typename... Ctes>
-struct extract_with<sqlpp::blank_with_t<Ctes...>>
+struct extract_with<sqlpp::statement_t<sqlpp::with_t<Ctes...>>>
 {
   using type = sqlpp::with_t<Ctes...>;
 };
 
-template<typename BlankWith>
-using extract_with_t = typename extract_with<BlankWith>::type;
+template<typename SelectWith>
+using extract_with_t = typename extract_with<SelectWith>::type;
 
 void test_required_ctes_of()
 {

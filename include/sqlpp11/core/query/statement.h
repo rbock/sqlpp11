@@ -136,27 +136,13 @@ namespace sqlpp
       return _get_static_no_of_parameters();
     }
 
-      // A select can be used as a pseudo table if
-      //   - at least one column is selected
-      //   - the select is complete (leaks no table requirements or cte requirements)
-      static constexpr bool _can_be_used_as_table()
-      {
-        return has_result_row<statement_t>::value and _unknown_required_tables_of::empty() and
-               _unknown_required_ctes_of::empty();
-      }
-
-    template <typename Database>
-    auto _run(Database& db) const -> decltype(std::declval<result_methods_t<Clauses...>>()._run(db))
+    // A select can be used as a pseudo table if
+    //   - at least one column is selected
+    //   - the select is complete (leaks no table requirements or cte requirements)
+    static constexpr bool _can_be_used_as_table()
     {
-      statement_run_check_t<statement_t>::verify();
-      return result_methods_t<Clauses...>::_run(db);
-    }
-
-    template <typename Database>
-    auto _prepare(Database& db) const -> decltype(std::declval<result_methods_t<Clauses...>>()._prepare(db))
-    {
-      statement_prepare_check_t<statement_t>::verify();
-      return result_methods_t<Clauses...>::_prepare(db);
+      return has_result_row<statement_t>::value and _unknown_required_tables_of::empty() and
+             _unknown_required_ctes_of::empty();
     }
   };
 

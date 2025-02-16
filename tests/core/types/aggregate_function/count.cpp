@@ -29,8 +29,6 @@
 
 namespace
 {
-  auto db = MockDb{};
-
   template <typename T, typename V>
   using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
 }

@@ -28,9 +28,6 @@
 
 void test_get_last_if()
 {
-  auto v = sqlpp::value("text");
-  auto col_int = test::TabFoo{}.id;
-
   // Ending on a matching type
   static_assert(std::is_same<sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop>, sqlpp::noop>::value, "");
   static_assert(std::is_same<sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop, int>, int>::value, "");

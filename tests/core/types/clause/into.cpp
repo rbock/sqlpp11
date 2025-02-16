@@ -27,14 +27,10 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/tests/core/types_helpers.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 void test_into()
 {
-  auto v = sqlpp::value(17);
   auto foo = test::TabFoo{};
   using Foo = decltype(foo);
-  auto id = foo.id;
 
   // Valid into clause
   {

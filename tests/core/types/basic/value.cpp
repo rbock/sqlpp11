@@ -26,11 +26,6 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/tests/core/tables.h>
 
-SQLPP_CREATE_NAME_TAG(r_not_null);
-SQLPP_CREATE_NAME_TAG(r_maybe_null);
-SQLPP_CREATE_NAME_TAG(r_opt_not_null);
-SQLPP_CREATE_NAME_TAG(r_opt_maybe_null);
-
 template <typename T, typename ValueType>
 using is_value_type = std::is_same<sqlpp::value_type_of_t<T>, ValueType>;
 

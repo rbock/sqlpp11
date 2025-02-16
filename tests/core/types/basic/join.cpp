@@ -38,7 +38,6 @@ namespace test
 
 void test_join()
 {
-  auto v = sqlpp::value(17);
   auto foo = test::TabFoo{};
   auto bar = test::TabBar{};
   auto cheese = foo.as(test::cheese);

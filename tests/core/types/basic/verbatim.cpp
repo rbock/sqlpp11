@@ -26,11 +26,6 @@
 #include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
 
-namespace test
-{
-  SQLPP_CREATE_NAME_TAG(verb);
-}  // namespace test
-
 int main()
 {
   auto verb = sqlpp::verbatim<sqlpp::text>("verb");

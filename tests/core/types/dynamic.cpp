@@ -27,11 +27,6 @@
 #include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
 
-namespace
-{
-  auto db = MockDb{};
-}
-
 SQLPP_CREATE_NAME_TAG(r_not_null);
 SQLPP_CREATE_NAME_TAG(r_maybe_null);
 

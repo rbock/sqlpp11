@@ -29,8 +29,6 @@
 
 namespace
 {
-  auto db = MockDb{};
-
   template <typename T>
   using is_integral = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>;
 

@@ -28,7 +28,6 @@
 
 void test_table()
 {
-  auto v = sqlpp::value(17);
   auto foo = test::TabFoo{};
   auto bar = test::TabBar{};
   using FooBar = decltype(foo.as(bar));
