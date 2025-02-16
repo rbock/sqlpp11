@@ -42,7 +42,7 @@ int Result(int, char* [])
   static_assert(not sqlpp::is_optional<decltype(t.id)>::value, "t.id cannot be null");
 
   // Using a non-enforcing db
-  for (const auto& row : db(select(all_of(t), t.textN.like("").as(something)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t), t.textN.like("").as(something)).from(t).where(true)))
   {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value, "row.id cannot be null");
 
@@ -54,12 +54,12 @@ int Result(int, char* [])
   }
 
   sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
-  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
   {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value, "row.id cannot be null");
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
   {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value, "row.id cannot be null");
   }

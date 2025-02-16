@@ -58,13 +58,13 @@ int With(int, char*[])
   test::createTabSample(db);
 
   auto a = sqlpp::cte(sqlpp::alias::a).as(select(all_of(tab)).from(tab).where(tab.alpha > 3));
-  for (const auto& row : db(with(a)(select(a.alpha).from(a)).unconditionally()))
+  for (const auto& row : db(with(a)(select(a.alpha).from(a)).where(true)))
   {
     std::cout << row.alpha << std::endl;
   }
 
   for (const auto& row :
-       db(with(a.union_all(select(all_of(a)).from(a).unconditionally()))(select(all_of(a)).from(a)).unconditionally()))
+       db(with(a.union_all(select(all_of(a)).from(a).where(true)))(select(all_of(a)).from(a)).where(true)))
   {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }

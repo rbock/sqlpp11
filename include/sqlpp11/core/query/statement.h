@@ -64,7 +64,6 @@ namespace sqlpp
 
   template <typename... Clauses>
   struct statement_t : public Clauses...,
-#warning: Consider https://en.cppreference.com/w/cpp/language/member_functions#Explicit_object_member_functions also for result methods
                        public result_methods_t<Clauses...>
   {
     // Calculate provided/required CTEs and tables across all clauses

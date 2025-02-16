@@ -165,8 +165,8 @@ int Function(int, char* [])
 
   // Test exists
   {
-    using TI = decltype(exists(select(t.id).from(t).unconditionally()));
-    using TT = decltype(exists(select(t.textN).from(t).unconditionally()));
+    using TI = decltype(exists(select(t.id).from(t).where(true)));
+    using TT = decltype(exists(select(t.textN).from(t).where(true)));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -174,19 +174,19 @@ int Function(int, char* [])
     static_assert(sqlpp::is_numeric<TT>::value, "type requirement");
     static_assert(not sqlpp::is_text<TT>::value, "type requirement");
 
-    if (false and db(select(exists(select(t.id).from(t).unconditionally()).as(something))).front().something)
+    if (false and db(select(exists(select(t.id).from(t).where(true)).as(something))).front().something)
     { /* do something */
     }
   }
 
   // Test any
   {
-    using S = decltype(select(t.id).from(t).unconditionally());
+    using S = decltype(select(t.id).from(t).where(true));
     static_assert(sqlpp::is_numeric<S>::value, "type requirement");
 
-    using TI = decltype(any(select(t.id).from(t).unconditionally()));
-    using TT = decltype(any(select(t.textN).from(t).unconditionally()));
-    using TF = decltype(any(select(f.doubleN).from(f).unconditionally()));
+    using TI = decltype(any(select(t.id).from(t).where(true)));
+    using TT = decltype(any(select(t.textN).from(t).where(true)));
+    using TF = decltype(any(select(f.doubleN).from(f).where(true)));
     static_assert(not sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -229,7 +229,7 @@ int Function(int, char* [])
     static_assert(sqlpp::is_integral<TT>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point<TT>::value, "type requirement");
 
-    if (false and db(select(count(t.id).as(something)).from(t).unconditionally()).front().something > 0)
+    if (false and db(select(count(t.id).as(something)).from(t).where(true)).front().something > 0)
     { /* do something */
     }
   }

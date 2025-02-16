@@ -38,7 +38,7 @@ int main()
 
  // Unconditionally
  SQLPP_COMPARE(sqlpp::select() << select_flags(sqlpp::distinct) << select_columns(foo.doubleN) << from(foo)
-                               << sqlpp::unconditionally(),
+                               << sqlpp::where(true),
                "SELECT DISTINCT tab_foo.double_n FROM tab_foo");
 
  // A full select statement made individual clauses

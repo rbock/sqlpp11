@@ -53,10 +53,10 @@ int Remove(int, char* [])
 
   to_sql_string(printer, delete_from(t));
   to_sql_string(printer, delete_from(t).where(t.textN != "transparent"));
-  std::cerr << to_sql_string(printer, delete_from(t).unconditionally()) << std::endl;
+  std::cerr << to_sql_string(printer, delete_from(t).where(true)) << std::endl;
 
-  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally())));
-  db(delete_from(t).where(dynamic(maybe, t.textN.in(select(f.textNnD).from(f).unconditionally()))));
+  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f).where(true))));
+  db(delete_from(t).where(dynamic(maybe, t.textN.in(select(f.textNnD).from(f).where(true)))));
 
   return 0;
 }

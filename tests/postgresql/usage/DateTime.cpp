@@ -67,25 +67,25 @@ int DateTime(int, char*[])
   try
   {
     db(insert_into(tab).default_values());
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.has_value(), false);
       require_equal(__LINE__, row.timeOfDayNTz.has_value(), false);
       require_equal(__LINE__, row.timePointNTz.has_value(), false);
     }
 
-    db(update(tab).set(tab.dayPointN = today, tab.timeOfDayNTz = current, tab.timePointNTz = now).unconditionally());
+    db(update(tab).set(tab.dayPointN = today, tab.timeOfDayNTz = current, tab.timePointNTz = now).where(true));
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);
       require_equal(__LINE__, row.timePointNTz.value(), now);
     }
 
-    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointNTz = today).unconditionally());
+    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointNTz = today).where(true));
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);
@@ -96,14 +96,14 @@ int DateTime(int, char*[])
                                           .set(tab.dayPointN = parameter(tab.dayPointN),
                                                tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
                                                tab.timePointNTz = parameter(tab.timePointNTz))
-                                          .unconditionally());
+                                          .where(true));
     prepared_update.params.dayPointN = today;
     prepared_update.params.timeOfDayNTz = current;
     prepared_update.params.timePointNTz = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);

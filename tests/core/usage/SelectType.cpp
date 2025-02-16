@@ -131,7 +131,7 @@ int SelectType(int, char*[])
 
   // Test a select of a single numeric table column
   {
-    using T = decltype(select(t.id).from(t).unconditionally());
+    using T = decltype(select(t.id).from(t).where(true));
     // static_assert(sqlpp::is_select_column_list_t<decltype(T::_column_list)>::value, "Must not be noop");
     // static_assert(sqlpp::is_from_t<decltype(T::_from)>::value, "Must not be noop");
     static_assert(sqlpp::is_numeric<T>::value, "type requirement");
@@ -142,7 +142,7 @@ int SelectType(int, char*[])
 
   // Test a select of an alias of a single numeric table column
   {
-    using T = decltype(select(t.id.as(alias::a)).from(t).unconditionally());
+    using T = decltype(select(t.id.as(alias::a)).from(t).where(true));
     static_assert(sqlpp::is_numeric<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
@@ -151,7 +151,7 @@ int SelectType(int, char*[])
 
   // Test an alias of a select of a single numeric table column
   {
-    using T = decltype(select(t.id).from(t).unconditionally().as(alias::b));
+    using T = decltype(select(t.id).from(t).where(true).as(alias::b));
     static_assert(not sqlpp::has_value_type<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "red to not be boolean");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
@@ -160,7 +160,7 @@ int SelectType(int, char*[])
 
   // Test the column of an alias of a select of an alias of a single numeric table column
   {
-    using T = decltype(select(t.id.as(alias::a)).from(t).unconditionally().as(alias::b));
+    using T = decltype(select(t.id.as(alias::a)).from(t).where(true).as(alias::b));
     static_assert(not sqlpp::has_value_type<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
@@ -169,7 +169,7 @@ int SelectType(int, char*[])
 
   // Test the column of an alias of a select of a single numeric table column
   {
-    using T = decltype(select(t.id).from(t).unconditionally().as(alias::b).id);
+    using T = decltype(select(t.id).from(t).where(true).as(alias::b).id);
     static_assert(sqlpp::is_numeric<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
@@ -178,7 +178,7 @@ int SelectType(int, char*[])
 
   // Test an alias of a select of an alias of a single numeric table column
   {
-    using T = decltype(select(t.id.as(alias::a)).from(t).unconditionally().as(alias::b).a);
+    using T = decltype(select(t.id.as(alias::a)).from(t).where(true).as(alias::b).a);
     static_assert(sqlpp::is_numeric<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
@@ -205,7 +205,7 @@ int SelectType(int, char*[])
                   "select with identical columns(name/value_type) need to have identical result_types");
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
   {
     const auto a = row.id;
     std::cout << a << std::endl;
@@ -229,7 +229,7 @@ int SelectType(int, char*[])
   {
     auto find_query = sqlpp::select(t.id.as(alias::a), dynamic(true, f.doubleN.as(alias::b)))
                           .from(t.join(dynamic(true, f)).on(t.id == f.doubleN))
-                          .unconditionally();
+                          .where(true);
   }
 
   // Test that verbatim_table compiles
@@ -251,8 +251,8 @@ int SelectType(int, char*[])
 
   auto l = t.as(alias::left);
   auto r = select(t.boolNn.as(alias::a)).from(t).where(t.boolNn == true).as(alias::right);
-  static_assert(sqlpp::is_boolean<decltype(select(t.boolNn).from(t).unconditionally())>::value, "select(bool) has to be a bool");
-  static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r).unconditionally())>::value, "select(bool) has to be a bool");
+  static_assert(sqlpp::is_boolean<decltype(select(t.boolNn).from(t).where(true))>::value, "select(bool) has to be a bool");
+  static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r).where(true))>::value, "select(bool) has to be a bool");
   auto s1 = sqlpp::select()
                 .flags(sqlpp::distinct)
                 .columns(l.boolNn, r.a)

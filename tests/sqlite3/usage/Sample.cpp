@@ -64,16 +64,16 @@ int Sample(int, char*[])
   const auto tab = test::TabSample{};
 
   // clear the table
-  db(delete_from(tab).unconditionally());
+  db(delete_from(tab).where(true));
 
   // explicit all_of(tab)
-  for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+  for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
   {
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
   };
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   // selecting a table implicitly expands to all_of(tab)
-  for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+  for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
   {
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
   };
@@ -92,7 +92,7 @@ int Sample(int, char*[])
   // delete
   db(delete_from(tab).where(tab.alpha == tab.alpha + 3));
 
-  auto result = db(select(all_of(tab)).from(tab).unconditionally());
+  auto result = db(select(all_of(tab)).from(tab).where(true));
   std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
             << std::endl;
   std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
@@ -103,7 +103,7 @@ int Sample(int, char*[])
        db(select(all_of(tab),
                  value(select(max(foo.omega).as(something)).from(foo).where(foo.omega > tab.alpha)).as(something))
               .from(tab)
-              .unconditionally()))
+              .where(true)))
   {
     std::optional<int64_t> x = row.alpha;
     std::optional<int64_t> a = row.something;
@@ -111,13 +111,13 @@ int Sample(int, char*[])
   }
   tx.commit();
 
-  for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).unconditionally()))
+  for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).where(true)))
   {
     std::cerr << row.alpha << std::endl;
   }
 
   for (const auto& row :
-       db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).unconditionally()))
+       db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).where(true)))
   {
     std::cerr << row.alpha << std::endl;
   }
@@ -197,9 +197,9 @@ int Sample(int, char*[])
     std::cerr << i << std::endl;
   }
 
-  assert(db(select(count(tab.id).as(something)).from(tab).unconditionally()).begin()->something);
+  assert(db(select(count(tab.id).as(something)).from(tab).where(true)).begin()->something);
   assert(
-      db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(select(tab.alpha).from(tab).unconditionally()))).empty());
+      db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(select(tab.alpha).from(tab).where(true)))).empty());
 
   auto x = sqlpp::statement_t<>{} << sqlpp::verbatim("PRAGMA user_version = 1");
   db(x);
@@ -210,13 +210,13 @@ int Sample(int, char*[])
   std::cerr << pragmaValue << std::endl;
 
   // Testing sub select tables and unconditional joins
-  const auto subQuery = select(tab.alpha).from(tab).unconditionally().as(sub);
-  for (const auto& row : db(select(subQuery.alpha).from(subQuery).unconditionally()))
+  const auto subQuery = select(tab.alpha).from(tab).where(true).as(sub);
+  for (const auto& row : db(select(subQuery.alpha).from(subQuery).where(true)))
   {
     std::cerr << row.alpha;
   }
 
-  for (const auto& row : db(select(subQuery.alpha).from(tab.cross_join(subQuery)).unconditionally()))
+  for (const auto& row : db(select(subQuery.alpha).from(tab.cross_join(subQuery)).where(true)))
   {
     std::cerr << "row.alpha: " << row.alpha << std::endl;
   }

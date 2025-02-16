@@ -35,10 +35,10 @@ int main()
   const auto bFoo = foo.as(sqlpp::alias::b);
   const auto cFoo = foo.as(sqlpp::alias::c);
 
-  const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+  const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
   const auto xa = x.as(sqlpp::alias::a);
   const auto xb = x.as(sqlpp::alias::b);
-  const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).unconditionally());
+  const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).where(true));
 
   // Single table
   SQLPP_COMPARE(from(foo), " FROM tab_foo");

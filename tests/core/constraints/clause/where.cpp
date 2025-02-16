@@ -94,7 +94,7 @@ int main()
     auto s = select(all_of(bar)).from(bar);
     using S = decltype(s);
     static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_or_unconditionally_called_t>::value,
+        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_called_t>::value,
         "");
   }
   {
@@ -102,21 +102,21 @@ int main()
     auto s = with(c)(select(all_of(c)).from(c));
     using S = decltype(s);
     static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_or_unconditionally_called_t>::value,
+        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_called_t>::value,
         "");
   }
   {
     auto s = delete_from(bar);
     using S = decltype(s);
     static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_or_unconditionally_called_t>::value,
+        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_called_t>::value,
         "");
   }
   {
     auto s = update(bar).set(bar.id = 7);
     using S = decltype(s);
     static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_or_unconditionally_called_t>::value,
+        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_called_t>::value,
         "");
   }
 

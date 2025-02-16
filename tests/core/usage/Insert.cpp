@@ -83,7 +83,7 @@ int Insert(int, char*[])
   db(insert_into(t).set(t.boolNn = true, t.intN = 0));
   db(insert_into(t).set(t.boolNn = true, dynamic(maybe, t.intN = 0)));
 
-  db(insert_into(t).set(t.boolNn = true, t.intN = 0, t.textN = select(u.textNnD).from(u).unconditionally()));
+  db(insert_into(t).set(t.boolNn = true, t.intN = 0, t.textN = select(u.textNnD).from(u).where(true)));
 
   auto prepared_insert = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN)));
   prepared_insert.params.boolNn = true;

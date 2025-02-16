@@ -72,23 +72,23 @@ int DateTime(int, char*[])
     const auto tab = test::TabDateTime{};
     db(insert_into(tab).default_values());
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN == std::nullopt, true);
       require_equal(__LINE__, row.timePointN == std::nullopt, true);
     }
 
-    db(update(tab).set(tab.dayPointN = today, tab.timePointN = now).unconditionally());
+    db(update(tab).set(tab.dayPointN = today, tab.timePointN = now).where(true));
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
     }
 
-    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointN = today).unconditionally());
+    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointN = today).where(true));
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
       require_equal(__LINE__, row.timePointN.value(), today);
@@ -97,13 +97,13 @@ int DateTime(int, char*[])
     auto prepared_update = db.prepare(
         update(tab)
             .set(tab.dayPointN = parameter(tab.dayPointN), tab.timePointN = parameter(tab.timePointN))
-            .unconditionally());
+            .where(true));
     prepared_update.params.dayPointN = today;
     prepared_update.params.timePointN = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
     {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);

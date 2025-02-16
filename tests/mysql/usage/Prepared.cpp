@@ -53,8 +53,8 @@ void testPreparedStatementResult(sql::connection& db)
   preparedInsert.params.textN = "17";
   db(preparedInsert);
 
-  auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.intN).as(something)).from(tab).unconditionally());
-  auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.boolN = false).unconditionally());
+  auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.intN).as(something)).from(tab).where(true));
+  auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.boolN = false).where(true));
 
   {
     // explicit result scope

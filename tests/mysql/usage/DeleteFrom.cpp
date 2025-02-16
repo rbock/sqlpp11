@@ -47,8 +47,8 @@ int DeleteFrom(int, char*[])
     db(insert_into(tab).set(tab.textN = "2", tab.boolN = false));
     db(insert_into(tab).set(tab.textN = "3", tab.boolN = false));
 
-    db(sql::delete_from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u));
-    for(const auto &row : db(sqlpp::select(tab.textN).from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u))){
+    db(sql::delete_from(tab).where(true).order_by(tab.intN.desc()).limit(1u));
+    for(const auto &row : db(sqlpp::select(tab.textN).from(tab).where(true).order_by(tab.intN.desc()).limit(1u))){
       if (row.textN != "2")
         throw std::runtime_error("unexpected value for row.textN: " + std::string(row.textN.value_or("NULL")));
     }

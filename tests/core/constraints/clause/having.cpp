@@ -76,9 +76,9 @@ int main()
   // --------------------------------
   // consistency checks
   // --------------------------------
-  const auto select_without_group_by = select(all_of(bar)).from(bar).unconditionally();
-  const auto select_with_group_by = select(bar.id).from(bar).unconditionally().group_by(bar.id);
-  const auto select_with_dynamic_group_by = select(bar.id).from(bar).unconditionally().group_by(bar.id, dynamic(maybe, bar.textN));
+  const auto select_without_group_by = select(all_of(bar)).from(bar).where(true);
+  const auto select_with_group_by = select(bar.id).from(bar).where(true).group_by(bar.id);
+  const auto select_with_dynamic_group_by = select(bar.id).from(bar).where(true).group_by(bar.id, dynamic(maybe, bar.textN));
 
   // OK
   {

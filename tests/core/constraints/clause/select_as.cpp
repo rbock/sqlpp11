@@ -72,7 +72,7 @@ int main()
   {
     // Missing where
     auto t = sqlpp::select(bar.id).from(bar);
-    SQLPP_CHECK_STATIC_ASSERT(t.as(tab), "calling where() or unconditionally() required");
+    SQLPP_CHECK_STATIC_ASSERT(t.as(tab), "calling where() or where(true) required");
   }
 
   // -------------------------
@@ -90,7 +90,7 @@ int main()
 
   {
     // Missing cte
-    auto c = cte(something).as(select(foo.id).from(foo).unconditionally());
+    auto c = cte(something).as(select(foo.id).from(foo).where(true));
     auto t = sqlpp::select(c.id).from(c).where(c.id > 7);
     SQLPP_CHECK_STATIC_ASSERT(t.as(tab), "one clause requires common table expressions which are otherwise not known in the statement");
 

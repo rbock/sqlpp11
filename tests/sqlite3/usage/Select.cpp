@@ -46,7 +46,7 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount)
 {
   std::cerr << "--------------------------------------" << std::endl;
   size_t i = 0;
-  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).unconditionally()))
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true)))
   {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha << ", row.beta: " << row.beta
@@ -55,7 +55,7 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount)
   };
   assert(i == expectedRowCount);
 
-  auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab).unconditionally());
+  auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
   i = 0;
   for (const auto& row : db(preparedSelectAll))
   {
@@ -112,12 +112,12 @@ int Select(int, char*[])
   db(select(all_of(tab)).from(tab).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
   db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
   db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.alpha).as(something)).from(tab).unconditionally());
-  db(select(avg(tab.alpha).as(something)).from(tab).unconditionally());
-  db(select(max(tab.alpha).as(something)).from(tab).unconditionally());
-  db(select(min(tab.alpha).as(something)).from(tab).unconditionally());
-  db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7)).as(something)).from(tab).unconditionally());
-  db(select(trim(tab.beta).as(something)).from(tab).unconditionally());
+  db(select(count(tab.alpha).as(something)).from(tab).where(true));
+  db(select(avg(tab.alpha).as(something)).from(tab).where(true));
+  db(select(max(tab.alpha).as(something)).from(tab).where(true));
+  db(select(min(tab.alpha).as(something)).from(tab).where(true));
+  db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7)).as(something)).from(tab).where(true));
+  db(select(trim(tab.beta).as(something)).from(tab).where(true));
 
   // db(select(not_exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab));
   // db(select(all_of(tab)).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
@@ -133,7 +133,7 @@ int Select(int, char*[])
   // delete
   db(delete_from(tab).where(tab.alpha == tab.alpha + 3));
 
-  auto result = db(select(all_of(tab)).from(tab).unconditionally());
+  auto result = db(select(all_of(tab)).from(tab).where(true));
   std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
             << std::endl;
   std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
@@ -141,7 +141,7 @@ int Select(int, char*[])
   std::cerr << "--------------------------------------" << std::endl;
   auto tx = start_transaction(db);
   for (const auto& row :
-       db(select(all_of(tab), value(select(max(tab.alpha).as(something)).from(tab).where(true)).as(something)).from(tab).unconditionally()))
+       db(select(all_of(tab), value(select(max(tab.alpha).as(something)).from(tab).where(true)).as(something)).from(tab).where(true)))
   {
     const auto x = row.alpha;
     const auto a = row.something;
@@ -150,7 +150,7 @@ int Select(int, char*[])
   for (const auto& row :
        db(select(tab.alpha, tab.beta, tab.gamma, trim(tab.beta).as(something))
               .from(tab)
-              .unconditionally()))
+              .where(true)))
   {
     std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
               << ", row.something: '" << row.something << "'" << std::endl;
@@ -162,7 +162,7 @@ int Select(int, char*[])
   for (const auto& row :
        db(select(all_of(tab), value(select(trim(tab.beta).as(something)).from(tab).where(true)).as(something))
               .from(tab)
-              .unconditionally()))
+              .where(true)))
   {
     const std::optional<int64_t> x = row.alpha;
     const std::optional<std::string_view> a = row.something;

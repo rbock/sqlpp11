@@ -33,7 +33,7 @@ int main()
   const auto bar = test::TabBar{};
   const auto aFoo = foo.as(sqlpp::alias::a);
 
-  const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+  const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
   const auto xa = x.as(sqlpp::alias::a);
 
   // Single table

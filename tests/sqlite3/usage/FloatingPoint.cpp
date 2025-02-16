@@ -94,7 +94,7 @@ int FloatingPoint(int, char*[])
   prepared_insert.params.fp = -std::numeric_limits<double>::infinity();
   db(prepared_insert);
 
-  auto q = select(fp.fp).from(fp).unconditionally();
+  auto q = select(fp.fp).from(fp).where(true);
   auto rows = db(q);
 
   // raw string inserts

@@ -32,7 +32,6 @@
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/clause/expression_static_check.h>
-#include <sqlpp11/core/unconditional.h>
 #include <sqlpp11/core/basic/value.h>
 
 namespace sqlpp
@@ -81,21 +80,9 @@ namespace sqlpp
     using type = detail::type_vector<Expression>;
   };
 
-  template <>
-  struct where_t<unconditional_t>
-  {
-  };
-
   // NO WHERE YET
   struct no_where_t
   {
-    template <typename Statement>
-#warning: consider removing "unconditionally"
-    auto unconditionally(this Statement&& statement)
-    {
-      return new_statement<no_where_t>(std::forward<Statement>(statement), where_t<unconditional_t>{});
-    }
-
     template <typename Statement, DynamicBoolean Expression>
     auto where(this Statement&& statement, Expression expression)
     {
@@ -106,14 +93,14 @@ namespace sqlpp
     }
   };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
-                               "calling where() or unconditionally() required");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_where_called_t,
+                               "calling where() required");
 
   template <typename Statement>
   struct consistency_check<Statement, no_where_t>
   {
     using type = typename std::
-        conditional<is_where_required<Statement>::value, assert_where_or_unconditionally_called_t, consistent_t>::type;
+        conditional<is_where_required<Statement>::value, assert_where_called_t, consistent_t>::type;
   };
 
   // Interpreters
@@ -139,20 +126,9 @@ namespace sqlpp
     return "";
   }
 
-  template <typename Context>
-  auto to_sql_string(Context& , const where_t<unconditional_t>&) -> std::string
-  {
-    return {};
-  }
-
   template <DynamicBoolean Expression>
   auto where(Expression expression)
   {
     return statement_t<no_where_t>().where(std::move(expression));
-  }
-
-  inline auto unconditionally()
-  {
-    return statement_t<no_where_t>().unconditionally();
   }
 }  // namespace sqlpp

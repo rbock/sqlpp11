@@ -123,7 +123,7 @@ void test_from()
 
   // FROM CTE
   {
-    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
     auto statement = from(x);
 
     using R = decltype(make_table_ref(x));

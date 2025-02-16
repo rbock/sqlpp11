@@ -45,7 +45,7 @@ namespace
         tab.timeOfDayNTz = tod,
         tab.dayPointN = dp
       )
-      .unconditionally()
+      .where(true)
     );
   }
 
@@ -59,7 +59,7 @@ namespace
         tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
         tab.dayPointN = parameter(tab.dayPointN)
       )
-      .unconditionally()
+      .where(true)
     );
     prepared_update.params.timePointNTz = tp;
     prepared_update.params.timeOfDayNTz = tod;
@@ -94,7 +94,7 @@ namespace
         sqlpp::verbatim<sqlpp::integral>("floor(extract(epoch from day_point_n)/86400)::int8").as(sqlpp::alias::c)
       )
       .from(tab)
-      .unconditionally()
+      .where(true)
     );
     // Check if the internal values of our C++ time variables match the internal values of the PostgreSQL date/time fields.
     // This tests the conversion of date/time types from C++ to PostgreSQL while skipping the conversion from C++ to PostgreSQL.
@@ -105,7 +105,7 @@ namespace
 
     // Check if saving date/time variables from C++ to PostgreSQL and then reading them back yields the same values.
     // This tests the conversion of date/time types from C++ to PostgreSQL and then back from PostgreSQL to C++.
-    const auto rows_2 = db(select(all_of(tab)).from(tab).unconditionally());
+    const auto rows_2 = db(select(all_of(tab)).from(tab).where(true));
     const auto &row_2 = rows_2.front();
     require_equal(__LINE__, row_2.timePointNTz.value(), tp);
     require_equal(__LINE__, row_2.timeOfDayNTz.value(), tod);

@@ -135,7 +135,6 @@ namespace sqlpp
               typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto add_values(Assignments... assignments) -> void
     {
-#warning: use if constexpr
       using _arg_value_tuple = std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
       constexpr bool _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>::value;
       SQLPP_STATIC_ASSERT(_args_correct, "add_values() arguments have to match columns() arguments");

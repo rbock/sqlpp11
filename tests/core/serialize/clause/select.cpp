@@ -46,10 +46,10 @@ int main(int, char* [])
   SQLPP_COMPARE(sqlpp::select(expr.as(foo.id)), "SELECT (17 + 4) AS id");
 
   // SELECT FROM.
-  SQLPP_COMPARE(select(foo.id).from(foo).unconditionally(), "SELECT tab_foo.id FROM tab_foo");
-  SQLPP_COMPARE(select(foo.id, foo.textNnD).from(foo).unconditionally(), "SELECT tab_foo.id, tab_foo.text_nn_d FROM tab_foo");
-  SQLPP_COMPARE(sqlpp::select().columns(foo.id).from(foo).unconditionally(), "SELECT tab_foo.id FROM tab_foo");
-  SQLPP_COMPARE(sqlpp::select().flags(sqlpp::all).columns(foo.id).from(foo).unconditionally(), "SELECT ALL tab_foo.id FROM tab_foo");
+  SQLPP_COMPARE(select(foo.id).from(foo).where(true), "SELECT tab_foo.id FROM tab_foo");
+  SQLPP_COMPARE(select(foo.id, foo.textNnD).from(foo).where(true), "SELECT tab_foo.id, tab_foo.text_nn_d FROM tab_foo");
+  SQLPP_COMPARE(sqlpp::select().columns(foo.id).from(foo).where(true), "SELECT tab_foo.id FROM tab_foo");
+  SQLPP_COMPARE(sqlpp::select().flags(sqlpp::all).columns(foo.id).from(foo).where(true), "SELECT ALL tab_foo.id FROM tab_foo");
 
   // SELECT FROM WHERE.
   SQLPP_COMPARE(select(foo.id).from(foo).where(true), "SELECT tab_foo.id FROM tab_foo WHERE 1");

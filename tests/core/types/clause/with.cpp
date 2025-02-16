@@ -52,10 +52,10 @@ void test_with()
 
   // ctes referencing other CTEs require such ctes. `have_correct_dependencies` checks that.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(true));
     using Basic = decltype(basic);
 
-    auto referencing = sqlpp::cte(test::referencing).as(select(basic.id).from(basic).unconditionally());
+    auto referencing = sqlpp::cte(test::referencing).as(select(basic.id).from(basic).where(true));
     using Referencing = decltype(referencing);
 
     // Simple good cases.
@@ -85,13 +85,13 @@ void test_with()
 
   // ctes dynamically referencing other CTEs require such ctes dynamically. `have_correct_dependencies` checks that.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(true));
     using Basic = decltype(basic);
 
     auto referencing = sqlpp::cte(test::referencing)
                            .as(select(dynamic(true, basic.id))
                                    .from(foo.join(dynamic(true, basic)).on(foo.id == basic.id))
-                                   .unconditionally());
+                                   .where(true));
     using Referencing = decltype(referencing);
 
     // Simple good cases.
@@ -121,7 +121,7 @@ void test_with()
 
   // Self-referencing CTEs do not necessarily require other ctes. `have_correct_dependencies` checks that.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(true));
     using Basic = decltype(basic);
 
     auto recursive_base = sqlpp::cte(test::recursive).as(select(sqlpp::value(1).as(sqlpp::alias::a)));
@@ -143,7 +143,7 @@ void test_with()
 
   // Self-referencing CTEs can require other ctes. `have_correct_dependencies` checks that, too.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(true));
     using Basic = decltype(basic);
 
     auto recursive_base = sqlpp::cte(test::recursive).as(select(basic.id.as(sqlpp::alias::a)).from(basic).where(true));

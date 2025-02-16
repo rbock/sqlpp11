@@ -55,15 +55,15 @@ int Update(int, char*[])
 
   to_sql_string(printer, update(t).set(dynamic(maybe, t.textN = "opaque")).where(dynamic(maybe, t.textN != t.textN + "this is nonsense")));
 
-  db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")).unconditionally());
+  db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")).where(true));
   db(update(t)
          .set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4"))
          .where(sqlpp::verbatim<sqlpp::text>("'hansi'") == "hansi"));
-  db(update(t).set(t.intN = std::nullopt).unconditionally());
-  db(update(t).set(t.intN = sqlpp::default_value).unconditionally());
+  db(update(t).set(t.intN = std::nullopt).where(true));
+  db(update(t).set(t.intN = sqlpp::default_value).where(true));
 
-  db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());
-  db(update(t).set(t.intN += t.id * 2, dynamic(maybe, t.textN += " and cake")).unconditionally());
+  db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").where(true));
+  db(update(t).set(t.intN += t.id * 2, dynamic(maybe, t.textN += " and cake")).where(true));
 
   return 0;
 }

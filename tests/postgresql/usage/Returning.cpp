@@ -28,12 +28,12 @@ int Returning(int, char*[])
         << std::endl;
 
     auto updated =
-        db(sqlpp::postgresql::update(foo).set(foo.intN = 0).unconditionally().returning(foo.textNnD, foo.intN));
+        db(sqlpp::postgresql::update(foo).set(foo.intN = 0).where(true).returning(foo.textNnD, foo.intN));
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 
    auto dynamic_updated =
-        db(sqlpp::postgresql::update(foo).set(foo.intN = 0, foo.doubleN = std::nullopt).unconditionally().returning(foo.textNnD, dynamic(true, foo.intN)));
+        db(sqlpp::postgresql::update(foo).set(foo.intN = 0, foo.doubleN = std::nullopt).where(true).returning(foo.textNnD, dynamic(true, foo.intN)));
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 

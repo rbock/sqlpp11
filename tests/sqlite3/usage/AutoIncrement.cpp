@@ -53,7 +53,7 @@ int AutoIncrement(int, char*[])
   db(insert_into(tab).default_values());
 
   std::set<int64_t> results;
-  for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+  for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
   {
     results.insert(row.id);
   };

@@ -50,7 +50,7 @@ int Truncated(int, char*[])
     db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheesecake"));
 
     {
-      for (const auto& row : db(db.prepare(sqlpp::select(all_of(tab)).from(tab).unconditionally())))
+      for (const auto& row : db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true))))
       {
         std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN << std::endl;
       }

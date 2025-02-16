@@ -62,7 +62,7 @@ int DynamicSelect(int, char*[])
     i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
     db(i);
 
-    auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab).unconditionally();
+    auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab).where(true);
 
     for (const auto& row : db(s))
     {

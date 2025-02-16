@@ -34,7 +34,7 @@ int DynamicWhere(int, char*[])
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  SQLPP_COMPARE(sqlpp::unconditionally(), "");
+  SQLPP_COMPARE(sqlpp::where(true), "");
   SQLPP_COMPARE(where(bar.boolNn), " WHERE tab_bar.bool_nn");
 
   SQLPP_COMPARE(where(bar.boolNn and dynamic(true, foo.boolN)), " WHERE tab_bar.bool_nn AND tab_foo.bool_n");

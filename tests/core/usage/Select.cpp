@@ -76,12 +76,12 @@ int Select(int, char*[])
 
   {
     // using stl algorithms
-    auto rows = db(select(all_of(t)).from(t).unconditionally());
+    auto rows = db(select(all_of(t)).from(t).where(true));
     // nicer in C++14
     std::for_each(rows.begin(), rows.end(), &print_row<decltype(*rows.begin())>);
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
   {
     const std::optional<int64_t> a = row.id;
     const std::optional<std::string_view> b = row.textN;
@@ -98,19 +98,19 @@ int Select(int, char*[])
   }
 
   for (const auto& row :
-       db(select(all_of(t), f.textNnD).from(t.join(f).on(t.id > f.doubleN and not t.boolNn)).unconditionally()))
+       db(select(all_of(t), f.textNnD).from(t.join(f).on(t.id > f.doubleN and not t.boolNn)).where(true)))
   {
     std::cout << row.id << std::endl;
   }
 
   for (const auto& row : db(select(all_of(t), f.textNnD)
                                 .from(t.join(f).on(t.id > f.doubleN).join(tab_a).on(t.id == tab_a.doubleN))
-                                .unconditionally()))
+                                .where(true)))
   {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average)).from(t).unconditionally()))
+  for (const auto& row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average)).from(t).where(true)))
   {
     std::cout << row.N << std::endl;
   }
@@ -169,12 +169,12 @@ int Select(int, char*[])
   select(sqlpp::value(7).as(t.id));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(t.textN).else_(std::nullopt).as(t.textN)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.textN).else_(std::nullopt).as(t.textN)).from(t).where(true)))
   {
     std::cerr << row.textN << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
   {
     for_each_field(row, to_cerr{});
   }
@@ -197,7 +197,7 @@ int Select(int, char*[])
 
   // Move to type tests?
   for (const auto& row :
-       db(select(f.doubleN, value(select(count(t.id).as(N)).from(t).unconditionally()).as(cheese)).from(f).unconditionally()))
+       db(select(f.doubleN, value(select(count(t.id).as(N)).from(t).where(true)).as(cheese)).from(f).where(true)))
   {
     std::cout << row.doubleN << " " << row.cheese << std::endl;
   }

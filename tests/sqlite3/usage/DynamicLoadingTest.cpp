@@ -76,7 +76,7 @@ int main()
             << std::endl;
 
   // select a static (alpha) and a dynamic column (beta)
-  auto s = dynamic_select(db).dynamic_columns(tab.alpha.as(left)).from(tab).unconditionally();
+  auto s = dynamic_select(db).dynamic_columns(tab.alpha.as(left)).from(tab).where(true);
   s.selected_columns.add(tab.beta);
   s.selected_columns.add(tab.gamma);
   for (const auto& row : db(s))

@@ -92,7 +92,7 @@ int Integral(int, char*[])
   db(insert_into(intSample).set(intSample.signedValue = size_t_value_min, intSample.unsignedValue = size_t_value_max));
   db(insert_into(intSample).set(intSample.signedValue = int32_t_value, intSample.unsignedValue = uint32_t_value));
 
-  auto q = select(intSample.signedValue, intSample.unsignedValue).from(intSample).unconditionally();
+  auto q = select(intSample.signedValue, intSample.unsignedValue).from(intSample).where(true);
 
   auto rows = db(q);
 

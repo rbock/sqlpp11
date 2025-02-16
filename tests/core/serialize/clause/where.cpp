@@ -35,7 +35,7 @@ int main(int, char* [])
   const auto foo = test::TabFoo{};
 
   // Without condition.
-  SQLPP_COMPARE(sqlpp::unconditionally(), "");
+  SQLPP_COMPARE(sqlpp::where(true), "");
   SQLPP_COMPARE(sqlpp::where(true), " WHERE 1");
 
   // Whith static condition.

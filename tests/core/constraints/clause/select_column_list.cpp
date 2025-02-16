@@ -148,7 +148,7 @@ int main()
   {
     auto s = select(foo.id, dynamic(true, foo.intN.as(test::max_id)))
                  .from(foo)
-                 .unconditionally()
+                 .where(true)
                  .group_by(foo.id, dynamic(true, foo.intN));
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
@@ -168,14 +168,14 @@ int main()
   // ------- Join  --------------
   // ----------------------------
   {
-    auto s = select(foo.id).from(bar.cross_join(foo)).unconditionally();
+    auto s = select(foo.id).from(bar.cross_join(foo)).where(true);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
   }
 
   {
     // Fail: Statically required table, but provided dynamically only
-    auto s = select(foo.id).from(bar.cross_join(dynamic(true, foo))).unconditionally();
+    auto s = select(foo.id).from(bar.cross_join(dynamic(true, foo))).where(true);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value,
@@ -186,7 +186,7 @@ int main()
   }
   {
     // Fail: Statically required table, but provided dynamically only
-    auto s = select(foo.id).from(dynamic(true, foo)).unconditionally();
+    auto s = select(foo.id).from(dynamic(true, foo)).where(true);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
@@ -195,7 +195,7 @@ int main()
   }
   {
     // Fail: This is a sub select that statically requires `foo` but provides it dynamically only.
-    auto s = select(foo.id, bar.intN).from(dynamic(true, foo)).unconditionally();
+    auto s = select(foo.id, bar.intN).from(dynamic(true, foo)).where(true);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
@@ -204,7 +204,7 @@ int main()
   }
   {
     // Fail: foo is statically required in a selected expression, but provided dynamically only.
-    auto s = select((foo.id + bar.intN).as(something)).from(dynamic(true, foo)).unconditionally();
+    auto s = select((foo.id + bar.intN).as(something)).from(dynamic(true, foo)).where(true);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
@@ -214,7 +214,7 @@ int main()
   {
     // Fail: `bar` is required, but not provided. This can be used as a sub-select (consistency check), but not as a
     // table (prepare check), and it could not be prepared or executed either.
-    auto s = select(bar.id).from(foo).unconditionally();
+    auto s = select(bar.id).from(foo).where(true);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,

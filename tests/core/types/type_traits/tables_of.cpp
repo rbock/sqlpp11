@@ -104,7 +104,7 @@ void test_provided_tables_of()
 
   // SELECT AS provides tables.
   {
-    using T = decltype(select(test::TabFoo{}.id).from(test::TabFoo{}).unconditionally().as(cheese));
+    using T = decltype(select(test::TabFoo{}.id).from(test::TabFoo{}).where(true).as(cheese));
     using Ref = sqlpp::select_ref_t<cheese_t::_sqlpp_name_tag>;
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>, sqlpp::detail::type_set<Ref>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<T>, sqlpp::detail::type_set<Ref>>::value, "");
