@@ -40,6 +40,7 @@ namespace
 {
   const auto now = std::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
   const auto today = std::chrono::floor<std::chrono::days>(now);
+  const auto time_of_day = std::chrono::microseconds{now - today};
   const auto yesterday = today - std::chrono::days{1};
 
   template <typename L, typename R>
@@ -96,10 +97,11 @@ int DateTime(int, char*[])
 
     auto prepared_update = db.prepare(
         update(tab)
-            .set(tab.dayPointN = parameter(tab.dayPointN), tab.timePointN = parameter(tab.timePointN))
+            .set(tab.dayPointN = parameter(tab.dayPointN), tab.timePointN = parameter(tab.timePointN), tab.timeOfDayN = parameter(tab.timeOfDayN))
             .where(true));
     prepared_update.params.dayPointN = today;
     prepared_update.params.timePointN = now;
+    prepared_update.params.timeOfDayN = time_of_day;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
@@ -107,6 +109,7 @@ int DateTime(int, char*[])
     {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
+      require_equal(__LINE__, row.timeOfDayN.value(), time_of_day);
     }
   }
   catch (const std::exception& e)

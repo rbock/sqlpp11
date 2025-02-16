@@ -156,6 +156,23 @@ namespace sqlpp
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
+      void read_field(size_t index, std::chrono::microseconds& value)
+      {
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
+
+        const auto time_of_day_string =
+            reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: time_of_day string: " << time_of_day_string << std::endl;
+        if (::sqlpp::detail::parse_time_of_day(value, time_of_day_string) == false)
+        {
+          value = {};
+          if (_handle->debug)
+            std::cerr << "Sqlite3 debug: invalid date result: " << time_of_day_string << std::endl;
+        }
+      }
+
       void read_field(size_t index, ::sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)

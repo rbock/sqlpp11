@@ -28,6 +28,7 @@ CREATE TABLE tab_date_time
 (
   id INTEGER PRIMARY KEY,
   day_point_n date,
-  time_point_n datetime
+  time_point_n datetime,
+  time_of_day_n time
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

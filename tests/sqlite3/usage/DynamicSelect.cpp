@@ -42,8 +42,6 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   return os << t.value();
 }
 
-SQLPP_CREATE_NAME_TAG(left);
-
 namespace sql = sqlpp::sqlite3;
 int DynamicSelect(int, char*[])
 {

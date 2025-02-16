@@ -89,6 +89,14 @@ namespace sqlpp
     return {};
   }
 
+  template <typename Lhs, typename Rhs>
+  auto to_sql_string(sqlite3::context_t& context, const union_t<union_distinct_t, Lhs, Rhs>& t) -> std::string
+  {
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
+    return ret_val += to_sql_string(context, t._rhs);
+  }
+
   // Serialize parameters
   template <typename ValueType, typename NameType>
   auto to_sql_string(sqlite3::context_t& context, const parameter_t<ValueType, NameType>&) -> std::string

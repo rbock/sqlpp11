@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,17 +23,26 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/sqlite3/sqlite3.h>
+#include <sqlpp11/tests/sqlite3/serialize_helpers.h>
+#include <sqlpp11/sqlpp11.h>
 
-int main()
+int main(int, char* [])
 {
-  auto ctx = sqlpp::sqlite3::context_t{};
+  const auto t = test::TabBar{};
+  const auto f = test::TabFoo{};
 
-  const auto foo = test::TabFoo{};
+  // UNION ALL (as in other connectors)
+  SQLPP_COMPARE(select(t.id)
+         .from(t)
+         .where(true)
+         .union_all(select(f.id).from(f).where(true)), "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION ALL SELECT tab_foo.id FROM tab_foo WHERE 1");
 
-  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, using_(foo)),
-                            "Sqlite3: No support for USING");
+  // UNION is implicitly distinct
+  SQLPP_COMPARE(select(t.id)
+         .from(t)
+         .where(true)
+         .union_distinct(select(f.id).from(f).where(true)), "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION SELECT tab_foo.id FROM tab_foo WHERE 1");
+
+  return 0;
 }
-

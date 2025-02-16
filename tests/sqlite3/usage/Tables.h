@@ -192,7 +192,8 @@ namespace test
 (
   id INTEGER PRIMARY KEY,
   day_point_n date,
-  time_point_n datetime
+  time_point_n datetime,
+  time_of_day_n time
 ))+++");
   }
 
@@ -216,12 +217,19 @@ namespace test
       using value_type = std::optional<::sqlpp::time_point>;
       using has_default = std::true_type;
     };
+    struct TimeOfDayN : public ::sqlpp::name_tag_base
+    {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_of_day_n, timeOfDayN);
+      using value_type = std::optional<::sqlpp::time_of_day>;
+      using has_default = std::true_type;
+    };
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_date_time, tabDateTime);
     template<typename T>
     using _table_columns = sqlpp::table_columns<T,
                Id,
                DayPointN,
-               TimePointN>;
+               TimePointN,
+               TimeOfDayN>;
     using _required_insert_columns = sqlpp::detail::type_set<>;
   };
   using TabDateTime = ::sqlpp::table_t<TabDateTime_>;

@@ -179,6 +179,20 @@ namespace sqlpp
         detail::check_bind_result(result, "text");
       }
 
+      void _bind_parameter(size_t index, const std::chrono::microseconds& value)
+      {
+        if (_handle->debug)
+        {
+          std::cerr << "Sqlite3 debug: binding time of day parameter "
+                    << " at index: " << index << std::endl;
+        }
+
+        const auto text = std::format("{0:%H:%M:%S}", value);
+        const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
+                                             static_cast<int>(text.size()), SQLITE_TRANSIENT);
+        detail::check_bind_result(result, "time_of_day");
+      }
+
       void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)
@@ -187,10 +201,7 @@ namespace sqlpp
                     << " at index: " << index << std::endl;
         }
 
-        std::ostringstream os;
-        const auto ymd = std::chrono::year_month_day{value};
-        os << ymd;
-        const auto text = os.str();
+        const auto text = std::format("{0:%Y-%m-%d}", value);
         const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
                                              static_cast<int>(text.size()), SQLITE_TRANSIENT);
         detail::check_bind_result(result, "date");
@@ -204,15 +215,10 @@ namespace sqlpp
                     << " at index: " << index << std::endl;
         }
 
-        const auto dp = std::chrono::floor<std::chrono::days>(value);
-        const auto time = std::chrono::floor<::std::chrono::milliseconds>(value - dp);
-        const auto ymd = std::chrono::year_month_day{dp};
-        std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
-        os << ymd << ' ' << time;
-        const auto text = os.str();
+        const auto text = std::format("{0:%Y-%m-%d %H:%M:%S}", value);
         const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
                                              static_cast<int>(text.size()), SQLITE_TRANSIENT);
-        detail::check_bind_result(result, "date");
+        detail::check_bind_result(result, "date_time");
       }
 
       void _bind_parameter(size_t index, const std::vector<uint8_t>& value)
