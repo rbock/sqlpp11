@@ -56,4 +56,10 @@ namespace sqlpp
   template <typename T>
   concept DynamicAssignment = is_assignment_v<remove_dynamic_t<T>>;
 
+  template <typename T>
+  concept DynamicBoolean = is_boolean_v<remove_dynamic_t<T>>;
+
+  template <typename T>
+  concept DynamicCte = is_cte_v<remove_dynamic_t<T>>;
+
 }  // namespace sqlpp

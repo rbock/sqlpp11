@@ -32,22 +32,22 @@ namespace
   SQLPP_CREATE_NAME_TAG(something);
   SQLPP_CREATE_NAME_TAG(cake);
 
-  // Returns true if `with(declval<Ctes>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_with_with_impl : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_with_with_standalone = requires(Expressions... expressions) {
+    sqlpp::with(expressions...);
   };
-
-  template <typename... Ctes>
-  struct can_call_with_with_impl<sqlpp::detail::type_vector<Ctes...>,
-                            std::void_t<decltype(sqlpp::with(std::declval<Ctes>()...))>> : public std::true_type
-  {
+  template <typename... Expressions>
+  concept can_call_with_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_with_t>{}.with(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_with_with : public can_call_with_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
+  concept can_call_with_with =
+      can_call_with_with_standalone<Expressions...> and can_call_with_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_with_with =
+      not(can_call_with_with_standalone<Expressions...> or can_call_with_with_in_statement<Expressions...>);
 }  // namespace
 
 int main()
@@ -61,20 +61,21 @@ int main()
 
   // OK
   with(c);
-  static_assert(can_call_with_with<decltype(c)>::value, "");
+  sqlpp::statement_t<sqlpp::no_with_t>{}.with(c);
+  static_assert(can_call_with_with<decltype(c)>, "");
 
   // Try cte reference
-  static_assert(not can_call_with_with<decltype(c_ref)>::value, "");
+  static_assert(cannot_call_with_with<decltype(c_ref)>, "");
 
   // Try cte alias
-  static_assert(not can_call_with_with<decltype(c.as(cake))>::value, "");
+  static_assert(cannot_call_with_with<decltype(c.as(cake))>, "");
 
   // Try some other types as expressions
-  static_assert(not can_call_with_with<decltype(bar)>::value, "");
-  static_assert(not can_call_with_with<decltype("true")>::value, "");
-  static_assert(not can_call_with_with<decltype(17)>::value, "");
-  static_assert(not can_call_with_with<decltype('c')>::value, "");
-  static_assert(not can_call_with_with<decltype(nullptr)>::value, "");
+  static_assert(cannot_call_with_with<decltype(bar)>, "");
+  static_assert(cannot_call_with_with<decltype("true")>, "");
+  static_assert(cannot_call_with_with<decltype(17)>, "");
+  static_assert(cannot_call_with_with<decltype('c')>, "");
+  static_assert(cannot_call_with_with<decltype(nullptr)>, "");
 
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to the right)
   {

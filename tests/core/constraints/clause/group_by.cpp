@@ -30,7 +30,6 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-#warning : Do this for the other can_call_with tests, too
   template <typename... Expressions>
   concept can_call_group_by_with_standalone = requires(Expressions... expressions) {
     sqlpp::group_by(expressions...);

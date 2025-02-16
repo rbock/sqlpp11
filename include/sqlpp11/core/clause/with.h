@@ -39,20 +39,17 @@
 
 namespace sqlpp
 {
+  struct no_with_t;
+
   template <typename... Ctes>
   struct with_t
   {
-    with_t(Ctes... expressions) : _expressions(expressions...)
+    template <typename Statement>
+    auto operator()(Statement&& statement)
     {
+      return new_statement<no_with_t>(std::forward<Statement>(statement), *this);
     }
-
-    with_t(const with_t&) = default;
-    with_t(with_t&&) = default;
-    with_t& operator=(const with_t&) = default;
-    with_t& operator=(with_t&&) = default;
-    ~with_t() = default;
-
-    std::tuple<Ctes...> _expressions;
+    std::tuple<Ctes...> _ctes;
   };
 
   template <typename... Ctes>
@@ -86,56 +83,6 @@ namespace sqlpp
   {
     using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
   };
-
-  struct no_with_t
-  {
-    template <typename Statement, typename... Ctes>
-    auto with(this Statement&& statement, with_t<Ctes...> with)
-    {
-      return new_statement<no_with_t>(std::forward<Statement>(statement), with);
-    }
-  };
-
-  template <typename Statement>
-  struct consistency_check<Statement, no_with_t>
-  {
-    using type = consistent_t;
-  };
-
-  template <typename... Ctes>
-  struct blank_with_t
-  {
-    with_t<Ctes...> _with_clause;
-
-    template <typename Statement>
-    auto operator()(Statement statement)
-        -> decltype(statement.with(_with_clause))
-    {
-      return statement.with(_with_clause);
-    }
-  };
-
-  // Interpreters
-  template <typename Context>
-  auto to_sql_string(Context&, const no_with_t&) -> std::string
-  {
-    return "";
-  }
-
-  template <typename Context, typename... Ctes>
-  auto to_sql_string(Context& context, const with_t<Ctes...>& t) -> std::string
-  {
-    static constexpr bool _is_recursive = logic::any<is_recursive_cte<Ctes>::value...>::value;
-
-    return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
-           tuple_to_sql_string(context, t._expressions, tuple_operand{", "}) + " ";
-  }
-
-  template <typename Context, typename... Ctes>
-  auto to_sql_string(Context& context, const blank_with_t<Ctes...>& t) -> std::string
-  {
-    return to_sql_string(context, t._with_clause);
-  }
 
   // CTEs can depend on CTEs defined before (in the same query).
   // `have_correct_cte_dependencies` checks that by walking the CTEs from left to right and building a type vector that
@@ -182,17 +129,49 @@ namespace sqlpp
     static constexpr bool value = have_correct_static_cte_dependencies_impl<detail::type_set<>, detail::type_set<>, CTEs...>::value;
   };
 
-  template <typename... Ctes, typename = std::enable_if_t<logic::all<is_cte<remove_dynamic_t<Ctes>>::value...>::value>>
-  auto with(Ctes... cte) -> blank_with_t<Ctes...>
+  struct no_with_t
   {
-    SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,
-                        "at least one CTE depends on another CTE that is not defined left of it");
-    SQLPP_STATIC_ASSERT(
-        have_correct_static_cte_dependencies<Ctes...>::value,
-        "at least one CTE statically depends on another CTE that is not defined statically left of it (only dynamically)");
-    SQLPP_STATIC_ASSERT(detail::are_unique<make_char_sequence_t<Ctes>...>::value,
-                        "CTEs in with need to have unique names");
+    template <typename Statement, DynamicCte... Ctes>
+    auto with(this Statement&& statement, Ctes... ctes)
+    {
+      SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,
+                          "at least one CTE depends on another CTE that is not defined left of it");
+      SQLPP_STATIC_ASSERT(have_correct_static_cte_dependencies<Ctes...>::value,
+                          "at least one CTE statically depends on another CTE that is not defined statically left of "
+                          "it (only dynamically)");
+      SQLPP_STATIC_ASSERT(detail::are_unique<make_char_sequence_t<Ctes>...>::value,
+                          "CTEs in with need to have unique names");
 
-    return {{cte...}};
+      return new_statement<no_with_t>(std::forward<Statement>(statement),
+                                      with_t<Ctes...>{std::make_tuple(std::move(ctes)...)});
+    }
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_with_t>
+  {
+    using type = consistent_t;
+  };
+
+  // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context&, const no_with_t&) -> std::string
+  {
+    return "";
+  }
+
+  template <typename Context, typename... Ctes>
+  auto to_sql_string(Context& context, const with_t<Ctes...>& t) -> std::string
+  {
+    static constexpr bool _is_recursive = logic::any<is_recursive_cte<Ctes>::value...>::value;
+
+    return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
+           tuple_to_sql_string(context, t._ctes, tuple_operand{", "}) + " ";
+  }
+
+  template <DynamicCte... Ctes>
+  auto with(Ctes... ctes) 
+  {
+    return statement_t<no_with_t>{}.with(std::move(ctes)...);
   }
 }  // namespace sqlpp

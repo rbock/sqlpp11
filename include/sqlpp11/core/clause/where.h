@@ -96,7 +96,7 @@ namespace sqlpp
       return new_statement<no_where_t>(std::forward<Statement>(statement), where_t<unconditional_t>{});
     }
 
-    template <typename Statement, typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    template <typename Statement, DynamicBoolean Expression>
     auto where(this Statement&& statement, Expression expression)
     {
       SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
@@ -145,10 +145,10 @@ namespace sqlpp
     return {};
   }
 
-  template <typename T>
-  auto where(T t)
+  template <DynamicBoolean Expression>
+  auto where(Expression expression)
   {
-    return statement_t<no_where_t>().where(std::move(t));
+    return statement_t<no_where_t>().where(std::move(expression));
   }
 
   inline auto unconditionally()

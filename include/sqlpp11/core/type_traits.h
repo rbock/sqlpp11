@@ -324,6 +324,9 @@ namespace sqlpp
   };
 
   template <typename T>
+  static inline constexpr bool is_cte_v = is_cte<T>::value;
+
+  template <typename T>
   struct is_expression_as : public std::false_type
   {
   };

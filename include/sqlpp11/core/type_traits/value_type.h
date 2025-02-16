@@ -147,6 +147,9 @@ namespace sqlpp
   {
   };
 
+  template <typename T>
+  static inline constexpr bool is_boolean_v = is_boolean<T>::value;
+
   template <>
   struct is_boolean<std::nullopt_t> : public std::true_type {
   };

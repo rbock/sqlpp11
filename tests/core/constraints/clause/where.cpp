@@ -30,17 +30,22 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `where(declval<Expression>())` is a valid function call.
-  template <typename Expression, typename = void>
-  struct can_call_where_with : public std::false_type
-  {
+  template <typename... Expressions>
+  concept can_call_where_with_standalone = requires(Expressions... expressions) {
+    sqlpp::where(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_where_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::no_where_t>{}.where(expressions...);
   };
 
-  template <typename Expression>
-  struct can_call_where_with<Expression, std::void_t<decltype(sqlpp::where(std::declval<Expression>()))>>
-      : public std::true_type
-  {
-  };
+  template <typename... Expressions>
+  concept can_call_where_with =
+      can_call_where_with_standalone<Expressions...> and can_call_where_with_in_statement<Expressions...>;
+
+  template <typename... Expressions>
+  concept cannot_call_where_with =
+      not(can_call_where_with_standalone<Expressions...> or can_call_where_with_in_statement<Expressions...>);
 }  // namespace
 
 int main()
@@ -52,22 +57,22 @@ int main()
   // OK
   where(bar.boolNn);
   where(bar.boolNn == true);
-  static_assert(can_call_where_with<decltype(bar.boolNn)>::value, "");
+  static_assert(can_call_where_with<decltype(bar.boolNn)>, "");
 
   // Try assignment as condition
-  static_assert(not can_call_where_with<decltype(bar.boolNn = true)>::value, "");
+  static_assert(cannot_call_where_with<decltype(bar.boolNn = true)>, "");
 
   // Try non-boolean expression
-  static_assert(not can_call_where_with<decltype(bar.id)>::value, "");
+  static_assert(cannot_call_where_with<decltype(bar.id)>, "");
 
   // Try some other types as expressions
-  static_assert(not can_call_where_with<decltype("true")>::value, "");
-  static_assert(not can_call_where_with<decltype(17)>::value, "");
-  static_assert(not can_call_where_with<decltype('c')>::value, "");
-  static_assert(not can_call_where_with<decltype(nullptr)>::value, "");
+  static_assert(cannot_call_where_with<decltype("true")>, "");
+  static_assert(cannot_call_where_with<decltype(17)>, "");
+  static_assert(cannot_call_where_with<decltype('c')>, "");
+  static_assert(cannot_call_where_with<decltype(nullptr)>, "");
 
   // Try alias bool column (can only be used as select column, but not as a value in `where`).
-  static_assert(not can_call_where_with<decltype(bar.boolNn.as(something))>::value, "");
+  static_assert(cannot_call_where_with<decltype(bar.boolNn.as(something))>, "");
 
   // Try using aggregate functions in where
   SQLPP_CHECK_STATIC_ASSERT(where(count(bar.id) > 0), "where() must not contain aggregate functions");
