@@ -29,8 +29,6 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
   // Returns true if `assign(declcal<Lhs>, declval<Rhs>())` is a valid function call.
   template <typename Lhs, typename Rhs, typename = void>
   struct can_call_assign_with : public std::false_type

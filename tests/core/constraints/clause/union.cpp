@@ -112,9 +112,9 @@ int main()
   }
 
   // UNION requires preparable statements
-  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, incomplete_rhs, "calling where() or where(true) required");
-  CHECK_UNION_STATIC_ASSERTS(lhs, incomplete_rhs, "calling where() or where(true) required");
-  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, rhs, "calling where() or where(true) required");
+  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, incomplete_rhs, "calling where() required");
+  CHECK_UNION_STATIC_ASSERTS(lhs, incomplete_rhs, "calling where() required");
+  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, rhs, "calling where() required");
 
   // UNION requires statements with same result row
   {

@@ -28,8 +28,6 @@
 
 namespace
 {
-  SQLPP_CREATE_NAME_TAG(something);
-
   // Returns true if `concat(declval<Expressions>()...)` is a valid function call.
   template <typename TypeVector, typename = void>
   struct can_call_concat_with_impl : public std::false_type
@@ -49,10 +47,6 @@ namespace
   };
 
 }  // namespace
-
-namespace test {
-  SQLPP_CREATE_NAME_TAG(max_id);
-}
 
 int main()
 {

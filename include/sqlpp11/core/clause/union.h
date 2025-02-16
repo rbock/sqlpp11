@@ -59,6 +59,12 @@ namespace sqlpp
   {
   };
 
+  template <typename Statement, typename Flag, typename Lhs, typename Rhs>
+  struct result_row_of<Statement, union_t<Flag, Lhs, Rhs>>
+  {
+    using type = get_result_row_t<Lhs>;
+  };
+
   template <typename Flag, typename Lhs, typename Rhs>
     struct result_methods_of<union_t<Flag, Lhs, Rhs>>
     {

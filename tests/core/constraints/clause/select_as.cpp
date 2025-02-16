@@ -72,7 +72,7 @@ int main()
   {
     // Missing where
     auto t = sqlpp::select(bar.id).from(bar);
-    SQLPP_CHECK_STATIC_ASSERT(t.as(tab), "calling where() or where(true) required");
+    SQLPP_CHECK_STATIC_ASSERT(t.as(tab), "calling where() required");
   }
 
   // -------------------------

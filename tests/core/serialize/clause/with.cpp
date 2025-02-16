@@ -38,7 +38,7 @@ int main(int, char* [])
   // WITH simple CTE: X AS SELECT
   {
     const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
-    SQLPP_COMPARE(with(x), "WITH x AS (SELECT tab_foo.id FROM tab_foo) ");
+    SQLPP_COMPARE(with(x), "WITH x AS (SELECT tab_foo.id FROM tab_foo WHERE 1) ");
   }
 
   // WITH non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
@@ -46,7 +46,7 @@ int main(int, char* [])
     const auto x =
         cte(sqlpp::alias::x)
             .as(select(foo.id).from(foo).where(true).union_all(select(bar.id).from(bar).where(true)));
-    SQLPP_COMPARE(with(x), "WITH x AS (SELECT tab_foo.id FROM tab_foo UNION ALL SELECT tab_bar.id FROM tab_bar) ");
+    SQLPP_COMPARE(with(x), "WITH x AS (SELECT tab_foo.id FROM tab_foo WHERE 1 UNION ALL SELECT tab_bar.id FROM tab_bar WHERE 1) ");
   }
 
   // WITH recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
@@ -62,8 +62,8 @@ int main(int, char* [])
     const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
     const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).where(true));
 
-    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo), y AS (SELECT tab_foo.id FROM tab_foo) ");
-    SQLPP_COMPARE(with(y, x), "WITH y AS (SELECT tab_foo.id FROM tab_foo), x AS (SELECT tab_foo.id FROM tab_foo) ");
+    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo WHERE 1), y AS (SELECT tab_foo.id FROM tab_foo WHERE 1) ");
+    SQLPP_COMPARE(with(y, x), "WITH y AS (SELECT tab_foo.id FROM tab_foo WHERE 1), x AS (SELECT tab_foo.id FROM tab_foo WHERE 1) ");
   }
 
   // WITH two CTEs, one of them recursive
@@ -72,8 +72,8 @@ int main(int, char* [])
     const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10));
     const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).where(true));
 
-    SQLPP_COMPARE(with(x, y), "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10), y AS (SELECT tab_foo.id FROM tab_foo) ");
-    SQLPP_COMPARE(with(y, x), "WITH RECURSIVE y AS (SELECT tab_foo.id FROM tab_foo), x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
+    SQLPP_COMPARE(with(x, y), "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10), y AS (SELECT tab_foo.id FROM tab_foo WHERE 1) ");
+    SQLPP_COMPARE(with(y, x), "WITH RECURSIVE y AS (SELECT tab_foo.id FROM tab_foo WHERE 1), x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
   }
 
   // WITH two CTEs, second depends on first
@@ -81,7 +81,7 @@ int main(int, char* [])
     const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
     const auto y = cte(sqlpp::alias::y).as(select(x.id).from(x).where(true));
 
-    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo), y AS (SELECT x.id FROM x) ");
+    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo WHERE 1), y AS (SELECT x.id FROM x WHERE 1) ");
   }
 
   return 0;

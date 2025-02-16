@@ -26,8 +26,6 @@
 #include <sqlpp11/tests/core/serialize_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_CREATE_NAME_TAG(v);
-
 int main(int, char* [])
 {
   const auto cond = sqlpp::value(true);

@@ -32,7 +32,7 @@ int main(int, char* [])
   const auto foo = test::TabFoo{};
 
   // Delete all (don't do this at home, use truncate instead).
-  SQLPP_COMPARE(delete_from(foo).where(true), "DELETE FROM tab_foo");
+  SQLPP_COMPARE(delete_from(foo).where(true), "DELETE FROM tab_foo WHERE 1");
   SQLPP_COMPARE(delete_from(foo).where(dynamic(false, foo.id > 17)), "DELETE FROM tab_foo");
 
   // Delete some.

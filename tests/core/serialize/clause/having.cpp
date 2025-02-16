@@ -30,7 +30,6 @@
 int main(int, char* [])
 {
   const auto val = sqlpp::value(17);
-  const auto expr = sqlpp::value(17) + 4;
 
   const auto foo = test::TabFoo{};
 
@@ -41,6 +40,7 @@ int main(int, char* [])
   SQLPP_COMPARE(sqlpp::having(foo.boolN), " HAVING tab_foo.bool_n");
   SQLPP_COMPARE(sqlpp::having(foo.boolN.is_not_distinct_from(true)), " HAVING tab_foo.bool_n IS NOT DISTINCT FROM 1");
   SQLPP_COMPARE(sqlpp::having(foo.id > 17), " HAVING tab_foo.id > 17");
+  SQLPP_COMPARE(sqlpp::having(foo.id > val), " HAVING tab_foo.id > 17");
   SQLPP_COMPARE(sqlpp::having(max(foo.id) > 17), " HAVING MAX(tab_foo.id) > 17");
 
   // With dynamic condition.

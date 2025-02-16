@@ -29,13 +29,9 @@
 
 int main(int, char* [])
 {
-  const auto val = sqlpp::value(17);
-  const auto expr = sqlpp::value(17) + 4;
-
   const auto foo = test::TabFoo{};
 
   // Without condition.
-  SQLPP_COMPARE(sqlpp::where(true), "");
   SQLPP_COMPARE(sqlpp::where(true), " WHERE 1");
 
   // Whith static condition.

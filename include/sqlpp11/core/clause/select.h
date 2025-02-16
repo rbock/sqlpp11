@@ -84,7 +84,8 @@ namespace sqlpp
   }
 
   template <typename... Columns>
-  auto select(Columns... columns) -> decltype(blank_select_t().columns(columns...))
+    requires(sizeof...(Columns) > 0)
+  auto select(Columns... columns)
   {
     return blank_select_t().columns(columns...);
   }

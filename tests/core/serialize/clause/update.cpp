@@ -32,7 +32,7 @@ int main(int, char* [])
   const auto foo = test::TabFoo{};
 
   // Update all.
-  SQLPP_COMPARE(update(foo).set(foo.id = 7).where(true), "UPDATE tab_foo SET id = 7");
+  SQLPP_COMPARE(update(foo).set(foo.id = 7).where(true), "UPDATE tab_foo SET id = 7 WHERE 1");
 
   // Update some.
   SQLPP_COMPARE(update(foo)

@@ -85,8 +85,8 @@ int main()
   static_assert(not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>, "");
 
   // Missing where condition
-  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s1), "calling where() or where(true) required");
-  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s2), "calling where() or where(true) required");
+  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s1), "calling where() required");
+  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s2), "calling where() required");
 
   // Missing tables
   SQLPP_CHECK_STATIC_ASSERT(ref.as(select(foo.id).from(bar).where(true)), "common table expression must not use unknown tables");
@@ -113,7 +113,7 @@ int main()
   // CTE UNION requires consistent statements
   {
     auto bad_rhs = select(all_of(foo)).from(foo);
-    CHECK_CTE_UNION_STATIC_ASSERTS(cte, bad_rhs, "calling where() or where(true) required");
+    CHECK_CTE_UNION_STATIC_ASSERTS(cte, bad_rhs, "calling where() required");
   }
 
   // CTE UNION requires no missing tables
