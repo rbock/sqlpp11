@@ -37,18 +37,7 @@ namespace sqlpp
     template <typename OnConflict>
     struct on_conflict_do_nothing_t
     {
-      on_conflict_do_nothing_t(OnConflict on_conflict) : _on_conflict(on_conflict)
-      {
-      }
-
-      on_conflict_do_nothing_t(const on_conflict_do_nothing_t&) = default;
-      on_conflict_do_nothing_t(on_conflict_do_nothing_t&&) = default;
-      on_conflict_do_nothing_t& operator=(const on_conflict_do_nothing_t&) = default;
-      on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
-      ~on_conflict_do_nothing_t() = default;
-
       OnConflict _on_conflict;
-
     };
 
     // Serialization

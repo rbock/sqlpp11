@@ -33,65 +33,45 @@ namespace
 {
   SQLPP_CREATE_NAME_TAG(something);
 
-  // Returns true if `on_conflict(declval<Expressions>()...)` is a valid function call.
-  template <typename TypeVector, typename = void>
-  struct can_call_on_conflict_with_impl : public std::false_type
-  {
+  // Test on_conflict
+  template <typename... Expressions>
+  concept can_call_on_conflict_with_standalone = requires(Expressions... expressions) {
+    sqlpp::postgresql::on_conflict(expressions...);
+  };
+  template <typename... Expressions>
+  concept can_call_on_conflict_with_in_statement = requires(Expressions... expressions) {
+    sqlpp::statement_t<sqlpp::postgresql::no_on_conflict_t>{}.on_conflict(expressions...);
   };
 
   template <typename... Expressions>
-  struct can_call_on_conflict_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(sqlpp::postgresql::on_conflict(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
+  concept can_call_on_conflict_with =
+      can_call_on_conflict_with_standalone<Expressions...> and can_call_on_conflict_with_in_statement<Expressions...>;
 
   template <typename... Expressions>
-  struct can_call_on_conflict_with : public can_call_on_conflict_with_impl<sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
+  concept cannot_call_on_conflict_with =
+      not(can_call_on_conflict_with_standalone<Expressions...> or can_call_on_conflict_with_in_statement<Expressions...>);
 
-  // Returns true if `declval<Lhs>.where(declval<Expressions>()...)` is a valid function call.
-  template <typename Lhs, typename TypeVector, typename = void>
-  struct can_call_do_update_with_impl : public std::false_type
-  {
+  // Test do_update
+  template <typename Lhs, typename... Expressions>
+  concept can_call_do_update_with = requires(Lhs lhs, Expressions... expressions) {
+    lhs.do_update(expressions...);
   };
 
   template <typename Lhs, typename... Expressions>
-  struct can_call_do_update_with_impl<Lhs, sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(std::declval<Lhs>().do_update(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
+  concept cannot_call_do_update_with =
+      not(can_call_do_update_with<Lhs, Expressions...>);
+
+  // Test where
+  template <typename Lhs, typename... Expressions>
+  concept can_call_where_with = requires(Lhs lhs, Expressions... expressions) {
+    lhs.where(expressions...);
   };
 
   template <typename Lhs, typename... Expressions>
-  struct can_call_do_update_with : public can_call_do_update_with_impl<Lhs, sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
-
-  // Returns true if `declval<Lhs>.where(declval<Expressions>()...)` is a valid function call.
-  template <typename Lhs, typename TypeVector, typename = void>
-  struct can_call_where_with_impl : public std::false_type
-  {
-  };
-
-  template <typename Lhs, typename... Expressions>
-  struct can_call_where_with_impl<Lhs, sqlpp::detail::type_vector<Expressions...>,
-                                  std::void_t<decltype(std::declval<Lhs>().where(std::declval<Expressions>()...))>>
-      : public std::true_type
-  {
-  };
-
-  template <typename Lhs, typename... Expressions>
-  struct can_call_where_with : public can_call_where_with_impl<Lhs, sqlpp::detail::type_vector<Expressions...>>
-  {
-  };
+  concept cannot_call_where_with =
+      not(can_call_where_with<Lhs, Expressions...>);
 
 }  // namespace
-
-namespace test {
-  SQLPP_CREATE_NAME_TAG(max_id);
-}
 
 int main()
 {
@@ -106,21 +86,23 @@ int main()
   on_conflict(foo.id);
   on_conflict(foo.id, foo.textNnD);
   on_conflict(foo.id, bar.id);
+    static_assert(can_call_on_conflict_with<>, "");
+    static_assert(can_call_on_conflict_with<decltype(foo.id)>, "");
 
   // -------------------------
   // on_conflict(<non-column>) cannot be constructed.
   // -------------------------
   {
-    static_assert(not can_call_on_conflict_with<decltype(all_of(foo))>::value, "");
-    static_assert(not can_call_on_conflict_with<decltype(bar.id.as(something))>::value, "");
+    static_assert(cannot_call_on_conflict_with<decltype(all_of(foo))>, "");
+    static_assert(cannot_call_on_conflict_with<decltype(bar.id.as(something))>, "");
   }
 
   // do_update requires assignments as arguments
   {
     auto insert = sqlpp::postgresql::insert_into(foo).default_values().on_conflict(foo.id);
-    static_assert(can_call_do_update_with<decltype(insert), decltype(foo.id = 7)>::value, "");
-    static_assert(can_call_do_update_with<decltype(insert), decltype(dynamic(maybe, foo.id = 7))>::value, "");
-    static_assert(not can_call_do_update_with<decltype(insert), decltype(foo.id == 7)>::value, "");
+    static_assert(can_call_do_update_with<decltype(insert), decltype(foo.id = 7)>, "");
+    static_assert(can_call_do_update_with<decltype(insert), decltype(dynamic(maybe, foo.id = 7))>, "");
+    static_assert(cannot_call_do_update_with<decltype(insert), decltype(foo.id == 7)>, "");
 
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::postgresql::assert_on_conflict_action_t>::value, "");
@@ -144,10 +126,10 @@ int main()
   {
     auto insert = sqlpp::postgresql::insert_into(foo).default_values().on_conflict(foo.id).do_update(foo.id = 7);
 
-    static_assert(can_call_where_with<decltype(insert), decltype(foo.id == 7)>::value, "");
-    static_assert(can_call_where_with<decltype(insert), decltype(dynamic(maybe, foo.id == 7))>::value, "");
-    static_assert(not can_call_where_with<decltype(insert), decltype(foo.id = 7)>::value, "");
-    static_assert(not can_call_where_with<decltype(insert), decltype(foo.id = 7), decltype(true)>::value, "");
+    static_assert(can_call_where_with<decltype(insert), decltype(foo.id == 7)>, "");
+    static_assert(can_call_where_with<decltype(insert), decltype(dynamic(maybe, foo.id == 7))>, "");
+    static_assert(cannot_call_where_with<decltype(insert), decltype(foo.id = 7)>, "");
+    static_assert(cannot_call_where_with<decltype(insert), decltype(foo.id = 7), decltype(true)>, "");
 
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::postgresql::assert_on_conflict_update_where_t>::value, "");

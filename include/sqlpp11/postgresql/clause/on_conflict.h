@@ -29,8 +29,8 @@
 
 #include <sqlpp11/postgresql/clause/on_conflict_do_nothing.h>
 #include <sqlpp11/postgresql/clause/on_conflict_do_update.h>
+#include <sqlpp11/core/concepts.h>
 #include <sqlpp11/core/query/statement.h>
-#include <sqlpp11/core/clause/clause_base.h>
 
 namespace sqlpp
 {
@@ -62,16 +62,26 @@ namespace sqlpp
     template <typename... Columns>
     struct on_conflict_t
     {
-      on_conflict_t(Columns... columns)
-          : _columns(std::move(columns)...)
+      // DO NOTHING
+      template< typename  Statement>
+      auto do_nothing(this Statement&& statement)
       {
+        auto new_clause = on_conflict_do_nothing_t<on_conflict_t>{statement};
+        return new_statement<on_conflict_t>(std::forward<Statement>(statement), std::move(new_clause));
       }
 
-      on_conflict_t(const on_conflict_t&) = default;
-      on_conflict_t(on_conflict_t&&) = default;
-      on_conflict_t& operator=(const on_conflict_t&) = default;
-      on_conflict_t& operator=(on_conflict_t&&) = default;
-      ~on_conflict_t() = default;
+      // DO UPDATE
+      template <typename  Statement,
+          typename... Assignments>
+            requires(logic::all<sqlpp::is_assignment<remove_dynamic_t<Assignments>>::value...>::value)
+      auto do_update(this Statement&& statement, Assignments... assignments)
+      {
+        postgresql::check_on_conflict_do_update_set_t<sizeof...(Columns), remove_dynamic_t<Assignments>...>::verify();
+
+        auto new_clause = on_conflict_do_update_t<on_conflict_t, Assignments...>{
+                                 statement, std::make_tuple(std::move(assignments)...)};
+        return new_statement<on_conflict_t>(std::forward<Statement>(statement), std::move(new_clause));
+      }
 
       std::tuple<Columns...> _columns;
     };
@@ -105,40 +115,16 @@ namespace sqlpp
     using type = postgresql::assert_on_conflict_action_t;
   };
 
-  template <typename Statement, typename... Columns>
-  struct clause_base<postgresql::on_conflict_t<Columns...>, Statement> : public clause_data<postgresql::on_conflict_t<Columns...>, Statement>
-  {
-    using clause_data<postgresql::on_conflict_t<Columns...>, Statement>::clause_data;
-
-    // DO NOTHING
-    auto do_nothing() const -> decltype(new_statement(
-        *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<Columns...>>{this->_data}))
-    {
-      return new_statement(
-          *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<Columns...>>{this->_data});
-    }
-
-    // DO UPDATE
-    template <typename... Assignments,
-              typename = std::enable_if_t<
-                  logic::all<sqlpp::is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
-    auto do_update(Assignments... assignments) const -> decltype(new_statement(
-        *this,
-        postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<Columns...>, Assignments...>
-            {this->_data, std::make_tuple(std::move(assignments)...)}))
-    {
-      postgresql::check_on_conflict_do_update_set_t<sizeof...(Columns), remove_dynamic_t<Assignments>...>::verify();
-
-      return new_statement(
-          *this, postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<Columns...>, Assignments...>{
-                     this->_data, std::make_tuple(std::move(assignments)...)});
-    }
-  };
-
   namespace postgresql
   {
     struct no_on_conflict_t
     {
+      template <typename Statement, DynamicColumn... Columns>
+      auto on_conflict(this Statement&& statement, Columns... columns)
+      {
+        return new_statement<no_on_conflict_t>(std::forward<Statement>(statement),
+                                               on_conflict_t<Columns...>{std::make_tuple(std::move(columns)...)});
+      }
     };
 
     // Serialization
@@ -160,24 +146,10 @@ namespace sqlpp
   {
   };
 
-  template <typename Statement>
-  struct clause_base<postgresql::no_on_conflict_t, Statement> : public clause_data<postgresql::no_on_conflict_t, Statement>
-  {
-    using clause_data<postgresql::no_on_conflict_t, Statement>::clause_data;
-
-    template <typename... Columns,
-              typename = std::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
-    auto on_conflict(Columns... columns) const
-        -> decltype(new_statement(*this, postgresql::on_conflict_t<Columns...>{std::move(columns)...}))
-    {
-      return new_statement(*this, postgresql::on_conflict_t<Columns...>{std::move(columns)...});
-    }
-  };
-
   namespace postgresql
   {
-    template <typename... Columns>
-    auto on_conflict(Columns... columns) -> decltype(statement_t<no_on_conflict_t>().on_conflict(std::move(columns)...))
+    template <DynamicColumn... Columns>
+    auto on_conflict(Columns... columns)
     {
       return statement_t<no_on_conflict_t>().on_conflict(std::move(columns)...);
     }

@@ -52,17 +52,6 @@ namespace sqlpp
     template <typename... Columns>
     struct returning_column_list_t
     {
-      returning_column_list_t(Columns... columns) : _columns(columns...)
-      {
-      }
-      returning_column_list_t(std::tuple<Columns...> columns) : _columns(columns)
-      {
-      }
-      returning_column_list_t(const returning_column_list_t&) = default;
-      returning_column_list_t(returning_column_list_t&&) = default;
-      returning_column_list_t& operator=(const returning_column_list_t&) = default;
-      returning_column_list_t& operator=(returning_column_list_t&&) = default;
-
       std::tuple<Columns...> _columns;
     };
 
@@ -74,7 +63,7 @@ namespace sqlpp
   };
 
   template <typename Statement, typename... Columns>
-  struct result_row_of<Statement, returning_column_list_t<Columns...>>
+  struct result_row_of<Statement, postgresql::returning_column_list_t<Columns...>>
   {
     using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
   };
@@ -85,8 +74,8 @@ namespace sqlpp
     // Result methods
     struct type
     {
-      template <typename NameTagProvider>
-      auto as(this Statement&& statement, const NameTagProvider&) const
+      template <typename Statement, typename NameTagProvider>
+      auto as(this Statement&& statement, const NameTagProvider&)
           -> select_as_t<std::decay_t<Statement>,
                          name_tag_of_t<NameTagProvider>,
                          make_field_spec_t<std::decay_t<Statement>, Columns>...>
@@ -97,24 +86,22 @@ namespace sqlpp
         return table(std::forward<Statement>(statement));
       }
 
-      size_t get_no_of_result_columns() const
+      constexpr size_t get_no_of_result_columns() const
       {
         return sizeof...(Columns);
       }
 
       // Execute
       template <typename Statement, typename Db>
-      auto _run(this Statement&& statement, Db& db) const
-          -> result_t<decltype(db.select(std::declval<std::decay_t<Statement>>())), _result_row_t>
+      auto _run(this Statement&& statement, Db& db)
+          -> result_t<decltype(db.select(std::declval<std::decay_t<Statement>>())), result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>>
       {
-        using _result_row_t = result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>;
-
         return {db.select(std::forward<Statement>(statement))};
       }
 
       // Prepare
       template <typename Statement, typename Db>
-      auto _prepare(this Statement&& statement, Db& db) const -> prepared_select_t<Db, _statement_t>
+      auto _prepare(this Statement&& statement, Db& db) -> prepared_select_t<Db, std::decay_t<Statement>>
       {
         return {make_parameter_list_t<std::decay_t<Statement>>{},
                 db.prepare_select(std::forward<Statement>(statement))};
@@ -180,6 +167,17 @@ namespace sqlpp
 
     struct no_returning_column_list_t
     {
+      template <typename Statement, typename... Columns>
+        requires(select_columns_have_values<Columns...>::value)
+      auto returning(this Statement&& statement, Columns... columns)
+      {
+        SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one return column required");
+        SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each return column must have a name");
+
+        return new_statement<no_returning_column_list_t>(
+            std::forward<Statement>(statement), make_returning_column_list_t<Columns...>{
+                                                    std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
+      }
     };
 
     // Serialization
@@ -200,26 +198,6 @@ namespace sqlpp
   struct consistency_check<Statement, postgresql::no_returning_column_list_t>
   {
     using type = consistent_t;
-  };
-
-  template <typename Statement>
-  struct clause_base<postgresql::no_returning_column_list_t, Statement>
-      : public clause_data<postgresql::no_returning_column_list_t, Statement>
-  {
-    using clause_data<postgresql::no_returning_column_list_t, Statement>::clause_data;
-
-    template <typename... Columns, typename = std::enable_if_t<select_columns_have_values<Columns...>::value>>
-    auto returning(Columns... columns) const
-        -> decltype(new_statement(*this,
-                                  postgresql::make_returning_column_list_t<Columns...>{
-                                      std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)}))
-    {
-      SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one return column required");
-      SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each return column must have a name");
-
-      return new_statement(*this, postgresql::make_returning_column_list_t<Columns...>{
-                                      std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
-    }
   };
 
   namespace postgresql

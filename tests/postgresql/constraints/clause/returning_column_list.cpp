@@ -52,10 +52,6 @@ namespace
 
 }  // namespace
 
-namespace test {
-  SQLPP_CREATE_NAME_TAG(max_id);
-}
-
 int main()
 {
   const auto maybe = true;
