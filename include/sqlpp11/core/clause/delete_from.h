@@ -51,25 +51,27 @@ namespace sqlpp
   template<>
     struct is_result_clause<delete_t> : public std::true_type {};
 
+  struct delete_result_methods_t
+  {
+    // Execute
+    template <typename Statement, typename Db>
+    auto _run(this Statement&& statement, Db& db) -> decltype(db.remove(std::forward<Statement>(statement)))
+    {
+      return db.remove(std::forward<Statement>(statement));
+    }
+
+    // Prepare
+    template <typename Statement, typename Db>
+    auto _prepare(this Statement&& statement, Db& db) -> prepared_delete_t<Db, std::decay_t<Statement>>
+    {
+      return {{}, db.prepare_remove(std::forward<Statement>(statement))};
+    }
+  };
+
   template <>
   struct result_methods_of<delete_t>
   {
-    struct type
-    {
-      // Execute
-      template <typename Statement, typename Db>
-      auto _run(this Statement&& statement, Db& db) -> decltype(db.remove(std::forward<Statement>(statement)))
-      {
-        return db.remove(std::forward<Statement>(statement));
-      }
-
-      // Prepare
-      template <typename Statement, typename Db>
-      auto _prepare(this Statement&& statement, Db& db) -> prepared_delete_t<Db, std::decay_t<Statement>>
-      {
-        return {{}, db.prepare_remove(std::forward<Statement>(statement))};
-      }
-    };
+    using type = delete_result_methods_t;
   };
 
   template <typename Context>

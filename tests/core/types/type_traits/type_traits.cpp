@@ -27,8 +27,7 @@
 #include <sqlpp11/tests/core/types_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake);
+SQLPP_CREATE_NAME_TAG(something);
 
 void test_is_expression_as()
 {
@@ -50,14 +49,14 @@ void test_is_expression_as()
   static_assert(not sqlpp::is_expression_as<decltype(trim(col_txt))>::value, "");
 
   // But their alias is an expression alias (no surprise here, I guess)
-  static_assert(sqlpp::is_expression_as<decltype((v).as(cheese))>::value, "");
-  static_assert(sqlpp::is_expression_as<decltype((v + v).as(cheese))>::value, "");
+  static_assert(sqlpp::is_expression_as<decltype((v).as(something))>::value, "");
+  static_assert(sqlpp::is_expression_as<decltype((v + v).as(something))>::value, "");
 
-  static_assert(sqlpp::is_expression_as<decltype((col_int).as(cheese))>::value, "");
-  static_assert(sqlpp::is_expression_as<decltype((col_int + v).as(cheese))>::value, "");
+  static_assert(sqlpp::is_expression_as<decltype((col_int).as(something))>::value, "");
+  static_assert(sqlpp::is_expression_as<decltype((col_int + v).as(something))>::value, "");
 
-  static_assert(sqlpp::is_expression_as<decltype((trim(t)).as(cheese))>::value, "");
-  static_assert(sqlpp::is_expression_as<decltype((trim(col_txt)).as(cheese))>::value, "");
+  static_assert(sqlpp::is_expression_as<decltype((trim(t)).as(something))>::value, "");
+  static_assert(sqlpp::is_expression_as<decltype((trim(col_txt)).as(something))>::value, "");
 
 }
 

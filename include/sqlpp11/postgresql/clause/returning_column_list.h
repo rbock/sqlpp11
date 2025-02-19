@@ -55,24 +55,8 @@ namespace sqlpp
       std::tuple<Columns...> _columns;
     };
 
-  }  // namespace postgresql
-
-  template <typename... Columns>
-  struct has_result_row<postgresql::returning_column_list_t<Columns...>> : public std::true_type
-  {
-  };
-
-  template <typename Statement, typename... Columns>
-  struct result_row_of<Statement, postgresql::returning_column_list_t<Columns...>>
-  {
-    using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
-  };
-
-  template <typename... Columns>
-  struct result_methods_of<postgresql::returning_column_list_t<Columns...>>
-  {
-    // Result methods
-    struct type
+    template<typename... Columns>
+    struct returning_column_list_result_methods_t
     {
       template <typename Statement, typename NameTagProvider>
       auto as(this Statement&& statement, const NameTagProvider&)
@@ -107,6 +91,23 @@ namespace sqlpp
                 db.prepare_select(std::forward<Statement>(statement))};
       }
     };
+  }  // namespace postgresql
+
+  template <typename... Columns>
+  struct has_result_row<postgresql::returning_column_list_t<Columns...>> : public std::true_type
+  {
+  };
+
+  template <typename Statement, typename... Columns>
+  struct result_row_of<Statement, postgresql::returning_column_list_t<Columns...>>
+  {
+    using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
+  };
+
+  template <typename... Columns>
+  struct result_methods_of<postgresql::returning_column_list_t<Columns...>>
+  {
+    using type = postgresql::returning_column_list_result_methods_t<Columns...>;
   };
 
   template <typename... Columns>

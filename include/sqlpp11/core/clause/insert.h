@@ -45,25 +45,27 @@ namespace sqlpp
   {
   };
 
+  struct insert_result_methods_t
+  {
+    // Execute
+    template <typename Statement, typename Db>
+    auto _run(this Statement&& statement, Db& db)
+    {
+      return db.insert(std::forward<Statement>(statement));
+    }
+
+    // Prepare
+    template <typename Statement, typename Db>
+    auto _prepare(this Statement&& statement, Db& db) -> prepared_insert_t<Db, std::decay_t<Statement>>
+    {
+      return {{}, db.prepare_insert(std::forward<Statement>(statement))};
+    }
+  };
+
   template <>
   struct result_methods_of<insert_t>
   {
-    struct type
-    {
-      // Execute
-      template <typename Statement, typename Db>
-      auto _run(this Statement&& statement, Db& db)
-      {
-        return db.insert(std::forward<Statement>(statement));
-      }
-
-      // Prepare
-      template <typename Statement, typename Db>
-      auto _prepare(this Statement&& statement, Db& db) -> prepared_insert_t<Db, std::decay_t<Statement>>
-      {
-        return {{}, db.prepare_insert(std::forward<Statement>(statement))};
-      }
-    };
+    using type = insert_result_methods_t;
   };
 
   template<typename Statement>
