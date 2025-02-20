@@ -311,6 +311,7 @@ namespace sqlpp
   {
     auto result = std::string{};
     using swallow = int[];
+#warning: Need to test that this is executing in the correct order? Why isn't this using tuple_to_sql_string?
     (void)swallow{
         0, (result += to_sql_string(
                 context, static_cast<const clause_base<Clauses, statement_t<Clauses...>>&>(t)._data),
