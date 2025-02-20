@@ -36,7 +36,6 @@
 #include <sqlpp11/core/wrapped_static_assert.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
-#include <sqlpp11/core/clause/clause_base.h>
 #include <sqlpp11/core/result_type_provider.h>
 #include <sqlpp11/core/detail/get_first.h>
 #include <sqlpp11/core/detail/get_last.h>
@@ -314,7 +313,7 @@ namespace sqlpp
 #warning: Need to test that this is executing in the correct order? Why isn't this using tuple_to_sql_string?
     (void)swallow{
         0, (result += to_sql_string(
-                context, static_cast<const clause_base<Clauses, statement_t<Clauses...>>&>(t)._data),
+                context, static_cast<const Clauses&>(t)),
             0)...};
 
     return result;

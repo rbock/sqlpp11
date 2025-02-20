@@ -30,7 +30,6 @@
 #include <sqlpp11/core/basic/table_ref.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement.h>
-#include <sqlpp11/core/clause/clause_base.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/concepts.h>
