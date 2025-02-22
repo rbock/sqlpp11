@@ -40,14 +40,6 @@ set(test_files
     With.cpp
 )
 
-cmake_policy(SET CMP0167 NEW)
-find_package(Boost 1.70 QUIET)
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    list(APPEND test_files Ppgen.cpp)
-endif()
-
-
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp23_core_tests ${test_sources})
 target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
@@ -59,10 +51,3 @@ foreach(test_file IN LISTS test_files)
     )
 endforeach()
 
-# if you want to use the generator, you can do something like this:
-#find_package(PythonInterp REQUIRED)
-#add_custom_command(
-#	OUTPUT "${CMAKE_CURRENT_LIST_DIR}/Sample.h"
-#	COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/scripts/ddl2cpp" "${CMAKE_CURRENT_LIST_DIR}/sample.sql" Sample test
-#	DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sample.sql"
-#	VERBATIM)

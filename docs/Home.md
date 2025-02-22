@@ -24,4 +24,3 @@ The following pages will tell you how to use it:
 * [Thread Safety](Threads.md)
 * [NULL](NULL.md)
 * [Connection Pools](Connection-Pools.md)
-* [New Features](New-Features.md)
