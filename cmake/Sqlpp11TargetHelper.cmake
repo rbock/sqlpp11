@@ -43,7 +43,7 @@ function(install_component)
     set(multiValueArgs TARGETS)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/configs/${ARG_NAME}Config.cmake 
+    install(FILES ${PROJECT_SOURCE_DIR}/cmake/configs/${ARG_NAME}Config.cmake
         DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
     )
 
@@ -53,8 +53,8 @@ function(install_component)
     )
 
     install(EXPORT Sqlpp11Targets
-        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}  
-        NAMESPACE   sqlpp11::                    
+        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+        NAMESPACE   sqlpp11::
     )
 
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp11/${ARG_DIRECTORY}

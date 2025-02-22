@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### Preamble
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
 ### Project Wide Setup
@@ -76,7 +76,7 @@ add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 target_include_directories(sqlpp11 INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
-target_compile_features(sqlpp11 INTERFACE cxx_std_11)
+target_compile_features(sqlpp11 INTERFACE cxx_std_23)
 
 
 if(BUILD_SQLITE3_CONNECTOR)
