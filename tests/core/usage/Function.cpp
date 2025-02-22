@@ -2,8 +2,8 @@
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
  *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
@@ -11,30 +11,30 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/MockDb.h>
-#include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/tests/core/result_helpers.h>
 #include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/result_helpers.h>
+#include <sqlpp11/tests/core/tables.h>
 
 #include <iostream>
 
 SQLPP_CREATE_NAME_TAG(kaesekuchen);
 SQLPP_CREATE_NAME_TAG(something);
 
-int Function(int, char* [])
-{
+int Function(int, char *[]) {
   MockDb db = {};
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
@@ -96,7 +96,8 @@ int Function(int, char* [])
   {
     using TI = decltype(t.id.not_in(std::vector<int>({1, 2, 3})));
     using TF = decltype(f.doubleN.not_in(std::vector<float>({1.0, 2.0, 3.0})));
-    using TT = decltype(t.textN.not_in(std::vector<std::string>({"a", "b", "c"})));
+    using TT =
+        decltype(t.textN.not_in(std::vector<std::string>({"a", "b", "c"})));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -174,8 +175,10 @@ int Function(int, char* [])
     static_assert(sqlpp::is_numeric<TT>::value, "type requirement");
     static_assert(not sqlpp::is_text<TT>::value, "type requirement");
 
-    if (false and db(select(exists(select(t.id).from(t).where(true)).as(something))).front().something)
-    { /* do something */
+    if (false and
+        db(select(exists(select(t.id).from(t).where(true)).as(something)))
+            .front()
+            .something) { /* do something */
     }
   }
 
@@ -229,8 +232,9 @@ int Function(int, char* [])
     static_assert(sqlpp::is_integral<TT>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point<TT>::value, "type requirement");
 
-    if (false and db(select(count(t.id).as(something)).from(t).where(true)).front().something > 0)
-    { /* do something */
+    if (false and db(select(count(t.id).as(something)).from(t).where(true))
+                          .front()
+                          .something > 0) { /* do something */
     }
   }
 
@@ -310,12 +314,16 @@ int Function(int, char* [])
     using TI = decltype(std::optional<int>(7));
     using TF = decltype(std::optional<float>(5.6));
     using TT = decltype(std::optional<std::string>("hallo"));
-    using TD = decltype(std::optional<std::chrono::time_point<std::chrono::system_clock>>(std::chrono::system_clock::now()));
+    using TD = decltype(std::optional<
+                        std::chrono::time_point<std::chrono::system_clock>>(
+        std::chrono::system_clock::now()));
     using TBN = decltype(std::optional<bool>(std::nullopt));
     using TIN = decltype(std::optional<int>(std::nullopt));
     using TFN = decltype(std::optional<float>(std::nullopt));
     using TTN = decltype(std::optional<std::string>(std::nullopt));
-    using TDN = decltype(std::optional<std::chrono::time_point<std::chrono::system_clock>>(std::nullopt));
+    using TDN = decltype(std::optional<
+                         std::chrono::time_point<std::chrono::system_clock>>(
+        std::nullopt));
     static_assert(std::is_same<TB, TBN>::value, "type_requirement");
     static_assert(std::is_same<TI, TIN>::value, "type_requirement");
     static_assert(std::is_same<TF, TFN>::value, "type_requirement");

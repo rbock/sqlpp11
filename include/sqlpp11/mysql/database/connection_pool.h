@@ -11,8 +11,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -30,10 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/core/database/connection_pool.h>
 #include <sqlpp11/mysql/database/connection.h>
 
-namespace sqlpp
-{
-  namespace mysql
-  {
-    using connection_pool = sqlpp::connection_pool<connection_base>;
-  }  // namespace mysql
+namespace sqlpp {
+namespace mysql {
+using connection_pool = sqlpp::connection_pool<connection_base>;
+} // namespace mysql
 } // namespace sqlpp

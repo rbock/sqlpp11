@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -29,27 +29,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/core/aggregate_function/over.h>
 #include <sqlpp11/core/type_traits.h>
 
-namespace sqlpp
-{
-  // To be used as CRTP base for aggregate expressions that should offer the over() member function.
-  template <typename Expr>
-  class enable_over
-  {
-    constexpr auto derived() const -> const Expr&
-    {
-      return static_cast<const Expr&>(*this);
-    }
+namespace sqlpp {
+// To be used as CRTP base for aggregate expressions that should offer the
+// over() member function.
+template <typename Expr> class enable_over {
+  constexpr auto derived() const -> const Expr & {
+    return static_cast<const Expr &>(*this);
+  }
 
-  public:
-    constexpr auto over() const
-    {
-      return ::sqlpp::over(this->derived());
-    }
-  };
+public:
+  constexpr auto over() const { return ::sqlpp::over(this->derived()); }
+};
 
-  template <typename T>
-  struct has_enabled_over : public std::is_base_of<enable_over<T>, T>
-  {
-  };
+template <typename T>
+struct has_enabled_over : public std::is_base_of<enable_over<T>, T> {};
 
-}  // namespace sqlpp
+} // namespace sqlpp

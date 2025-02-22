@@ -2,8 +2,8 @@
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
  *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
@@ -11,38 +11,34 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/MockDb.h>
-#include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/tests/core/result_helpers.h>
 #include "is_regular.h"
 #include <algorithm>
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/result_helpers.h>
+#include <sqlpp11/tests/core/tables.h>
 
-struct to_cerr
-{
-  template <typename Field>
-  auto operator()(const Field& field) const -> void
-  {
+struct to_cerr {
+  template <typename Field> auto operator()(const Field &field) const -> void {
     std::cerr << field << std::endl;
   }
 };
 
-template <typename Row>
-void print_row(Row const& row)
-{
+template <typename Row> void print_row(Row const &row) {
   const std::optional<int64_t> a = row.id;
   const std::optional<std::string_view> b = row.textN;
   std::cout << a << ", " << b << std::endl;
@@ -53,9 +49,7 @@ SQLPP_CREATE_NAME_TAG(cheese);
 SQLPP_CREATE_NAME_TAG(average);
 SQLPP_CREATE_NAME_TAG(N);
 
-
-int Select(int, char*[])
-{
+int Select(int, char *[]) {
   MockDb db = {};
   MockDb::_context_t printer = {};
 
@@ -68,9 +62,10 @@ int Select(int, char*[])
   select(sqlpp::count(1).as(N));
   select(count(sqlpp::value(1)).as(N));
 
-  std::cerr << to_sql_string(printer, select(sqlpp::value(false).as(sqlpp::alias::a))) << std::endl;
-  for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
-  {
+  std::cerr << to_sql_string(printer,
+                             select(sqlpp::value(false).as(sqlpp::alias::a)))
+            << std::endl;
+  for (const auto &row : db(select(sqlpp::value(false).as(sqlpp::alias::a)))) {
     std::cout << row.a << std::endl;
   }
 
@@ -78,45 +73,51 @@ int Select(int, char*[])
     // using stl algorithms
     auto rows = db(select(all_of(t)).from(t).where(true));
     // nicer in C++14
-    std::for_each(rows.begin(), rows.end(), &print_row<decltype(*rows.begin())>);
+    std::for_each(rows.begin(), rows.end(),
+                  &print_row<decltype(*rows.begin())>);
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
-  {
+  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
     const std::optional<int64_t> a = row.id;
     const std::optional<std::string_view> b = row.textN;
     std::cout << a << ", " << b << std::endl;
   }
 
-  for (const auto& row :
-       db(select(all_of(t), t.boolNn.as(t)).from(t).where(t.id > 7 and trim(t.textN) == "test").for_update()))
-  {
+  for (const auto &row : db(select(all_of(t), t.boolNn.as(t))
+                                .from(t)
+                                .where(t.id > 7 and trim(t.textN) == "test")
+                                .for_update())) {
     const std::optional<int64_t> a = row.id;
     const std::optional<std::string_view> b = row.textN;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
-  for (const auto& row :
-       db(select(all_of(t), f.textNnD).from(t.join(f).on(t.id > f.doubleN and not t.boolNn)).where(true)))
-  {
+  for (const auto &row :
+       db(select(all_of(t), f.textNnD)
+              .from(t.join(f).on(t.id > f.doubleN and not t.boolNn))
+              .where(true))) {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t), f.textNnD)
-                                .from(t.join(f).on(t.id > f.doubleN).join(tab_a).on(t.id == tab_a.doubleN))
-                                .where(true)))
-  {
+  for (const auto &row : db(select(all_of(t), f.textNnD)
+                                .from(t.join(f)
+                                          .on(t.id > f.doubleN)
+                                          .join(tab_a)
+                                          .on(t.id == tab_a.doubleN))
+                                .where(true))) {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average)).from(t).where(true)))
-  {
+  for (const auto &row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average))
+                                .from(t)
+                                .where(true))) {
     std::cout << row.N << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.id).as(N), avg(t.id).as(average)).from(t).where(t.id == 0)))
-  {
+  for (const auto &row : db(select(count(t.id).as(N), avg(t.id).as(average))
+                                .from(t)
+                                .where(t.id == 0))) {
     std::cout << row.N << std::endl;
   }
 
@@ -142,8 +143,7 @@ int Select(int, char*[])
                .having(sum(t.id) > parameter(t.intN))
                .limit(32u)
                .offset(7u);
-  for (const auto& row : db(db.prepare(s)))
-  {
+  for (const auto &row : db(db.prepare(s))) {
     const std::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
@@ -158,8 +158,7 @@ int Select(int, char*[])
                 .having(dynamic(maybe, sum(t.id) > 27))
                 .limit(sqlpp::dynamic(maybe, 32u))
                 .offset(sqlpp::dynamic(maybe, 7u));
-  for (const auto& row : db(db.prepare(s2)))
-  {
+  for (const auto &row : db(db.prepare(s2))) {
     const std::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
@@ -168,44 +167,55 @@ int Select(int, char*[])
 
   select(sqlpp::value(7).as(t.id));
 
-  for (const auto& row :
-       db(select(sqlpp::case_when(true).then(t.textN).else_(std::nullopt).as(t.textN)).from(t).where(true)))
-  {
+  for (const auto &row : db(select(sqlpp::case_when(true)
+                                       .then(t.textN)
+                                       .else_(std::nullopt)
+                                       .as(t.textN))
+                                .from(t)
+                                .where(true))) {
     std::cerr << row.textN << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
-  {
+  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
     for_each_field(row, to_cerr{});
   }
 
   {
-    auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
-    if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_committed)
-    {
-      std::cout << "Error: transaction isolation level does not match expected level" << std::endl;
+    auto transaction =
+        start_transaction(db, sqlpp::isolation_level::read_committed);
+    if (db._mock_data._last_isolation_level !=
+        sqlpp::isolation_level::read_committed) {
+      std::cout
+          << "Error: transaction isolation level does not match expected level"
+          << std::endl;
     }
   }
   db.set_default_isolation_level(sqlpp::isolation_level::read_uncommitted);
   {
     auto transaction = start_transaction(db);
-    if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_uncommitted)
-    {
-      std::cout << "Error: transaction isolation level does not match default level" << std::endl;
+    if (db._mock_data._last_isolation_level !=
+        sqlpp::isolation_level::read_uncommitted) {
+      std::cout
+          << "Error: transaction isolation level does not match default level"
+          << std::endl;
     }
   }
 
   // Move to type tests?
-  for (const auto& row :
-       db(select(f.doubleN, value(select(count(t.id).as(N)).from(t).where(true)).as(cheese)).from(f).where(true)))
-  {
+  for (const auto &row :
+       db(select(
+              f.doubleN,
+              value(select(count(t.id).as(N)).from(t).where(true)).as(cheese))
+              .from(f)
+              .where(true))) {
     std::cout << row.doubleN << " " << row.cheese << std::endl;
   }
 
   // checking #584
-  auto abs = db.prepare(select(t.id).from(t).where(sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
-                 "ABS(field1 -", sqlpp::parameter(t.id), ")") <=
-             sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
+  auto abs = db.prepare(select(t.id).from(t).where(
+      sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
+          "ABS(field1 -", sqlpp::parameter(t.id), ")") <=
+      sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
   abs.params.id = 7;
   abs.params.param2 = 7;
   std::ignore = abs;

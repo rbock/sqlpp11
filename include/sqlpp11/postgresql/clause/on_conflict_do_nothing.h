@@ -30,39 +30,34 @@
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 
-namespace sqlpp
-{
-  namespace postgresql
-  {
-    template <typename OnConflict>
-    struct on_conflict_do_nothing_t
-    {
-      OnConflict _on_conflict;
-    };
+namespace sqlpp {
+namespace postgresql {
+template <typename OnConflict> struct on_conflict_do_nothing_t {
+  OnConflict _on_conflict;
+};
 
-    // Serialization
-    template <typename OnConflict>
-    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_t<OnConflict>& t) -> std::string
-    {
-      return to_sql_string(context, t._on_conflict) + " DO NOTHING";
-    }
-  }  // namespace postgresql
+// Serialization
+template <typename OnConflict>
+auto to_sql_string(postgresql::context_t &context,
+                   const postgresql::on_conflict_do_nothing_t<OnConflict> &t)
+    -> std::string {
+  return to_sql_string(context, t._on_conflict) + " DO NOTHING";
+}
+} // namespace postgresql
 
-  template <typename ConflictTarget>
-  struct is_clause<postgresql::on_conflict_do_nothing_t<ConflictTarget>> : public std::true_type
-  {
-  };
+template <typename ConflictTarget>
+struct is_clause<postgresql::on_conflict_do_nothing_t<ConflictTarget>>
+    : public std::true_type {};
 
-  template <typename ConflictTarget>
-  struct nodes_of<postgresql::on_conflict_do_nothing_t<ConflictTarget>>
-  {
-    using type = detail::type_vector<ConflictTarget>;
-  };
+template <typename ConflictTarget>
+struct nodes_of<postgresql::on_conflict_do_nothing_t<ConflictTarget>> {
+  using type = detail::type_vector<ConflictTarget>;
+};
 
-  template <typename Statement, typename ConflictTarget>
-  struct consistency_check<Statement, postgresql::on_conflict_do_nothing_t<ConflictTarget>>
-  {
-    using type = consistent_t;
-  };
+template <typename Statement, typename ConflictTarget>
+struct consistency_check<Statement,
+                         postgresql::on_conflict_do_nothing_t<ConflictTarget>> {
+  using type = consistent_t;
+};
 
-}  // namespace sqlpp
+} // namespace sqlpp

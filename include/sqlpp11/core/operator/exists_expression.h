@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -28,52 +28,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/type_traits.h>
 
-namespace sqlpp
-{
-  template <typename Select>
-  struct exists_expression : public enable_as<exists_expression<Select>>
-  {
-    constexpr exists_expression(Select s) : _select(std::move(s))
-    {
-    }
-    exists_expression(const exists_expression&) = default;
-    exists_expression(exists_expression&&) = default;
-    exists_expression& operator=(const exists_expression&) = default;
-    exists_expression& operator=(exists_expression&&) = default;
-    ~exists_expression() = default;
+namespace sqlpp {
+template <typename Select>
+struct exists_expression : public enable_as<exists_expression<Select>> {
+  constexpr exists_expression(Select s) : _select(std::move(s)) {}
+  exists_expression(const exists_expression &) = default;
+  exists_expression(exists_expression &&) = default;
+  exists_expression &operator=(const exists_expression &) = default;
+  exists_expression &operator=(exists_expression &&) = default;
+  ~exists_expression() = default;
 
-    Select _select;
-  };
+  Select _select;
+};
 
-  template <typename Select>
-  using check_exists_arg = std::enable_if_t<is_statement<Select>::value and has_result_row<Select>::value>;
+template <typename Select>
+using check_exists_arg = std::enable_if_t<is_statement<Select>::value and
+                                          has_result_row<Select>::value>;
 
-  template <typename Select>
-  struct value_type_of<exists_expression<Select>>
-  {
-    using type = boolean;
-  };
+template <typename Select> struct value_type_of<exists_expression<Select>> {
+  using type = boolean;
+};
 
-  template <typename Select>
-  struct nodes_of<exists_expression<Select>>
-  {
-    using type = detail::type_vector<Select>;
-  };
+template <typename Select> struct nodes_of<exists_expression<Select>> {
+  using type = detail::type_vector<Select>;
+};
 
-  template <typename Context, typename Select>
-  auto to_sql_string(Context& context, const exists_expression<Select>& t) -> std::string
-  {
-    return "EXISTS (" + to_sql_string(context, t._select) + ")";
-  }
+template <typename Context, typename Select>
+auto to_sql_string(Context &context, const exists_expression<Select> &t)
+    -> std::string {
+  return "EXISTS (" + to_sql_string(context, t._select) + ")";
+}
 
-  template <typename... Clauses, typename = check_exists_arg<statement_t<Clauses...>>>
-  constexpr auto exists(statement_t<Clauses...> s) -> exists_expression<statement_t<Clauses...>>
-  {
-    statement_consistency_check_t<statement_t<Clauses...>>::verify();
-    return exists_expression<statement_t<Clauses...>>{std::move(s)};
-  }
+template <typename... Clauses,
+          typename = check_exists_arg<statement_t<Clauses...>>>
+constexpr auto exists(statement_t<Clauses...> s)
+    -> exists_expression<statement_t<Clauses...>> {
+  statement_consistency_check_t<statement_t<Clauses...>>::verify();
+  return exists_expression<statement_t<Clauses...>>{std::move(s)};
+}
 
-}  // namespace sqlpp
+} // namespace sqlpp

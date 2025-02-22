@@ -30,46 +30,41 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include <sqlpp11/tests/postgresql/tables.h>
 #include "make_test_connection.h"
+#include <sqlpp11/tests/postgresql/tables.h>
 
-namespace
-{
-  template <typename L, typename R>
-  void require_equal(int line, const L& l, const R& r)
-  {
-    if (l != r)
-    {
-      std::cerr << line << ": --" << l << " != " << r << "--" << std::endl;
-      throw std::runtime_error("Unexpected result");
-    }
+namespace {
+template <typename L, typename R>
+void require_equal(int line, const L &l, const R &r) {
+  if (l != r) {
+    std::cerr << line << ": --" << l << " != " << r << "--" << std::endl;
+    throw std::runtime_error("Unexpected result");
   }
 }
+} // namespace
 
 namespace sql = sqlpp::postgresql;
 
-int Type(int, char*[])
-{
+int Type(int, char *[]) {
   sql::connection db = sql::make_test_connection();
 
-  try
-  {
+  try {
     test::createTabFoo(db);
     test::createTabBar(db);
 
     const auto tab = test::TabBar{};
     db(insert_into(tab).default_values());
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
-    {
+    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.has_value(), false);
       require_equal(__LINE__, row.textN.has_value(), false);
       require_equal(__LINE__, row.boolNn, false);
     }
 
-    db(update(tab).set(tab.intN = 10, tab.textN = "Cookies!", tab.boolNn = true).where(true));
+    db(update(tab)
+           .set(tab.intN = 10, tab.textN = "Cookies!", tab.boolNn = true)
+           .where(true));
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
-    {
+    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.has_value(), true);
       require_equal(__LINE__, row.intN.value(), 10);
       require_equal(__LINE__, row.textN.has_value(), true);
@@ -77,19 +72,22 @@ int Type(int, char*[])
       require_equal(__LINE__, row.boolNn, true);
     }
 
-    db(update(tab).set(tab.intN = 20, tab.textN = "Monster", tab.boolNn = false).where(true));
+    db(update(tab)
+           .set(tab.intN = 20, tab.textN = "Monster", tab.boolNn = false)
+           .where(true));
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
-    {
+    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.value(), 20);
       require_equal(__LINE__, row.textN.value(), "Monster");
       require_equal(__LINE__, row.boolNn, false);
     }
 
-    auto prepared_update = db.prepare(
-        update(tab)
-            .set(tab.intN = parameter(tab.intN), tab.textN = parameter(tab.textN), tab.boolNn = parameter(tab.boolNn))
-            .where(true));
+    auto prepared_update =
+        db.prepare(update(tab)
+                       .set(tab.intN = parameter(tab.intN),
+                            tab.textN = parameter(tab.textN),
+                            tab.boolNn = parameter(tab.boolNn))
+                       .where(true));
     prepared_update.params.intN = 30;
     prepared_update.params.textN = "IceCream";
     prepared_update.params.boolNn = true;
@@ -97,20 +95,15 @@ int Type(int, char*[])
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
-    {
+    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.value(), 30);
       require_equal(__LINE__, row.textN.value(), "IceCream");
       require_equal(__LINE__, row.boolNn, true);
     }
-  }
-  catch (std::exception& e)
-  {
+  } catch (std::exception &e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
-  }
-  catch (...)
-  {
+  } catch (...) {
     std::cerr << "Unknown exception" << std::endl;
     return 1;
   }

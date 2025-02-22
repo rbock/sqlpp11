@@ -1,7 +1,6 @@
 #include <sample_identity_naming.h>
 
-int main()
-{
+int main() {
   test::tab_foo tab_foo;
   tab_foo.delta = "delta";
   tab_foo._epsilon = 42;

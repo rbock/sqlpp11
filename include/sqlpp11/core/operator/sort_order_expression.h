@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -30,74 +30,63 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp11/core/type_traits.h>
 
-namespace sqlpp
-{
-  enum class sort_type
-  {
-    asc,
-    desc,
-  };
+namespace sqlpp {
+enum class sort_type {
+  asc,
+  desc,
+};
 
-  template <typename L>
-  struct sort_order_expression
-  {
-    constexpr sort_order_expression(L l, sort_type r) : _l(std::move(l)), _r(std::move(r))
-    {
-    }
-    sort_order_expression(const sort_order_expression&) = default;
-    sort_order_expression(sort_order_expression&&) = default;
-    sort_order_expression& operator=(const sort_order_expression&) = default;
-    sort_order_expression& operator=(sort_order_expression&&) = default;
-    ~sort_order_expression() = default;
+template <typename L> struct sort_order_expression {
+  constexpr sort_order_expression(L l, sort_type r)
+      : _l(std::move(l)), _r(std::move(r)) {}
+  sort_order_expression(const sort_order_expression &) = default;
+  sort_order_expression(sort_order_expression &&) = default;
+  sort_order_expression &operator=(const sort_order_expression &) = default;
+  sort_order_expression &operator=(sort_order_expression &&) = default;
+  ~sort_order_expression() = default;
 
-    L _l;
-    sort_type _r;
-  };
+  L _l;
+  sort_type _r;
+};
 
-  template <typename L>
-  using check_sort_order_args = std::enable_if_t<values_are_comparable<L, L>::value>;
+template <typename L>
+using check_sort_order_args =
+    std::enable_if_t<values_are_comparable<L, L>::value>;
 
-  template <typename L>
-  struct nodes_of<sort_order_expression<L>>
-  {
-    using type = detail::type_vector<L>;
-  };
+template <typename L> struct nodes_of<sort_order_expression<L>> {
+  using type = detail::type_vector<L>;
+};
 
-  template <typename L>
-  struct is_sort_order<sort_order_expression<L>> : std::true_type {};
+template <typename L>
+struct is_sort_order<sort_order_expression<L>> : std::true_type {};
 
-  template <typename Context>
-  auto to_sql_string(Context& , const sort_type& t) -> std::string
-  {
-    if (t == sort_type::asc)
-    {
-      return " ASC";
-    }
-    return " DESC";
+template <typename Context>
+auto to_sql_string(Context &, const sort_type &t) -> std::string {
+  if (t == sort_type::asc) {
+    return " ASC";
   }
+  return " DESC";
+}
 
-  template <typename Context, typename L>
-  auto to_sql_string(Context& context, const sort_order_expression<L>& t) -> std::string
-  {
-    return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
-  }
+template <typename Context, typename L>
+auto to_sql_string(Context &context, const sort_order_expression<L> &t)
+    -> std::string {
+  return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
+}
 
-  template <typename L, typename = check_sort_order_args<L>>
-  constexpr auto asc(L l) -> sort_order_expression<L>
-  {
-    return {l, sort_type::asc};
-  }
+template <typename L, typename = check_sort_order_args<L>>
+constexpr auto asc(L l) -> sort_order_expression<L> {
+  return {l, sort_type::asc};
+}
 
-  template <typename L, typename = check_sort_order_args<L>>
-  constexpr auto desc(L l) -> sort_order_expression<L>
-  {
-    return {l, sort_type::desc};
-  }
+template <typename L, typename = check_sort_order_args<L>>
+constexpr auto desc(L l) -> sort_order_expression<L> {
+  return {l, sort_type::desc};
+}
 
-  template <typename L, typename = check_sort_order_args<L>>
-  constexpr auto order(L l, sort_type order) -> sort_order_expression<L>
-  {
-    return {l, order};
-  }
+template <typename L, typename = check_sort_order_args<L>>
+constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
+  return {l, order};
+}
 
-}  // namespace sqlpp
+} // namespace sqlpp

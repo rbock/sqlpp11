@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -26,21 +26,18 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace sqlpp
-{
-  // Statements inherit from clauses. They can be used as constructor
-  // arguments for clauses.
-  // The statement_constructor_arg inherits from fragments
-  // (statements or other clause constructor arguments).
-  //
-  // Thus, if initialized with the right fragments, the
-  // statement_constructor_arg can be used to construct all clauses
-  // in the new statement.
-  template <typename... Fragments>
-  struct statement_constructor_arg : Fragments...
-  {
-    constexpr statement_constructor_arg(Fragments... fragments) : Fragments{fragments}...
-    {
-    }
-  };
-}  // namespace sqlpp
+namespace sqlpp {
+// Statements inherit from clauses. They can be used as constructor
+// arguments for clauses.
+// The statement_constructor_arg inherits from fragments
+// (statements or other clause constructor arguments).
+//
+// Thus, if initialized with the right fragments, the
+// statement_constructor_arg can be used to construct all clauses
+// in the new statement.
+template <typename... Fragments>
+struct statement_constructor_arg : Fragments... {
+  constexpr statement_constructor_arg(Fragments... fragments)
+      : Fragments{fragments}... {}
+};
+} // namespace sqlpp

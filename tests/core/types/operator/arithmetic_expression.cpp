@@ -2,8 +2,8 @@
  * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
  *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
@@ -11,36 +11,33 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/tests/core/MockDb.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/sqlpp11.h>
 
 #include <sqlpp11/tests/core/types_helpers.h>
 
-namespace
-{
-  template<typename A, typename B>
-  constexpr bool is_same_type()
-  {
-    return std::is_same<A, B>::value;
-  }
+namespace {
+template <typename A, typename B> constexpr bool is_same_type() {
+  return std::is_same<A, B>::value;
 }
+} // namespace
 
-template<typename Left, typename Right, typename ValueType>
-void test_plus(Left raw_l, Right raw_r, ValueType)
-{
+template <typename Left, typename Right, typename ValueType>
+void test_plus(Left raw_l, Right raw_r, ValueType) {
   using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
@@ -49,10 +46,17 @@ void test_plus(Left raw_l, Right raw_r, ValueType)
   auto opt_l = sqlpp::value(std::make_optional(raw_l));
   auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l + r)>, ValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l + opt_r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l + r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l + opt_r)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l + r)>, ValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l + opt_r)>, OptValueType>(),
+      "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_l + r)>, OptValueType>(),
+      "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l + opt_r)>,
+                             OptValueType>(),
+                "");
 
   // Arithmetic expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(l + opt_r)>::value, "");
@@ -63,12 +67,13 @@ void test_plus(Left raw_l, Right raw_r, ValueType)
   // Arithmetic expressions have their arguments as nodes
   using L = typename std::decay<decltype(l)>::type;
   using R = typename std::decay<decltype(opt_r)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l + opt_r)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l + opt_r)>,
+                             sqlpp::detail::type_vector<L, R>>::value,
+                "");
 }
 
-template<typename Left, typename Right, typename ValueType>
-void test_minus(Left raw_l, Right raw_r, ValueType)
-{
+template <typename Left, typename Right, typename ValueType>
+void test_minus(Left raw_l, Right raw_r, ValueType) {
   using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
@@ -77,10 +82,17 @@ void test_minus(Left raw_l, Right raw_r, ValueType)
   auto opt_l = sqlpp::value(std::make_optional(raw_l));
   auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l - r)>, ValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l - opt_r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l - r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l - opt_r)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l - r)>, ValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l - opt_r)>, OptValueType>(),
+      "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_l - r)>, OptValueType>(),
+      "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l - opt_r)>,
+                             OptValueType>(),
+                "");
 
   // Arithmetic expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(l - opt_r)>::value, "");
@@ -91,12 +103,13 @@ void test_minus(Left raw_l, Right raw_r, ValueType)
   // Arithmetic expressions have their arguments as nodes
   using L = typename std::decay<decltype(l)>::type;
   using R = typename std::decay<decltype(opt_r)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l - opt_r)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l - opt_r)>,
+                             sqlpp::detail::type_vector<L, R>>::value,
+                "");
 }
 
-template<typename Left, typename Right, typename ValueType>
-void test_multiplies(Left raw_l, Right raw_r, ValueType)
-{
+template <typename Left, typename Right, typename ValueType>
+void test_multiplies(Left raw_l, Right raw_r, ValueType) {
   using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
@@ -105,10 +118,17 @@ void test_multiplies(Left raw_l, Right raw_r, ValueType)
   auto opt_l = sqlpp::value(std::make_optional(raw_l));
   auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l * r)>, ValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l * opt_r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l * r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l * opt_r)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l * r)>, ValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l * opt_r)>, OptValueType>(),
+      "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_l * r)>, OptValueType>(),
+      "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l * opt_r)>,
+                             OptValueType>(),
+                "");
 
   // Arithmetic expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(l * opt_r)>::value, "");
@@ -119,20 +139,24 @@ void test_multiplies(Left raw_l, Right raw_r, ValueType)
   // Arithmetic expressions have their arguments as nodes
   using L = typename std::decay<decltype(l)>::type;
   using R = typename std::decay<decltype(opt_r)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l * opt_r)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l * opt_r)>,
+                             sqlpp::detail::type_vector<L, R>>::value,
+                "");
 }
 
-template<typename Right, typename ValueType>
-void test_negate(Right raw_r, ValueType)
-{
+template <typename Right, typename ValueType>
+void test_negate(Right raw_r, ValueType) {
   using OptValueType = std::optional<ValueType>;
 
   auto r = sqlpp::value(raw_r);
 
   auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-r)>, ValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-opt_r)>, OptValueType>(), "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-r)>, ValueType>(),
+                "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(-opt_r)>, OptValueType>(),
+      "");
 
   // Arithmetic expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(-opt_r)>::value, "");
@@ -142,12 +166,13 @@ void test_negate(Right raw_r, ValueType)
 
   // Arithmetic expressions have their arguments as nodes
   using R = typename std::decay<decltype(opt_r)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(-opt_r)>, sqlpp::detail::type_vector<sqlpp::noop, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(-opt_r)>,
+                             sqlpp::detail::type_vector<sqlpp::noop, R>>::value,
+                "");
 }
 
-template<typename Left, typename Right, typename ValueType>
-void test_divides(Left raw_l, Right raw_r, ValueType)
-{
+template <typename Left, typename Right, typename ValueType>
+void test_divides(Left raw_l, Right raw_r, ValueType) {
   using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
@@ -156,10 +181,17 @@ void test_divides(Left raw_l, Right raw_r, ValueType)
   auto opt_l = sqlpp::value(std::make_optional(raw_l));
   auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l / r)>, ValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l / opt_r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l / r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l / opt_r)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l / r)>, ValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l / opt_r)>, OptValueType>(),
+      "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_l / r)>, OptValueType>(),
+      "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l / opt_r)>,
+                             OptValueType>(),
+                "");
 
   // Arithmetic expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(l / opt_r)>::value, "");
@@ -170,12 +202,13 @@ void test_divides(Left raw_l, Right raw_r, ValueType)
   // Arithmetic expressions have their arguments as nodes
   using L = typename std::decay<decltype(l)>::type;
   using R = typename std::decay<decltype(opt_r)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l / opt_r)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l / opt_r)>,
+                             sqlpp::detail::type_vector<L, R>>::value,
+                "");
 }
 
-template<typename Left, typename Right, typename ValueType>
-void test_modulus(Left raw_l, Right raw_r, ValueType)
-{
+template <typename Left, typename Right, typename ValueType>
+void test_modulus(Left raw_l, Right raw_r, ValueType) {
   using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
@@ -184,10 +217,17 @@ void test_modulus(Left raw_l, Right raw_r, ValueType)
   auto opt_l = sqlpp::value(std::make_optional(raw_l));
   auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l % r)>, ValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l % opt_r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l % r)>, OptValueType>(), "");
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l % opt_r)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l % r)>, ValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(l % opt_r)>, OptValueType>(),
+      "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_l % r)>, OptValueType>(),
+      "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_l % opt_r)>,
+                             OptValueType>(),
+                "");
 
   // Arithmetic expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(l % opt_r)>::value, "");
@@ -198,12 +238,12 @@ void test_modulus(Left raw_l, Right raw_r, ValueType)
   // Arithmetic expressions have their arguments as nodes
   using L = typename std::decay<decltype(l)>::type;
   using R = typename std::decay<decltype(opt_r)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l % opt_r)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l % opt_r)>,
+                             sqlpp::detail::type_vector<L, R>>::value,
+                "");
 }
 
-template<typename Value>
-void test_concatenation_expressions(Value v)
-{
+template <typename Value> void test_concatenation_expressions(Value v) {
   using ValueType = sqlpp::text;
   using OptValueType = std::optional<sqlpp::text>;
 
@@ -211,31 +251,44 @@ void test_concatenation_expressions(Value v)
   auto opt_value = sqlpp::value(std::make_optional(v));
 
   // Concatenating non-optional values
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value + value)>, ValueType>(), "");
+  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value + value)>,
+                             ValueType>(),
+                "");
 
   // Concatenating non-optional with optional values
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value + opt_value)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(value + opt_value)>,
+                   OptValueType>(),
+      "");
 
   // Concatenating optional with non-optional values
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_value + value)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_value + value)>,
+                   OptValueType>(),
+      "");
 
   // Concatenating optional with optional values
-  static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_value + opt_value)>, OptValueType>(), "");
+  static_assert(
+      is_same_type<sqlpp::value_type_of_t<decltype(opt_value + opt_value)>,
+                   OptValueType>(),
+      "");
 
   // Modulus expressions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(value + opt_value)>::value, "");
 
   // Modulus expressions enable comparison member functions.
-  static_assert(sqlpp::has_enabled_comparison<decltype(value + opt_value)>::value, "");
+  static_assert(
+      sqlpp::has_enabled_comparison<decltype(value + opt_value)>::value, "");
 
   // Modulus expressions have their arguments as nodes
   using L = typename std::decay<decltype(value)>::type;
   using R = typename std::decay<decltype(opt_value)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(value + opt_value)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(value + opt_value)>,
+                             sqlpp::detail::type_vector<L, R>>::value,
+                "");
 }
 
-int main()
-{
+int main() {
   auto fp = float{7};
   auto in = int{7};
   auto ui = unsigned{7};

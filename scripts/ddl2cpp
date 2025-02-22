@@ -326,13 +326,13 @@ def testBoolean():
 def testInteger():
     for t in ddlIntegerTypes:
         result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "integer"
+        assert result[0] == "integral"
 
 
 def testSerial():
     for t in ddlSerialTypes:
         result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "integer"
+        assert result[0] == "integral"
         assert result.hasAutoValue
 
 
@@ -389,7 +389,7 @@ def testColumn():
     result = ddlColumn.parseString(text, parseAll=True)
     column = result[0]
     assert column.name == "id"
-    assert column.type == "integer"
+    assert column.type == "integral"
     assert column.isUnsigned
     assert column.notNull
     assert not column.hasAutoValue
@@ -450,7 +450,7 @@ def testPrimaryKeyAutoIncrement():
         column = table.columns[0]
         assert not column.isConstraint
         assert column.name == "col"
-        assert column.type == "integer"
+        assert column.type == "integral"
         assert column.notNull
         assert column.hasAutoValue
         assert column.isPrimaryKey

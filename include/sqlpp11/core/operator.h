@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -37,9 +37,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // comparison
 #include <sqlpp11/core/operator/any.h>
+#include <sqlpp11/core/operator/between_expression.h>
 #include <sqlpp11/core/operator/comparison_expression.h>
 #include <sqlpp11/core/operator/in_expression.h>
-#include <sqlpp11/core/operator/between_expression.h>
 
 // arithmetic
 #include <sqlpp11/core/operator/arithmetic_expression.h>

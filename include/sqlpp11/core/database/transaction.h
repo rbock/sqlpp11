@@ -4,119 +4,109 @@
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <stdexcept>
 #include <string>
-#include <ciso646>
 
-namespace sqlpp
-{
-  static constexpr bool quiet_auto_rollback = false;
-  static constexpr bool report_auto_rollback = true;
+namespace sqlpp {
+static constexpr bool quiet_auto_rollback = false;
+static constexpr bool report_auto_rollback = true;
 
-  enum class isolation_level
-  {
-    undefined,        // use the current database default
-    serializable,     // highest level, stronguest guarantee
-    repeatable_read,  // DBMS holds read and write locks
-    read_committed,   // DMBS holds read locks, non-repeatable reads can occur
-    read_uncommitted  // lowest isolation level, dirty reads may occur
-  };
+enum class isolation_level {
+  undefined,       // use the current database default
+  serializable,    // highest level, stronguest guarantee
+  repeatable_read, // DBMS holds read and write locks
+  read_committed,  // DMBS holds read locks, non-repeatable reads can occur
+  read_uncommitted // lowest isolation level, dirty reads may occur
+};
 
-  template <typename Db>
-  class transaction_t
-  {
-    Db& _db;
-    const bool _report_unfinished_transaction;
-    bool _finished = false;
+template <typename Db> class transaction_t {
+  Db &_db;
+  const bool _report_unfinished_transaction;
+  bool _finished = false;
 
-  public:
-    transaction_t(Db& db, bool report_unfinished_transaction)
-        : _db(db), _report_unfinished_transaction(report_unfinished_transaction)
-    {
-      _db.start_transaction();
-    }
+public:
+  transaction_t(Db &db, bool report_unfinished_transaction)
+      : _db(db), _report_unfinished_transaction(report_unfinished_transaction) {
+    _db.start_transaction();
+  }
 
-    transaction_t(Db& db, bool report_unfinished_transaction, isolation_level isolation)
-        : _db(db), _report_unfinished_transaction(report_unfinished_transaction)
-    {
-      _db.start_transaction(isolation);
-    }
+  transaction_t(Db &db, bool report_unfinished_transaction,
+                isolation_level isolation)
+      : _db(db), _report_unfinished_transaction(report_unfinished_transaction) {
+    _db.start_transaction(isolation);
+  }
 
-    transaction_t(const transaction_t&) = delete;
-    transaction_t(transaction_t&& other)
-        : _db(other._db), _report_unfinished_transaction(other._report_unfinished_transaction), _finished(other._finished)
-    {
-        other._finished = true;
-    }
+  transaction_t(const transaction_t &) = delete;
+  transaction_t(transaction_t &&other)
+      : _db(other._db),
+        _report_unfinished_transaction(other._report_unfinished_transaction),
+        _finished(other._finished) {
+    other._finished = true;
+  }
 
-    transaction_t& operator=(const transaction_t&) = delete;
-    transaction_t& operator=(transaction_t&&) = delete;
+  transaction_t &operator=(const transaction_t &) = delete;
+  transaction_t &operator=(transaction_t &&) = delete;
 
-    ~transaction_t()
-    {
-      if (not _finished)
-      {
-        try
-        {
-          _db.rollback_transaction(_report_unfinished_transaction);
-        }
-        catch (const std::exception& e)
-        {
-          _db.report_rollback_failure(std::string("auto rollback failed: ") + e.what());
-        }
-        catch (...)
-        {
-          _db.report_rollback_failure("auto rollback failed with unknown exception");
-        }
+  ~transaction_t() {
+    if (not _finished) {
+      try {
+        _db.rollback_transaction(_report_unfinished_transaction);
+      } catch (const std::exception &e) {
+        _db.report_rollback_failure(std::string("auto rollback failed: ") +
+                                    e.what());
+      } catch (...) {
+        _db.report_rollback_failure(
+            "auto rollback failed with unknown exception");
       }
     }
-
-    void commit()
-    {
-      _finished = true;
-      _db.commit_transaction();
-    }
-
-    void rollback()
-    {
-      _finished = true;
-      _db.rollback_transaction(false);
-    }
-  };
-
-  template <typename Db>
-  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
-  {
-    return {db, report_unfinished_transaction};
   }
 
-  template <typename Db>
-  transaction_t<Db> start_transaction(Db& db,
-                                      isolation_level isolation,
-                                      bool report_unfinished_transaction = report_auto_rollback)
-  {
-    return {db, report_unfinished_transaction, isolation};
+  void commit() {
+    _finished = true;
+    _db.commit_transaction();
   }
-}  // namespace sqlpp
+
+  void rollback() {
+    _finished = true;
+    _db.rollback_transaction(false);
+  }
+};
+
+template <typename Db>
+transaction_t<Db>
+start_transaction(Db &db,
+                  bool report_unfinished_transaction = report_auto_rollback) {
+  return {db, report_unfinished_transaction};
+}
+
+template <typename Db>
+transaction_t<Db>
+start_transaction(Db &db, isolation_level isolation,
+                  bool report_unfinished_transaction = report_auto_rollback) {
+  return {db, report_unfinished_transaction, isolation};
+}
+} // namespace sqlpp

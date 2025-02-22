@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -26,112 +26,106 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/core/operator/comparison_expression.h>
 #include <sqlpp11/core/operator/between_expression.h>
+#include <sqlpp11/core/operator/comparison_expression.h>
 #include <sqlpp11/core/operator/in_expression.h>
 #include <sqlpp11/core/operator/sort_order_expression.h>
 #include <sqlpp11/core/type_traits.h>
 
-namespace sqlpp
-{
-  // To be used as CRTP base for expressions that should offer the comparison member functions.
-  // This also enables sort order member functions
-  template <typename Expr>
-  class enable_comparison
-  {
-    constexpr auto derived() const -> const Expr&
-    {
-      return static_cast<const Expr&>(*this);
-    }
+namespace sqlpp {
+// To be used as CRTP base for expressions that should offer the comparison
+// member functions. This also enables sort order member functions
+template <typename Expr> class enable_comparison {
+  constexpr auto derived() const -> const Expr & {
+    return static_cast<const Expr &>(*this);
+  }
 
-  public:
-    template <typename... Args>
-    constexpr auto in(std::tuple<Args...> args) const -> in_expression<Expr, operator_in, std::tuple<Args...>>
-    {
-      return sqlpp::in(this->derived(), std::move(args));
-    }
+public:
+  template <typename... Args>
+  constexpr auto in(std::tuple<Args...> args) const
+      -> in_expression<Expr, operator_in, std::tuple<Args...>> {
+    return sqlpp::in(this->derived(), std::move(args));
+  }
 
-    template <typename... Args>
-    constexpr auto in(Args... args) const -> in_expression<Expr, operator_in, std::tuple<Args...>>
-    {
-      return sqlpp::in(this->derived(), std::move(args)...);
-    }
+  template <typename... Args>
+  constexpr auto in(Args... args) const
+      -> in_expression<Expr, operator_in, std::tuple<Args...>> {
+    return sqlpp::in(this->derived(), std::move(args)...);
+  }
 
-    template <typename Arg>
-    constexpr auto in(std::vector<Arg> args) const -> in_expression<Expr, operator_in, std::vector<Arg>>
-    {
-      return sqlpp::in(this->derived(), std::move(args));
-    }
+  template <typename Arg>
+  constexpr auto in(std::vector<Arg> args) const
+      -> in_expression<Expr, operator_in, std::vector<Arg>> {
+    return sqlpp::in(this->derived(), std::move(args));
+  }
 
-    template <typename... Args>
-    constexpr auto not_in(std::tuple<Args...> args) const -> in_expression<Expr, operator_not_in, std::tuple<Args...>>
-    {
-      return sqlpp::not_in(this->derived(), std::move(args));
-    }
+  template <typename... Args>
+  constexpr auto not_in(std::tuple<Args...> args) const
+      -> in_expression<Expr, operator_not_in, std::tuple<Args...>> {
+    return sqlpp::not_in(this->derived(), std::move(args));
+  }
 
-    template <typename... Args>
-    constexpr auto not_in(Args... args) const -> in_expression<Expr, operator_not_in, std::tuple<Args...>>
-    {
-      return sqlpp::not_in(this->derived(), std::move(args)...);
-    }
+  template <typename... Args>
+  constexpr auto not_in(Args... args) const
+      -> in_expression<Expr, operator_not_in, std::tuple<Args...>> {
+    return sqlpp::not_in(this->derived(), std::move(args)...);
+  }
 
-    template <typename Arg>
-    constexpr auto not_in(std::vector<Arg> args) const -> in_expression<Expr, operator_not_in, std::vector<Arg>>
-    {
-      return sqlpp::not_in(this->derived(), std::move(args));
-    }
+  template <typename Arg>
+  constexpr auto not_in(std::vector<Arg> args) const
+      -> in_expression<Expr, operator_not_in, std::vector<Arg>> {
+    return sqlpp::not_in(this->derived(), std::move(args));
+  }
 
-    constexpr auto is_null() const -> comparison_expression<Expr, op_is_null, std::nullopt_t>
-    {
-      return ::sqlpp::is_null(this->derived());
-    }
+  constexpr auto is_null() const
+      -> comparison_expression<Expr, op_is_null, std::nullopt_t> {
+    return ::sqlpp::is_null(this->derived());
+  }
 
-    constexpr auto is_not_null() const -> comparison_expression<Expr, op_is_not_null, std::nullopt_t>
-    {
-      return ::sqlpp::is_not_null(this->derived());
-    }
+  constexpr auto is_not_null() const
+      -> comparison_expression<Expr, op_is_not_null, std::nullopt_t> {
+    return ::sqlpp::is_not_null(this->derived());
+  }
 
-    template <typename R>
-    constexpr auto is_distinct_from(R r) const -> comparison_expression<Expr, op_is_distinct_from, R>
-    {
-      return ::sqlpp::is_distinct_from(this->derived(), std::move(r));
-    }
+  template <typename R>
+  constexpr auto is_distinct_from(R r) const
+      -> comparison_expression<Expr, op_is_distinct_from, R> {
+    return ::sqlpp::is_distinct_from(this->derived(), std::move(r));
+  }
 
-    template <typename R>
-    constexpr auto is_not_distinct_from(R r) const -> comparison_expression<Expr, op_is_not_distinct_from, R>
-    {
-      return ::sqlpp::is_not_distinct_from(this->derived(), std::move(r));
-    }
+  template <typename R>
+  constexpr auto is_not_distinct_from(R r) const
+      -> comparison_expression<Expr, op_is_not_distinct_from, R> {
+    return ::sqlpp::is_not_distinct_from(this->derived(), std::move(r));
+  }
 
-    template <typename R1, typename R2>
-    constexpr auto between(R1 r1, R2 r2) const -> between_expression<Expr, R1, R2>
-    {
-      return ::sqlpp::between(this->derived(), std::move(r1), std::move(r2));
-    }
+  template <typename R1, typename R2>
+  constexpr auto between(R1 r1, R2 r2) const
+      -> between_expression<Expr, R1, R2> {
+    return ::sqlpp::between(this->derived(), std::move(r1), std::move(r2));
+  }
 
-    constexpr auto asc() const -> sort_order_expression<Expr>
-    {
-      return ::sqlpp::asc(this->derived());
-    }
+  constexpr auto asc() const -> sort_order_expression<Expr> {
+    return ::sqlpp::asc(this->derived());
+  }
 
-    constexpr auto desc() const -> sort_order_expression<Expr>
-    {
-      return ::sqlpp::desc(this->derived());
-    }
+  constexpr auto desc() const -> sort_order_expression<Expr> {
+    return ::sqlpp::desc(this->derived());
+  }
 
-    constexpr auto order(::sqlpp::sort_type t) const -> sort_order_expression<Expr>
-    {
-      return ::sqlpp::order(this->derived(), t);
-    }
+  constexpr auto order(::sqlpp::sort_type t) const
+      -> sort_order_expression<Expr> {
+    return ::sqlpp::order(this->derived(), t);
+  }
 
-    template <typename R>
-    constexpr auto like(R r) const -> comparison_expression<Expr, op_like, R>
-    {
-      return ::sqlpp::like(this->derived(), std::move(r));
-    }
-  };
+  template <typename R>
+  constexpr auto like(R r) const -> comparison_expression<Expr, op_like, R> {
+    return ::sqlpp::like(this->derived(), std::move(r));
+  }
+};
 
-  template <typename T>
-  struct has_enabled_comparison : public std::is_base_of<enable_comparison<T>, T>{};
+template <typename T>
+struct has_enabled_comparison
+    : public std::is_base_of<enable_comparison<T>, T> {};
 
-}  // namespace sqlpp
+} // namespace sqlpp

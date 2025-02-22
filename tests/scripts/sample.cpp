@@ -1,7 +1,6 @@
 #include <sample.h>
 
-int main()
-{
+int main() {
   test::TabFoo tab_foo;
   tab_foo.delta = "delta";
   tab_foo.Epsilon = 42;

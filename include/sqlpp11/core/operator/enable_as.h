@@ -10,8 +10,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -29,26 +29,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/type_traits.h>
 
-namespace sqlpp
-{
-  // To be used as CRTP base for expressions that should offer the as() member function.
-  template <typename Expr>
-  class enable_as
-  {
-    constexpr auto derived() const -> const Expr&
-    {
-      return static_cast<const Expr&>(*this);
-    }
+namespace sqlpp {
+// To be used as CRTP base for expressions that should offer the as() member
+// function.
+template <typename Expr> class enable_as {
+  constexpr auto derived() const -> const Expr & {
+    return static_cast<const Expr &>(*this);
+  }
 
-  public:
-    template <typename NameTagProvider>
-    constexpr auto as(const NameTagProvider& alias) const -> decltype(::sqlpp::as(this->derived(), alias))
-    {
-      return ::sqlpp::as(this->derived(), alias);
-    }
-  };
+public:
+  template <typename NameTagProvider>
+  constexpr auto as(const NameTagProvider &alias) const
+      -> decltype(::sqlpp::as(this->derived(), alias)) {
+    return ::sqlpp::as(this->derived(), alias);
+  }
+};
 
-  template <typename T>
-  struct has_enabled_as : public std::is_base_of<enable_as<T>, T>{};
+template <typename T>
+struct has_enabled_as : public std::is_base_of<enable_as<T>, T> {};
 
-}  // namespace sqlpp
+} // namespace sqlpp

@@ -30,14 +30,13 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include <sqlpp11/tests/postgresql/tables.h>
 #include "make_test_connection.h"
 #include "sqlpp11/tests/core/result_helpers.h"
+#include <sqlpp11/tests/postgresql/tables.h>
 
 namespace sql = sqlpp::postgresql;
 
-int InsertOnConflict(int, char*[])
-{
+int InsertOnConflict(int, char *[]) {
   test::TabFoo foo = {};
 
   sql::connection db = sql::make_test_connection();
@@ -51,27 +50,31 @@ int InsertOnConflict(int, char*[])
   db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_nothing());
 
   // Conflict target
-  db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_update(
-      foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true).where(true));
+  db(sql::insert_into(foo)
+         .default_values()
+         .on_conflict(foo.id)
+         .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true)
+         .where(true));
 
   // With where statement
-  for (const auto& row : db(sql::insert_into(foo)
-                     .default_values()
-                     .on_conflict(foo.id)
-                     .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true)
-                     .where(foo.intN == 2)
-                     .returning(foo.textNnD)))
-  {
+  for (const auto &row : db(sql::insert_into(foo)
+                                .default_values()
+                                .on_conflict(foo.id)
+                                .do_update(foo.intN = 5,
+          foo.textNnD = "test bla", foo.boolN = true)
+                                .where(foo.intN == 2)
+                                .returning(foo.textNnD))) {
     std::cout << row.textNnD << std::endl;
   }
 
   // Returning
-  for (const auto& row : db(sql::insert_into(foo)
-                     .default_values()
-                     .on_conflict(foo.id)
-                     .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true).where(true)
-                     .returning(foo.intN)))
-  {
+  for (const auto &row : db(sql::insert_into(foo)
+                                .default_values()
+                                .on_conflict(foo.id)
+                                .do_update(foo.intN = 5,
+          foo.textNnD = "test bla", foo.boolN = true)
+                                .where(true)
+                                .returning(foo.intN))) {
     std::cout << row.intN << std::endl;
   }
 

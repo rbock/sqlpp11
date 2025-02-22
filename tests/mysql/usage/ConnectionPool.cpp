@@ -9,8 +9,8 @@ are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
    other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -33,22 +33,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sql = ::sqlpp::mysql;
 
-int ConnectionPool(int, char*[])
-{
-  try
-  {
+int ConnectionPool(int, char *[]) {
+  try {
     sqlpp::test::test_connection_pool<sql::connection_pool>(
-      sql::make_test_config(),
-      "CREATE TABLE tab_department ("
+        sql::make_test_config(),
+        "CREATE TABLE tab_department ("
         "id INTEGER PRIMARY KEY AUTO_INCREMENT, "
         "name CHAR(100), "
         "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
-      ")",
-      mysql_thread_safe()
-    );
-  }
-  catch (const std::exception& e)
-  {
+        ")",
+        mysql_thread_safe());
+  } catch (const std::exception &e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
