@@ -23,9 +23,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_compile name)
-    set(target sqlpp11_mysql_types_function_${name})
+    set(target sqlpp23_mysql_types_function_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing Threads::Threads)
+    target_link_libraries(${target} PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing Threads::Threads)
 endfunction()
 
 test_compile(flatten)

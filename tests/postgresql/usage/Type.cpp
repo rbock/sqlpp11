@@ -27,11 +27,11 @@
 
 #include <iostream>
 
-#include <sqlpp11/postgresql/postgresql.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include "make_test_connection.h"
-#include <sqlpp11/tests/postgresql/tables.h>
+#include <sqlpp23/tests/postgresql/tables.h>
 
 namespace {
 template <typename L, typename R>

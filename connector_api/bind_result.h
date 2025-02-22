@@ -33,7 +33,7 @@ namespace sqlpp
   namespace database
   {
     /*
-     * bind_result_t binds values of a sqlpp11 result row
+     * bind_result_t binds values of a sqlpp23 result row
      * to the results of a statement
      */
     class bind_result_t

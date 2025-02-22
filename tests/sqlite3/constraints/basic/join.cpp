@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/core/constraints_helpers.h>
 
 // We need to include this here to change the sqlite3 version number for this
 // test (if necessary)
@@ -37,8 +37,8 @@
 #undef SQLITE_VERSION_NUMBER
 #define SQLITE_VERSION_NUMBER 3038999
 #endif
-#include <sqlpp11/sqlite3/sqlite3.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main() {
   auto ctx = sqlpp::sqlite3::context_t{};

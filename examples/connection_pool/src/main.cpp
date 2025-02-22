@@ -1,7 +1,7 @@
 #include <db_global.h>
 
-#include <sqlpp11/postgresql/postgresql.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include <memory>
 #include <thread>

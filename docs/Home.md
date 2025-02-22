@@ -9,7 +9,7 @@ Let's see:
 
 You have come to the right place!
 
-sqlpp11 offers you to code SQL in C++ almost naturally. You can use tables, columns and functions. Everything has strong types which allow the compiler to help you a lot. At compile time, it will tell about most of those pesky oversight errors you can make (typos, comparing apples with oranges, forgetting tables in a select statement, etc). And it does not stop at query construction. Results have ranges, and strongly typed members, so that you can browse through results in a type-safe manner, worthy of modern C++.
+sqlpp23 offers you to code SQL in C++ almost naturally. You can use tables, columns and functions. Everything has strong types which allow the compiler to help you a lot. At compile time, it will tell about most of those pesky oversight errors you can make (typos, comparing apples with oranges, forgetting tables in a select statement, etc). And it does not stop at query construction. Results have ranges, and strongly typed members, so that you can browse through results in a type-safe manner, worthy of modern C++.
 
 The following pages will tell you how to use it:
 * [Database Connectors](Database.md)

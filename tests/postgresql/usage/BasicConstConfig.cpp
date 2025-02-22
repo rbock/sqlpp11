@@ -28,9 +28,9 @@
 #include <memory>
 #include <stdexcept>
 
-#include <sqlpp11/postgresql/database/connection.h>
-#include <sqlpp11/postgresql/database/exception.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/postgresql/database/connection.h>
+#include <sqlpp23/postgresql/database/exception.h>
+#include <sqlpp23/sqlpp23.h>
 
 namespace sql = sqlpp::postgresql;
 int BasicConstConfig(int, char *[]) {

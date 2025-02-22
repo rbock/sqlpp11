@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlpp23.h>
 
 template <typename Value> void test_as_expression(Value v) {
   auto v_not_null = sqlpp::value(v);

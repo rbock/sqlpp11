@@ -27,8 +27,8 @@
 
 #include "Tables.h"
 #include <cassert>
-#include <sqlpp11/sqlite3/database/connection.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include <iostream>
 #include <vector>

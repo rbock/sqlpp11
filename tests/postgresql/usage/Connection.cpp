@@ -28,8 +28,8 @@
 #include "../../include/ConnectionTests.h"
 #include "make_test_connection.h"
 
-#include <sqlpp11/postgresql/database/connection.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/postgresql/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
 
 int Connection(int, char *[]) {
   namespace sql = sqlpp::postgresql;

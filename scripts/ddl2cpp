@@ -547,10 +547,10 @@ def beginHeader(pathToHeader, namespace, nsList):
     print("", file=header)
     print("#include <optional>", file=header)
     print("", file=header)
-    print("#include <sqlpp11/core/basic/table.h>", file=header)
-    print("#include <sqlpp11/core/basic/table_columns.h>", file=header)
-    print("#include <sqlpp11/core/type_traits.h>", file=header)
-    print("#include <sqlpp11/core/name/create_name_tag.h>", file=header)
+    print("#include <sqlpp23/core/basic/table.h>", file=header)
+    print("#include <sqlpp23/core/basic/table_columns.h>", file=header)
+    print("#include <sqlpp23/core/type_traits.h>", file=header)
+    print("#include <sqlpp23/core/name/create_name_tag.h>", file=header)
     print("", file=header)
     for ns in nsList:
         print("namespace " + ns, file=header)
@@ -753,7 +753,7 @@ def createHeader():
     if DataTypeError:
         print("Error: unsupported datatypes.")
         print("Possible solutions:")
-        print("A) Implement this datatype (examples: sqlpp11/data_types)")
+        print("A) Implement this datatype (examples: sqlpp23/data_types)")
         print(f"B) Use the '{dataTypeFileArg}' command line argument to map the type to a known type (example: README)")
         print("C) Extend/upgrade ddl2cpp (edit types map)")
         print("D) Raise an issue on github")

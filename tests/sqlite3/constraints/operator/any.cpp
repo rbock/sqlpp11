@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/core/constraints_helpers.h>
 
-#include <sqlpp11/sqlite3/sqlite3.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main() {
   const auto foo = test::TabFoo{};

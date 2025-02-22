@@ -1,6 +1,6 @@
 # Thread Safety
 
-sqlpp11 aspires to have no influence on thread safety itself, but offers
+sqlpp23 aspires to have no influence on thread safety itself, but offers
 no particular guarantees (PRs welcome). This means that in the general case
 your program may have problems if it does one of the following
 

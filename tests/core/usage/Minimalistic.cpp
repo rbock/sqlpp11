@@ -1,3 +1,3 @@
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlpp23.h>
 
 int Minimalistic(int /*unused*/, char * /*unused*/[]) { return 0; }

@@ -24,9 +24,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_compile name)
-    set(target sqlpp11_helpers_${name})
+    set(target sqlpp23_helpers_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
 endfunction()
 
 test_compile(circular_buffer)

@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/core/constraints_helpers.h>
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/tables.h>
 
 namespace {
 // Returns true if `assign(declcal<Lhs>, declval<Rhs>())` is a valid function

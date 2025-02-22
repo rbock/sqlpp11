@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/postgresql/postgresql.h>
+#include <sqlpp23/postgresql/postgresql.h>
 
 namespace sqlpp {
 namespace postgresql {

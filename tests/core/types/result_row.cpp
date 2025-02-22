@@ -24,11 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/MockDb.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/tables.h>
 
-#include <sqlpp11/tests/core/types_helpers.h>
+#include <sqlpp23/tests/core/types_helpers.h>
 
 namespace {
 template <typename A, typename B> constexpr bool is_same_type() {

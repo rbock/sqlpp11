@@ -5,10 +5,10 @@
 
 #include <optional>
 
-#include <sqlpp11/core/basic/table.h>
-#include <sqlpp11/core/basic/table_columns.h>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/core/type_traits.h>
+#include <sqlpp23/core/basic/table.h>
+#include <sqlpp23/core/basic/table_columns.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/core/type_traits.h>
 
 namespace model {
 struct TabDepartment_ : public ::sqlpp::name_tag_base {

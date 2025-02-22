@@ -43,31 +43,31 @@ set(test_files
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 
-add_executable(sqlpp11_sqlite3_tests ${test_sources})
-target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11_testing sqlpp11_sqlite3_testing)
+add_executable(sqlpp23_sqlite3_tests ${test_sources})
+target_link_libraries(sqlpp23_sqlite3_tests PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
 if (BUILD_SQLCIPHER_CONNECTOR)
-    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlcipher)
+    target_link_libraries(sqlpp23_sqlite3_tests PRIVATE sqlpp23::sqlcipher)
     if (SQLPP_DYNAMIC_LOADING)
-        target_include_directories(sqlpp11_sqlite3_tests PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
+        target_include_directories(sqlpp23_sqlite3_tests PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
     endif()
 else()
-    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlite3)
+    target_link_libraries(sqlpp23_sqlite3_tests PRIVATE sqlpp23::sqlite3)
 endif()
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp11.sqlite3.usage.${test}
-        COMMAND sqlpp11_sqlite3_tests ${test}
+    add_test(NAME sqlpp23.sqlite3.usage.${test}
+        COMMAND sqlpp23_sqlite3_tests ${test}
     )
 endforeach()
 
 # the dynamic loading test needs the extra option "SQLPP_DYNAMIC_LOADING" and does NOT link the sqlite libs
 if (SQLPP_DYNAMIC_LOADING)
-    add_executable(Sqlpp11Sqlite3DynamicLoadingTest "DynamicLoadingTest.cpp" ${sqlpp_headers})
-    target_link_libraries(Sqlpp11Sqlite3DynamicLoadingTest sqlpp11-connector-sqlite3-dynamic)
+    add_executable(Sqlpp23Sqlite3DynamicLoadingTest "DynamicLoadingTest.cpp" ${sqlpp_headers})
+    target_link_libraries(Sqlpp23Sqlite3DynamicLoadingTest sqlpp23-connector-sqlite3-dynamic)
     if (NOT MSVC)
-        target_link_libraries(Sqlpp11Sqlite3DynamicLoadingTest dl)
-        target_compile_options(Sqlpp11Sqlite3DynamicLoadingTest INTERFACE -Wall -Wextra -pedantic)
+        target_link_libraries(Sqlpp23Sqlite3DynamicLoadingTest dl)
+        target_compile_options(Sqlpp23Sqlite3DynamicLoadingTest INTERFACE -Wall -Wextra -pedantic)
     endif ()
-    add_test(NAME Sqlpp11Sqlite3DynamicLoadingTest COMMAND Sqlpp11Sqlite3DynamicLoadingTest)
+    add_test(NAME Sqlpp23Sqlite3DynamicLoadingTest COMMAND Sqlpp23Sqlite3DynamicLoadingTest)
 endif()

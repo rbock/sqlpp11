@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/core/constraints_helpers.h>
 
-#include <sqlpp11/mysql/mysql.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main() {
   auto ctx = sqlpp::mysql::context_t{};

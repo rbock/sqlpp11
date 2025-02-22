@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlpp23.h>
 
 template <typename T, typename Value>
 using is_same_type =

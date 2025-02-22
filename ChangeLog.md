@@ -1,11 +1,11 @@
-Important changes in sqlpp11
+Important changes in sqlpp23
 ============================
 
 Breaking changes in 0.36:
 -------------------------
 __Abstract__:
 
-One of the main motivations of sqlpp11 is to prevent SQL programming mistakes at compile time. The following changes prevent reported mishaps.
+One of the main motivations of sqlpp23 is to prevent SQL programming mistakes at compile time. The following changes prevent reported mishaps.
   * `from(a,b)` not allowed anymore, please use explicit joins
   * `where(true)` not allowed anymore, please use `.unconditionally()` or sqlpp::value(true)
   * `some_sql_expression and true` not allowed anymore, please use `tab.col == sqlpp::value(true)` if you really want to express this.
@@ -14,7 +14,7 @@ One of the main motivations of sqlpp11 is to prevent SQL programming mistakes at
 
 __Explicit joins required__:
 
-Up until sqlpp11-0.35 you could write something like
+Up until sqlpp23-0.35 you could write something like
 
 ```
 auto result = db(select(all_of(a), all_of(b))
@@ -27,7 +27,7 @@ But there is no reliable way to tell whether or not that condition is there. Or,
 it was omitted on purpose or by accident.
 In one case, an accidentally omitted join condition in the `where()` brought a production system to a screeching halt.
 
-In order to prevent this in the future, sqlpp11 now requires you to join table explicitly, including an explicit join condition, e.g.
+In order to prevent this in the future, sqlpp23 now requires you to join table explicitly, including an explicit join condition, e.g.
 
 ```
 auto result = db(select(all_of(a), all_of(b))
@@ -36,7 +36,7 @@ auto result = db(select(all_of(a), all_of(b))
 ```
 
 Most joins, (`join`/`inner_join`, `left_outer_join`, `right_outer_join` and `outer_join`) require a join condition to given via `on()`.
-The join condition has to be some sqlpp11 boolean expression.
+The join condition has to be some sqlpp23 boolean expression.
 
 In those rare cases, when you really need a cross join, you can also use `cross_join()` which has no join condition, of course.
 
@@ -48,7 +48,7 @@ auto result = db(select(all_of(a), all_of(b))
 
 __Use `.unconditionally()`__
 
-If you want to select/update/remove all rows, earlier versions of sqlpp11 required the use of `where(true)`. Since version 0.36, use `unconditionally()`, for instance:
+If you want to select/update/remove all rows, earlier versions of sqlpp23 required the use of `where(true)`. Since version 0.36, use `unconditionally()`, for instance:
 ```
 auto result = db(select(all_of(t)).from(t).unconditionally());
 ```
@@ -66,7 +66,7 @@ struct X
 auto x = X{};
 ```
 
-Then earlier versions of sqlpp11 would compile the following expression:
+Then earlier versions of sqlpp23 would compile the following expression:
 
 ```
 select(all_of(t)).from(t).where(x.a == x.a or t.b == t.b);
@@ -95,7 +95,7 @@ In older versions, the following code was allowed:
 select(all_of(t)).from(t).where(t.a > 7).having(t.b != "");
 ```
 
-As of sqlpp11-0.36, the having argument must be made of aggregate columns or functions, e.g.
+As of sqlpp23-0.36, the having argument must be made of aggregate columns or functions, e.g.
 
 ```
 select(all_of(t)).from(t).unconditionally().group_by(t.b).having(t.b != "", avg(t.c) < 42);

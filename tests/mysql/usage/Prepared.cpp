@@ -27,8 +27,8 @@
 #include "Tables.h"
 #include "make_test_connection.h"
 #include <cassert>
-#include <sqlpp11/mysql/database/connection.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/mysql/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include <iostream>
 #include <vector>

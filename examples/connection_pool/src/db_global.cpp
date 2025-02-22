@@ -1,6 +1,6 @@
 #include <db_connection.h>
 
-#include <sqlpp11/postgresql/postgresql.h>
+#include <sqlpp23/postgresql/postgresql.h>
 
 static sqlpp::postgresql::connection_pool g_db_pool{};
 

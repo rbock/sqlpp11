@@ -26,8 +26,8 @@
 
 #include "../../include/ConnectionTests.h"
 
-#include <sqlpp11/sqlite3/database/connection.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
 
 int Connection(int, char *[]) {
   namespace sql = sqlpp::sqlite3;

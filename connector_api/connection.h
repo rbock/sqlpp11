@@ -28,10 +28,10 @@
  */
 
 #include <string>
-#include <sqlpp11/connection.h>
-#include <sqlpp11/transaction.h>
-#include <sqlpp11/database/char_result.h>  // You may use char result or bind result or both
-#include <sqlpp11/database/bind_result.h>  // to represent results of select and prepared select
+#include <sqlpp23/connection.h>
+#include <sqlpp23/transaction.h>
+#include <sqlpp23/database/char_result.h>  // You may use char result or bind result or both
+#include <sqlpp23/database/bind_result.h>  // to represent results of select and prepared select
 
 namespace sqlpp
 {
@@ -118,7 +118,7 @@ namespace sqlpp
                                     << This context is used interpret a statement >>
           ;
       // serializer and interpreter are typically the same for string based connectors
-      // the types are required for dynamic statement components, see sqlpp11/interpretable.h
+      // the types are required for dynamic statement components, see sqlpp23/interpretable.h
 
       //! "direct" select
       template <typename Select>
@@ -226,4 +226,4 @@ namespace sqlpp
   }  // namespace database
 }  // namespace sqlpp
 
-#include <sqlpp11/database/interpreter.h>
+#include <sqlpp23/database/interpreter.h>

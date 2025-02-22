@@ -23,9 +23,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(create_test name)
-    set(target sqlpp11_mysql_serialize_value_types_${name})
+    set(target sqlpp23_mysql_serialize_value_types_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing Threads::Threads)
+    target_link_libraries(${target} PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing Threads::Threads)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 

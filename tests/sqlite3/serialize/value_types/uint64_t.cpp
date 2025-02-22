@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/basic/value.h>
+#include <sqlpp23/core/basic/value.h>
 
-#include <sqlpp11/tests/sqlite3/serialize_helpers.h>
+#include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
 int main() {
   SQLPP_COMPARE(uint64_t{std::numeric_limits<int64_t>::max()},

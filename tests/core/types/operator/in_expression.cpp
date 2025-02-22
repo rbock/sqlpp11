@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlpp23.h>
 
 namespace {
 template <typename T>

@@ -23,9 +23,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(create_test name)
-    set(target sqlpp11_postgresql_serialize_query_${name})
+    set(target sqlpp23_postgresql_serialize_query_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp11::postgresql sqlpp11_testing sqlpp11_postgresql_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 

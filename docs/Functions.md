@@ -1,4 +1,4 @@
-sqlpp11 offers equivalents for quite a few SQL functions. It also has some additional functions to make the developer's life easier, see [Misc Functions](#Misc-Functions).
+sqlpp23 offers equivalents for quite a few SQL functions. It also has some additional functions to make the developer's life easier, see [Misc Functions](#Misc-Functions).
 
 If functions can be used as select columns, the column's name is the name of the function. You can use `.as()` of course to give it another name, see [Select](Select.md). There are just a few exceptions like `any()` which cannot be named.
 
@@ -50,7 +50,7 @@ Just use the + operator :-)
 ## some
 
 # Misc Functions
-sqlpp11 offers a few functions that do not mimic SQL but are there to make your life easier.
+sqlpp23 offers a few functions that do not mimic SQL but are there to make your life easier.
 
 ## value
 The `value` function turns the argument into an unnamed SQL expression, e.g. an `int` into an `sqlpp::integral` or a `std::string` into an `sqlpp::text`. You probably don't need to use this function too often, because in most cases, sqlpp expressions do the conversion themselves. For instance
@@ -66,14 +66,14 @@ for (const auto& row : select(sqlpp::value<sqlpp::bigint>(7).as(sql::alias::a)).
 ```
 
 ##value_list
-`value_list` is a helper function that takes a container of values and turns it into an sqlpp11 construct that is understood by the `in()` member function of expressions, see above.
+`value_list` is a helper function that takes a container of values and turns it into an sqlpp23 construct that is understood by the `in()` member function of expressions, see above.
 
 ## verbatim
-sqlpp11 supports quite a few aspects of SQL. But it does certainly not cover everything, nor will it ever. So what if you need to use something that is not supported? At least for expressions there is an easy way to use unsupported features, the `verbatim()` method. It requires a template parameter to determine the SQL type and a string argument containing the expression, for instance:
+sqlpp23 supports quite a few aspects of SQL. But it does certainly not cover everything, nor will it ever. So what if you need to use something that is not supported? At least for expressions there is an easy way to use unsupported features, the `verbatim()` method. It requires a template parameter to determine the SQL type and a string argument containing the expression, for instance:
 ```C++
 select(all_of(tab)).from(tab).where(tab.foo == 42 and sqlpp::verbatim<sqlpp::boolean>("mighty special feature"));
 ```
-_Use with care_, as sqlpp11 does not bother to look into the string you provide. That means you have to handle type checking, syntax checking, escaping of injected evil data from your users, etc.
+_Use with care_, as sqlpp23 does not bother to look into the string you provide. That means you have to handle type checking, syntax checking, escaping of injected evil data from your users, etc.
 
 ## flatten
 Say `tab.foo` and `tab.bar` represent two bigint columns. Then the type of `tab.foo` and `tab.bar` is different. Also `tab.foo + 17` and `tab.bar + 17` are expressions of different type. This is because the expression carries information about required tables for instance (and that is going to be used to check if `from()` contains all the required tables.

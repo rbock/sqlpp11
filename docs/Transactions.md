@@ -1,6 +1,6 @@
 # Transactions
 
-Transactions are simple in sqlpp11. Assuming you have a connection called `db`,
+Transactions are simple in sqlpp23. Assuming you have a connection called `db`,
 you can start and commit a transaction just like this:
 
 ```C++

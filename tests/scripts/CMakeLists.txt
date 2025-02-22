@@ -37,27 +37,27 @@ if (${Python3_Interpreter_FOUND})
     else()
         message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
 
-        add_test(NAME sqlpp11.scripts.ddl2cpp.parser
+        add_test(NAME sqlpp23.scripts.ddl2cpp.parser
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                     "--test"
                     test)
 
-        add_test(NAME sqlpp11.scripts.ddl2cpp.bad_will_fail
+        add_test(NAME sqlpp23.scripts.ddl2cpp.bad_will_fail
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                     "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
                     test)
-        set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
+        set_tests_properties(sqlpp23.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
 
-        add_test(NAME sqlpp11.scripts.ddl2cpp.bad_has_parse_error
+        add_test(NAME sqlpp23.scripts.ddl2cpp.bad_has_parse_error
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                     "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
                     test)
-        set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_has_parse_error PROPERTIES
+        set_tests_properties(sqlpp23.scripts.ddl2cpp.bad_has_parse_error PROPERTIES
             PASS_REGULAR_EXPRESSION "ERROR: Could not parse.*")
 
-        add_test(NAME sqlpp11.scripts.ddl2cpp.good_succeeds
+        add_test(NAME sqlpp23.scripts.ddl2cpp.good_succeeds
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                     "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
@@ -83,14 +83,14 @@ if (${Python3_Interpreter_FOUND})
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
                 "${sqlpp.scripts.generated.sample.include}.h")
-            target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp11)
+            target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp23)
         endforeach()
 
         # Invalid .types names
         # TODO: Read the types from a text file and generate the input .sql files in the build directory
         foreach(bad_type "booltype" "invalid" "serial5" "typeint")
 #            message(STATUS "${bad_type}")
-            set(bad_type_test_name "sqlpp11.scripts.ddl2cpp.bad_type.${bad_type}")
+            set(bad_type_test_name "sqlpp23.scripts.ddl2cpp.bad_type.${bad_type}")
             add_test(NAME "${bad_type_test_name}"
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad_type_${bad_type}.sql"
@@ -114,6 +114,6 @@ if (${Python3_Interpreter_FOUND})
             VERBATIM)
         add_executable(sqlpp.scripts.compiled.${custom_type_sql} ${custom_type_sql}.cpp
             "${sqlpp.scripts.generated.custom_type_sql.include}.h")
-        target_link_libraries(sqlpp.scripts.compiled.${custom_type_sql} PRIVATE sqlpp11)
+        target_link_libraries(sqlpp.scripts.compiled.${custom_type_sql} PRIVATE sqlpp23)
     endif()
 endif()

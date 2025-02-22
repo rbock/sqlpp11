@@ -1,5 +1,5 @@
-#include <sqlpp11/select.h>
-#include <sqlpp11/alias_provider.h>
+#include <sqlpp23/select.h>
+#include <sqlpp23/alias_provider.h>
 
 int main()
 {

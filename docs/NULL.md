@@ -34,7 +34,7 @@ const auto s = select(all_of(tab)).from(tab).where(tab.alpha == 17 and tab.beta.
 ```
 
 # Obtaining potential NULL values from a select
-sqlpp11 can determine whether a result field can be null, based on the columns involved and the structure of your query. If in doubt (for instance due to dynamic parts), it will assume that a field can be NULL.
+sqlpp23 can determine whether a result field can be null, based on the columns involved and the structure of your query. If in doubt (for instance due to dynamic parts), it will assume that a field can be NULL.
 
 You can check if a field is NULL by calling the `is_null()` method.
 

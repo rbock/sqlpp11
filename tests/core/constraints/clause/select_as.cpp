@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/core/constraints_helpers.h>
 
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/tests/core/tables.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);

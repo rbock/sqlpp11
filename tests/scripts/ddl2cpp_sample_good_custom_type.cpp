@@ -1,6 +1,6 @@
 
 #include <ddl2cpp_sample_good_custom_type.h>
-#include <sqlpp11/core/chrono.h>
+#include <sqlpp23/core/chrono.h>
 
 int main() {
   test::TabFoo tab_foo;

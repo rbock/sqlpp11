@@ -130,7 +130,7 @@ for (const auto& row : db(
 The name of the sub select is the name of the one column. If required, you can rename it using `as()`, as usual.
 
 ### Select All Columns
-Statements like `SELECT * from foo` is used pretty often in SQL. sqlpp11 offers something similar:
+Statements like `SELECT * from foo` is used pretty often in SQL. sqlpp23 offers something similar:
 
 ```C++
 select(all_of(foo));

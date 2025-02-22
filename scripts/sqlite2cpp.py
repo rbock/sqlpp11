@@ -32,7 +32,7 @@ import re
 import sqlite3
 import sys
 
-INCLUDE = 'sqlpp11'
+INCLUDE = 'sqlpp23'
 NAMESPACE = 'sqlpp'
 
 # map sqlite3 types
@@ -44,7 +44,7 @@ types = {
 }
 
 def main():
-    parser = argparse.ArgumentParser(description='sqlpp11 cpp schema generator')
+    parser = argparse.ArgumentParser(description='sqlpp23 cpp schema generator')
     parser.add_argument('ddl', help='path to ddl')
     parser.add_argument('target', help='path to target')
     parser.add_argument('namespace', help='namespace')
@@ -169,7 +169,7 @@ def main():
     if (DataTypeError):
         print("Error: unsupported datatypes." )
         print("Possible solutions:")
-        print("A) Implement this datatype (examples: sqlpp11/data_types)" )
+        print("A) Implement this datatype (examples: sqlpp23/data_types)" )
         print("B) Extend/upgrade ddl2cpp (edit types map)" )
         print("C) Raise an issue on github" )
         sys.exit(10) #return non-zero error code, we might need it for automation

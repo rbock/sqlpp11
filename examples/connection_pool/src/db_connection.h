@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sqlpp11/postgresql/postgresql.h>
+#include <sqlpp23/postgresql/postgresql.h>
 
 class db_connection
 {

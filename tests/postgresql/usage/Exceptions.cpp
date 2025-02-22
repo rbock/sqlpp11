@@ -24,15 +24,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/basic/verbatim.h>
-#include <sqlpp11/core/database/exception.h>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/postgresql/postgresql.h>
+#include <sqlpp23/core/basic/verbatim.h>
+#include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/postgresql/postgresql.h>
 
 #include "assertThrow.h"
 
 #include "make_test_connection.h"
-#include <sqlpp11/tests/postgresql/tables.h>
+#include <sqlpp23/tests/postgresql/tables.h>
 
 namespace sql = sqlpp::postgresql;
 int Exceptions(int, char *[]) {

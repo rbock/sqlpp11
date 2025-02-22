@@ -25,8 +25,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/sqlite3/sqlite3.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include "../../include/ConnectionPoolTests.h"
 

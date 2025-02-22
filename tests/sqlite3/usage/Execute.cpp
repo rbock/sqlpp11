@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlite3/database/connection.h>
+#include <sqlpp23/sqlite3/database/connection.h>
 
 #include <iostream>
 

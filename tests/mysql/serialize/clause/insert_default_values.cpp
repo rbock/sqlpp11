@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/mysql/serialize_helpers.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/mysql/serialize_helpers.h>
 
 int main(int, char *[]) {
   SQLPP_COMPARE(sqlpp::insert_default_values(), " () VALUES()");

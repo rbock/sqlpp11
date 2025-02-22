@@ -25,10 +25,10 @@
  */
 
 #include "is_regular.h"
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/MockDb.h>
-#include <sqlpp11/tests/core/result_helpers.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int Prepared(int, char *[]) {
   MockDb db = {};

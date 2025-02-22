@@ -49,13 +49,13 @@ endif()
 
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp11_core_tests ${test_sources})
-target_link_libraries(sqlpp11_core_tests PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
+add_executable(sqlpp23_core_tests ${test_sources})
+target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp11.core.usage.${test}
-        COMMAND sqlpp11_core_tests ${test}
+    add_test(NAME sqlpp23.core.usage.${test}
+        COMMAND sqlpp23_core_tests ${test}
     )
 endforeach()
 

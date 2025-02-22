@@ -22,8 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp11_mysql_testing INTERFACE)
-target_include_directories(sqlpp11_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(sqlpp23_mysql_testing INTERFACE)
+target_include_directories(sqlpp23_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(test_files
     Json.cpp
@@ -43,16 +43,16 @@ set(test_files
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp11_mysql_tests ${test_sources})
-target_link_libraries(sqlpp11_mysql_tests PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing)
-target_link_libraries(sqlpp11_mysql_tests PRIVATE Threads::Threads)
+add_executable(sqlpp23_mysql_tests ${test_sources})
+target_link_libraries(sqlpp23_mysql_tests PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing)
+target_link_libraries(sqlpp23_mysql_tests PRIVATE Threads::Threads)
 if(NOT MSVC)
-    target_compile_options(sqlpp11_mysql_tests PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(sqlpp23_mysql_tests PRIVATE -Wall -Wextra -pedantic)
 endif()
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp11.mysql.usage.${test}
-        COMMAND sqlpp11_mysql_tests ${test}
+    add_test(NAME sqlpp23.mysql.usage.${test}
+        COMMAND sqlpp23_mysql_tests ${test}
     )
 endforeach()

@@ -22,18 +22,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp11_sqlite3_testing INTERFACE)
-target_include_directories(sqlpp11_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(sqlpp23_sqlite3_testing INTERFACE)
+target_include_directories(sqlpp23_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 function(sqlpp_slite3_test_add_target_link_libraries name)
-target_link_libraries(${name} PRIVATE sqlpp11_testing sqlpp11_sqlite3_testing)
+target_link_libraries(${name} PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
 if (BUILD_SQLCIPHER_CONNECTOR)
-    target_link_libraries(${name} PRIVATE sqlpp11::sqlcipher)
+    target_link_libraries(${name} PRIVATE sqlpp23::sqlcipher)
     if (SQLPP_DYNAMIC_LOADING)
         target_include_directories(${name} PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
     endif()
 else()
-    target_link_libraries(${name} PRIVATE sqlpp11::sqlite3)
+    target_link_libraries(${name} PRIVATE sqlpp23::sqlite3)
 endif()
 endfunction()
 

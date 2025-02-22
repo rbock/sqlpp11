@@ -10,7 +10,7 @@ Throw in chapters of how to add features and how to write connector libraries.
 Many of the current tests were born when the library was in infant state. Often they test implementation details. And they often just print stuff, instead of checking said stuff.
 
 # Connectors
-## Merge stable connectors into sqlpp11
+## Merge stable connectors into sqlpp23
 Having all connector libraries in place, makes maintenance considerably simpler, see #174.
 It would also reduce the cognitive overhead for newcomers.
 
@@ -43,7 +43,7 @@ Multi-line insert in prepared statements, see #68
 Instead of sqlpp::value_or_null, std::optional would be nice, see #238
 
 ## Converter to and from SQL to C++ structs, to allow for more ORM like code
-Assuming that you have converter functions from struct to sqlpp11 and back, we could have something like this:
+Assuming that you have converter functions from struct to sqlpp23 and back, we could have something like this:
 ```C++
 struct Person;
 insert_into(tab).set(Person{});
@@ -68,6 +68,6 @@ Obtain results in an asynchronous fashion, see #35, for instance.
 See Seventeenification talk. Some of the simplifications can be ported back easily.
 
 ## Suppress export of symbols
-Some compilers tend to export all the generated symbols, which is a bit annoying in case of template-heavy libraries like sqlpp11 (leads to larger files and longer compile/link/startup times, I believe).
+Some compilers tend to export all the generated symbols, which is a bit annoying in case of template-heavy libraries like sqlpp23 (leads to larger files and longer compile/link/startup times, I believe).
 There are ways to suppress this in most compilers, afaik.
 

@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/detail/parse_date_time.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/core/detail/parse_date_time.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include <iostream>
 #include <vector>

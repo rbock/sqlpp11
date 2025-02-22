@@ -27,8 +27,8 @@
 #include "Tables.h"
 #include "make_test_connection.h"
 #include <iostream>
-#include <sqlpp11/mysql/mysql.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/sqlpp23.h>
 
 namespace {
 struct on_duplicate_key_update {

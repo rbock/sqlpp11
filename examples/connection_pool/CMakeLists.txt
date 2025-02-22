@@ -34,8 +34,8 @@ add_executable ("${APP_NAME}")
 target_include_directories ("${APP_NAME}" PRIVATE "${GEN_HEADERS_DIR}" "${PROJECT_SOURCE_DIR}/src")
 
 # Linked libraries
-find_package (Sqlpp11 REQUIRED COMPONENTS PostgreSQL)
-target_link_libraries ("${APP_NAME}" PRIVATE sqlpp11::postgresql)
+find_package (Sqlpp23 REQUIRED COMPONENTS PostgreSQL)
+target_link_libraries ("${APP_NAME}" PRIVATE sqlpp23::postgresql)
 
 # Project sources
 target_sources (

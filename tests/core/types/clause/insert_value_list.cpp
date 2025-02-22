@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/tests/core/types_helpers.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/types_helpers.h>
 
 void test_no_insert_value_list() {
   const auto foo = test::TabFoo{};

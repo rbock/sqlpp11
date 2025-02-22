@@ -26,10 +26,10 @@
 
 #include "Tables.h"
 #include "make_test_connection.h"
-#include <sqlpp11/mysql/mysql.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/sqlpp23.h>
 
-#include "sqlpp11/tests/core/result_helpers.h"
+#include "sqlpp23/tests/core/result_helpers.h"
 
 #include <cassert>
 #include <iostream>

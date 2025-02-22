@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/tables.h>
 
 void test_table() {
   static_assert(sqlpp::is_table<test::TabFoo>::value, "");

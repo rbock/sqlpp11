@@ -6,7 +6,7 @@ There are a bunch of new features, that are not fully documented yet. If you wou
 You'll need boost 1.50 or greater to use this feature by niXman:
 
 ```C++
-#include <sqlpp11/ppgen.h>
+#include <sqlpp23/ppgen.h>
 SQLPP_DECLARE_TABLE(
   (tab_person)
   ,
@@ -29,7 +29,7 @@ db(select(t.alpha).from(t).where(true)
 ```
 
 ## With
-sqlpp11 supports common table expressions:
+sqlpp23 supports common table expressions:
 
 ```C++
 auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
@@ -37,7 +37,7 @@ auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 db(with(x)(select(x.alpha).from(x).where(true)));
 ```
 ## Custom Queries
-This allows you to combine building blocks of sqlpp11 into custom queries, for instance a SELECT..INTO which is not supported yet.
+This allows you to combine building blocks of sqlpp23 into custom queries, for instance a SELECT..INTO which is not supported yet.
 
 ```C++
 // A custom (select ... into) with adjusted return type
@@ -48,7 +48,7 @@ db(custom_query(select(all_of(t)).from(t), into(f))
 ```
 
 ## Schema-qualified tables
-sqlpp11 assumes that you're connection addresses one database, normally. But you can tell it about other databases using the `sqlpp::schema_t` and instantiating schema-qualified tables with it:
+sqlpp23 assumes that you're connection addresses one database, normally. But you can tell it about other databases using the `sqlpp::schema_t` and instantiating schema-qualified tables with it:
 
 ```C++
 auto schema = db.attach("lorem_ipsum");

@@ -26,11 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/vendor/concat.h>
-#include <sqlpp11/vendor/insert_list.h>
+#include <sqlpp23/vendor/concat.h>
+#include <sqlpp23/vendor/insert_list.h>
 
 /*
- * sqlpp11 offers an interpreter that can be used to serialize the expression tree
+ * sqlpp23 offers an interpreter that can be used to serialize the expression tree
  * into a standard SQL string.
  *
  * The connector library can specialize the interpreter template to partially or

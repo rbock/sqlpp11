@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/sqlite3/serialize_helpers.h>
+#include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
 int main() {
   SQLPP_COMPARE(10.0000114, "10.0000114");

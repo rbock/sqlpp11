@@ -28,11 +28,11 @@
 #include <memory>
 #include <stdexcept>
 
-#include <sqlpp11/core/database/transaction.h>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/postgresql/database/connection.h>
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/result_helpers.h>
+#include <sqlpp23/core/database/transaction.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/postgresql/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 
 #include "make_test_connection.h"
 

@@ -28,12 +28,12 @@
 #include <iostream>
 #include <vector>
 
-#include <sqlpp11/postgresql/postgresql.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp23/sqlpp23.h>
 
 #include "make_test_connection.h"
-#include "sqlpp11/tests/core/result_helpers.h"
-#include <sqlpp11/tests/postgresql/tables.h>
+#include "sqlpp23/tests/core/result_helpers.h"
+#include <sqlpp23/tests/postgresql/tables.h>
 
 namespace sql = sqlpp::postgresql;
 test::TabFoo tab = {};

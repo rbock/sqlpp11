@@ -33,7 +33,7 @@ ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/mysql/mysql.h>
+#include <sqlpp23/mysql/mysql.h>
 
 namespace sqlpp {
 namespace mysql {

@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/serialize_helpers.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/serialize_helpers.h>
 
 int main(int, char *[]) {
   // vector<uint8_t>

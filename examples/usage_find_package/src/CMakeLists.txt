@@ -25,13 +25,13 @@
 add_executable(Test)
 target_link_libraries(Test 
     PRIVATE 
-    sqlpp11::sqlpp11
+    sqlpp23::sqlpp23
     # Corresponding targets for the Components specified in the find_package call
-    # sqlpp11::sqlite3
-    # sqlpp11::sqlcipher
-    # sqlpp11::mysql
-    # sqlpp11::mariadb
-    # sqlpp11::postgresql
+    # sqlpp23::sqlite3
+    # sqlpp23::sqlcipher
+    # sqlpp23::mysql
+    # sqlpp23::mariadb
+    # sqlpp23::postgresql
 )
 target_sources(Test 
     PRIVATE 

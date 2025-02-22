@@ -46,7 +46,7 @@ namespace sqlpp
 
       bool operator==(const prepared_statement_t& rhs) const;
 
-      // These are called by the sqlpp11::prepared_*_t to bind the individual parameters
+      // These are called by the sqlpp23::prepared_*_t to bind the individual parameters
       // More will be added over time
       void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
       void _bind_floating_point_parameter(size_t index, const double* value, bool is_null);

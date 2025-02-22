@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp23/sqlpp23.h>
 
 template <typename T> void test_boolean() {
   static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>::value,

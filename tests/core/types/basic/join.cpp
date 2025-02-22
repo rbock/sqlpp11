@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/tables.h>
 
 namespace test {
 SQLPP_CREATE_NAME_TAG(cheese);

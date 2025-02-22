@@ -1,7 +1,7 @@
 # Introduction
 Executing a statement in a database is typically done in two phases: First, the statement is prepared (parsed, compiled, optimized). Then, it is run against the database. Since statements often differ only in parameters, not in structure, many databases offer to store prepared statements. These prepared statements can then be executed repeatedly, typically with some parameters.
 
-sqlpp11 supports prepared statements.
+sqlpp23 supports prepared statements.
 
 ## Parameters
 Currently there are two overloads to specify a parameter:
