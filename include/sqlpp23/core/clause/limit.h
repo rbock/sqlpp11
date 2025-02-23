@@ -93,10 +93,10 @@ auto to_sql_string(Context &context, const limit_t<Expression> &t)
 template <typename Context, typename Expression>
 auto to_sql_string(Context &context, const limit_t<dynamic_t<Expression>> &t)
     -> std::string {
-  if (not t._expr._condition) {
+  if (not t._expr.has_value()) {
     return "";
   }
-  return " LIMIT " + operand_to_sql_string(context, t._expr._expr);
+  return " LIMIT " + operand_to_sql_string(context, t._expr.value());
 }
 
 template <typename T>

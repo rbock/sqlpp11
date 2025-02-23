@@ -158,11 +158,11 @@ auto to_sql_string(Context &context, const union_t<Flag, Lhs, Rhs> &t)
 template <typename Context, typename Flag, typename Lhs, typename Rhs>
 auto to_sql_string(Context &context,
                    const union_t<Flag, Lhs, dynamic_t<Rhs>> &t) -> std::string {
-  if (t._rhs._condition) {
+  if (t._rhs.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
     ret_val += to_sql_string(context, Flag{}) + " ";
-    return ret_val += to_sql_string(context, t._rhs._expr);
+    return ret_val += to_sql_string(context, t._rhs.value());
   }
   return to_sql_string(context, t._lhs);
 }

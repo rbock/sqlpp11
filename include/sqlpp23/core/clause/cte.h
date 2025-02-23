@@ -67,10 +67,10 @@ template <typename Context, typename Flag, typename Lhs, typename Rhs>
 auto to_sql_string(Context &context,
                    const cte_union_t<Flag, Lhs, dynamic_t<Rhs>> &t)
     -> std::string {
-  if (t._rhs._condition) {
+  if (t._rhs.has_value()) {
     return to_sql_string(context, t._lhs) + " UNION " +
            to_sql_string(context, Flag{}) +
-           to_sql_string(context, t._rhs._expr);
+           to_sql_string(context, t._rhs.value());
   }
   return to_sql_string(context, t._lhs);
 }
@@ -101,8 +101,10 @@ template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
 auto make_table_ref(
     dynamic_t<cte_t<NameTagProvider, Statement, FieldSpecs...>> dyn_cte)
     -> dynamic_t<cte_ref_t<NameTagProvider>> {
-  return dynamic_t<cte_ref_t<NameTagProvider>>{dyn_cte._condition,
-                                               cte_ref_t<NameTagProvider>{}};
+  if (dyn_cte.has_value()) {
+    return {cte_ref_t<NameTagProvider>{}};
+  }
+  return {std::nullopt};
 }
 
 // make_cte translates the `Statement` into field_specs...

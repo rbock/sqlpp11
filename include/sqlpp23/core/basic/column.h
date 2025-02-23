@@ -30,10 +30,10 @@
 #include <sqlpp23/core/basic/column_fwd.h>
 #include <sqlpp23/core/default_value.h>
 #include <sqlpp23/core/detail/type_vector.h>
+#include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/wrong.h>
 

@@ -27,10 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <optional>
+
 #include <sqlpp23/core/concepts.h>
+#include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/operator/sort_order_expression.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/query/statement_fwd.h>
@@ -40,27 +42,10 @@
 
 namespace sqlpp {
 template <typename Expr> struct dynamic_t : public enable_as<dynamic_t<Expr>> {
-  dynamic_t(bool condition, Expr expr)
-      : _condition(condition), _expr(std::move(expr)) {
+  dynamic_t(std::optional<Expr> expr) : _expr(std::move(expr)) {
     SQLPP_STATIC_ASSERT(
         parameters_of_t<Expr>::empty(),
         "dynamic expressions must not contain query parameters");
-  }
-
-  template <typename OtherExpr>
-  dynamic_t(const dynamic_t<OtherExpr> &d)
-      : _condition(d._condition), _expr(d._expr) {}
-  template <typename OtherExpr>
-  dynamic_t(dynamic_t<OtherExpr> &&d)
-      : _condition(d._condition), _expr(std::move(d._expr)) {}
-  template <typename OtherExpr>
-  dynamic_t &operator=(const dynamic_t<OtherExpr> &d) {
-    _condition = d._condition;
-    _expr = Expr{d._expr};
-  }
-  template <typename OtherExpr> dynamic_t &operator=(dynamic_t<OtherExpr> &&d) {
-    _condition = d._condition;
-    _expr = Expr{std::move(d._expr)};
   }
 
   dynamic_t(const dynamic_t &) = default;
@@ -69,8 +54,24 @@ template <typename Expr> struct dynamic_t : public enable_as<dynamic_t<Expr>> {
   dynamic_t &operator=(dynamic_t &&) = default;
   ~dynamic_t() = default;
 
-  bool _condition;
-  Expr _expr;
+  template <typename OtherExpr>
+  dynamic_t(const dynamic_t<OtherExpr> &d) : _expr(d._expr) {}
+  template <typename OtherExpr>
+  dynamic_t(dynamic_t<OtherExpr> &&d) : _expr(std::move(d._expr)) {}
+  template <typename OtherExpr>
+  dynamic_t &operator=(const dynamic_t<OtherExpr> &d) {
+    _expr = Expr{d._expr};
+  }
+  template <typename OtherExpr> dynamic_t &operator=(dynamic_t<OtherExpr> &&d) {
+    _expr = Expr{std::move(d._expr)};
+  }
+
+  auto has_value() const -> bool { return _expr.has_value(); }
+  auto value() const -> const Expr & { return _expr.value(); }
+
+private:
+  template <typename OtherExpr> friend struct dynamic_t;
+  std::optional<Expr> _expr;
 };
 
 // No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage
@@ -89,44 +90,27 @@ template <typename Expr> struct nodes_of<dynamic_t<Expr>> {
 // * select(dynamic(maybe, b))
 //   --> "NULL as b"
 
+// Constructing from optional
 template <typename Expr>
-using check_dynamic_args = std::enable_if_t<has_value_type<Expr>::value or
-                                            is_select_flag<Expr>::value>;
+  requires(has_value_type<Expr>::value or is_select_flag<Expr>::value or
+           is_as_expression<Expr>::value or is_assignment<Expr>::value or
+           is_table<Expr>::value or is_sort_order<Expr>::value or
+           is_statement<Expr>::value)
+auto dynamic(std::optional<Expr> t) -> dynamic_t<Expr> {
+  return {std::move(t)};
+}
 
-template <typename Expr, typename = check_dynamic_args<Expr>>
+// Constructing from condition and value
+template <typename Expr>
+  requires(has_value_type<Expr>::value or is_select_flag<Expr>::value or
+           is_as_expression<Expr>::value or is_assignment<Expr>::value or
+           is_table<Expr>::value or is_sort_order<Expr>::value or
+           is_statement<Expr>::value)
 auto dynamic(bool condition, Expr t) -> dynamic_t<Expr> {
-  return {condition, std::move(t)};
-}
-
-template <StaticTable _Table>
-auto dynamic(bool condition, _Table t) -> dynamic_t<_Table> {
-  return {condition, std::move(t)};
-}
-
-template <typename Expr, typename NameTag>
-  requires(has_value_type_v<Expr>)
-auto dynamic(bool condition, as_expression<Expr, NameTag> t)
-    -> dynamic_t<as_expression<Expr, NameTag>> {
-  return {condition, std::move(t)};
-}
-
-template <typename L, typename Operator, typename R,
-          typename = check_dynamic_args<L>>
-auto dynamic(bool condition, assign_expression<L, Operator, R> t)
-    -> dynamic_t<assign_expression<L, Operator, R>> {
-  return {condition, std::move(t)};
-}
-
-template <typename Expr, typename = check_dynamic_args<Expr>>
-auto dynamic(bool condition, sort_order_expression<Expr> t)
-    -> dynamic_t<sort_order_expression<Expr>> {
-  return {condition, std::move(t)};
-}
-
-template <typename... Clauses>
-auto dynamic(bool condition, statement_t<Clauses...> t)
-    -> dynamic_t<statement_t<Clauses...>> {
-  return {condition, std::move(t)};
+  if (condition) {
+    return {std::move(t)};
+  }
+  return {std::nullopt};
 }
 
 } // namespace sqlpp

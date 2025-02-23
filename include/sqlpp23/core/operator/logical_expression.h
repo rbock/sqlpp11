@@ -89,10 +89,10 @@ template <typename Context, typename L, typename Operator, typename R>
 auto to_sql_string(Context &context,
                    const logical_expression<L, Operator, dynamic_t<R>> &t)
     -> std::string {
-  if (t._r._condition) {
+  if (t._r.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
-    return ret_val + operand_to_sql_string(context, t._r._expr);
+    return ret_val + operand_to_sql_string(context, t._r.value());
   }
 
   // If the dynamic part is inactive ignore it.
@@ -115,10 +115,10 @@ auto to_sql_string(Context &context,
                    const logical_expression<logical_expression<L, Operator, R1>,
                                             Operator, dynamic_t<R2>> &t)
     -> std::string {
-  if (t._r._condition) {
+  if (t._r.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._l) + Operator::symbol;
-    return ret_val + operand_to_sql_string(context, t._r._expr);
+    return ret_val + operand_to_sql_string(context, t._r.value());
   }
 
   // If the dynamic part is inactive ignore it.

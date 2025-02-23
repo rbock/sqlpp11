@@ -53,7 +53,10 @@ auto get_rhs(assign_expression<L, Operator, R> e) -> R {
 
 template <typename L, typename Operator, typename R>
 auto get_rhs(dynamic_t<assign_expression<L, Operator, R>> e) -> dynamic_t<R> {
-  return {e._condition, e._expr._r};
+  if (e.has_value()) {
+    return {e.value()._r};
+  }
+  return {std::nullopt};
 }
 
 template <typename L, typename R>

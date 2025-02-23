@@ -67,6 +67,6 @@ auto simple_column(Column c) -> simple_column_t<Column> {
 
 template <typename Column>
 auto simple_column(dynamic_t<Column> c) -> dynamic_t<simple_column_t<Column>> {
-  return {c._condition, std::move(c._expr)};
+  return {c.has_value(), std::move(c._value())};
 }
 } // namespace sqlpp

@@ -289,8 +289,8 @@ struct tuple_lhs_assignment_operand_no_dynamic {
   template <typename Context, typename T>
   auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
                   size_t index) const -> std::string {
-    if (t._condition) {
-      return operator()(context, t._expr, index);
+    if (t.has_value()) {
+      return operator()(context, t.value(), index);
     }
     return "";
   }
@@ -313,8 +313,8 @@ struct tuple_rhs_assignment_operand_no_dynamic {
   template <typename Context, typename T>
   auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
                   size_t index) const -> std::string {
-    if (t._condition) {
-      return operator()(context, t._expr, index);
+    if (t.has_value()) {
+      return operator()(context, t.value(), index);
     }
     return "";
   }

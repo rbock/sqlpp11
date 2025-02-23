@@ -113,10 +113,10 @@ auto to_sql_string(Context &context,
                    const join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition> &t)
     -> std::string {
   static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
-  if (t._rhs._condition) {
+  if (t._rhs.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._lhs) + JoinType::_name;
-    ret_val += to_sql_string(context, t._rhs._expr) + " ON ";
+    ret_val += to_sql_string(context, t._rhs.value()) + " ON ";
     return ret_val + to_sql_string(context, t._condition);
   }
   return to_sql_string(context, t._lhs);
@@ -136,10 +136,10 @@ auto to_sql_string(
     Context &context,
     const join_t<Lhs, cross_join_t, dynamic_t<Rhs>, unconditional_t> &t)
     -> std::string {
-  if (t._rhs._condition) {
+  if (t._rhs.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._lhs) + cross_join_t::_name;
-    return ret_val + to_sql_string(context, t._rhs._expr);
+    return ret_val + to_sql_string(context, t._rhs.value());
   }
   return to_sql_string(context, t._lhs);
 }

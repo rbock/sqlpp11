@@ -93,10 +93,10 @@ auto to_sql_string(Context &context, const offset_t<Expression> &t)
 template <typename Context, typename Expression>
 auto to_sql_string(Context &context, const offset_t<dynamic_t<Expression>> &t)
     -> std::string {
-  if (not t._expr._condition) {
-    return "";
+  if (t._expr.has_value()) {
+    return " OFFSET " + operand_to_sql_string(context, t._expr.value());
   }
-  return " OFFSET " + operand_to_sql_string(context, t._expr._expr);
+  return "";
 }
 
 template <typename T>

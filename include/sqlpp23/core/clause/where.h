@@ -109,8 +109,8 @@ auto to_sql_string(Context &context, const where_t<Expression> &t)
 template <typename Context, typename Expression>
 auto to_sql_string(Context &context, const where_t<dynamic_t<Expression>> &t)
     -> std::string {
-  if (t._expression._condition) {
-    return " WHERE " + to_sql_string(context, t._expression._expr);
+  if (t._expression.has_value()) {
+    return " WHERE " + to_sql_string(context, t._expression.value());
   }
   return "";
 }

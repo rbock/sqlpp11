@@ -96,8 +96,8 @@ inline auto to_sql_string(Context &, const no_using_t &) -> std::string {
 template <typename Context, typename _Table>
 auto to_sql_string(Context &context, const using_t<dynamic_t<_Table>> &t)
     -> std::string {
-  if (t._table._condition) {
-    return " USING " + to_sql_string(context, t._table._expr);
+  if (t._table.has_value()) {
+    return " USING " + to_sql_string(context, t._table.value());
   }
   return {};
 }

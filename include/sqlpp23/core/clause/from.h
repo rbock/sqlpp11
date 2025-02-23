@@ -90,8 +90,8 @@ auto to_sql_string(Context &context, const from_t<_Table> &t) -> std::string {
 template <typename Context, typename _Table>
 auto to_sql_string(Context &context, const from_t<dynamic_t<_Table>> &t)
     -> std::string {
-  if (t._table._condition) {
-    return " FROM " + to_sql_string(context, t._table._expr);
+  if (t._table.has_value()) {
+    return " FROM " + to_sql_string(context, t._table.value());
   }
   return "";
 }
