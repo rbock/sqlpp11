@@ -278,5 +278,3 @@ Contact:
 --------
   * Issues at https://github.com/rbock/sqlpp11/issues
   * email at rbock at eudoxos dot de
-  * [![Join the chat at https://gitter.im/sqlpp11/Lobby](https://badges.gitter.im/sqlpp11/Lobby.svg)](https://gitter.im/sqlpp11/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
