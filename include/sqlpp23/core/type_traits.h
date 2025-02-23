@@ -40,7 +40,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/detail/type_vector.h>
 #include <sqlpp23/core/name/name_tag.h>
-#include <sqlpp23/core/operator/expression_as_fwd.h>
+#include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/type_traits/aggregates.h>
 #include <sqlpp23/core/type_traits/ctes_of.h>
@@ -285,7 +285,7 @@ template <typename T> struct is_cte : public std::false_type {};
 
 template <typename T> static inline constexpr bool is_cte_v = is_cte<T>::value;
 
-template <typename T> struct is_expression_as : public std::false_type {};
+template <typename T> struct is_as_expression : public std::false_type {};
 
 template <typename T> struct is_recursive_cte : public std::false_type {};
 

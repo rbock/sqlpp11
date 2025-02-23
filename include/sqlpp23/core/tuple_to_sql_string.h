@@ -30,7 +30,7 @@
 #include <tuple>
 #include <utility>
 
-#include <sqlpp23/core/operator/expression_as.h>
+#include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -89,13 +89,13 @@ struct tuple_operand_select_column {
 
   template <typename Context, typename T, typename NameTag>
   auto operator()(Context &context,
-                  const sqlpp::dynamic_t<expression_as<T, NameTag>> &t,
+                  const sqlpp::dynamic_t<as_expression<T, NameTag>> &t,
                   size_t index) const -> std::string {
     if (t._condition) {
       return operator()(context, t._expr, index);
     }
     return operator()(
-        context, expression_as<std::nullopt_t, NameTag>{std::nullopt}, index);
+        context, as_expression<std::nullopt_t, NameTag>{std::nullopt}, index);
   }
 
   template <typename Context, typename T>

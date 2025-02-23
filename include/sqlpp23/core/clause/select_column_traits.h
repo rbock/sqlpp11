@@ -28,13 +28,13 @@
  */
 
 #include <sqlpp23/core/detail/flat_tuple.h>
-#include <sqlpp23/core/operator/expression_as.h>
+#include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/type_traits.h>
 
 // Select columns require a value type and a name.
-// They can be dynamic values and they can be expression_ass.
-// These type traits consider `dynamic_t` and `expression_as`
+// They can be dynamic values and they can be as_expressions.
+// These type traits consider `dynamic_t` and `as_expression`
 
 namespace sqlpp {
 // Get value type
@@ -49,7 +49,7 @@ template <typename T> struct select_column_value_type_of<dynamic_t<T>> {
 };
 
 template <typename T, typename NameTag>
-struct select_column_value_type_of<expression_as<T, NameTag>>
+struct select_column_value_type_of<as_expression<T, NameTag>>
     : public select_column_value_type_of<T> {};
 
 // Get name tag
@@ -64,7 +64,7 @@ struct select_column_name_tag_of<dynamic_t<T>>
     : public select_column_name_tag_of<T> {};
 
 template <typename T, typename NameTag>
-struct select_column_name_tag_of<expression_as<T, NameTag>> {
+struct select_column_name_tag_of<as_expression<T, NameTag>> {
   using type = NameTag;
 };
 

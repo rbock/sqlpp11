@@ -45,20 +45,20 @@ namespace detail {
 // Columns can be
 // - Column
 // - dynamic_t<Column>
-// - expression_as_t<Column, NameTag>
-// - dynamic_t<expression_as_t<Column, NameTag>>
+// - as_expression_t<Column, NameTag>
+// - dynamic_t<as_expression_t<Column, NameTag>>
 //
 // In order to analyse aggregate expressions, we want to ignore the
-// expression_as aspects, but preserve the dynamic nature.
+// as_expression aspects, but preserve the dynamic nature.
 template <typename Column> struct remove_as_from_select_column {
   using type = Column;
 };
 template <typename Column, typename NameTag>
-struct remove_as_from_select_column<expression_as<Column, NameTag>> {
+struct remove_as_from_select_column<as_expression<Column, NameTag>> {
   using type = Column;
 };
 template <typename Column, typename NameTag>
-struct remove_as_from_select_column<dynamic_t<expression_as<Column, NameTag>>> {
+struct remove_as_from_select_column<dynamic_t<as_expression<Column, NameTag>>> {
   using type = dynamic_t<Column>;
 };
 

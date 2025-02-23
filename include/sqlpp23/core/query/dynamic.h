@@ -30,7 +30,7 @@
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/operator/expression_as_fwd.h>
+#include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/operator/sort_order_expression.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/query/statement_fwd.h>
@@ -105,8 +105,8 @@ auto dynamic(bool condition, _Table t) -> dynamic_t<_Table> {
 
 template <typename Expr, typename NameTag>
   requires(has_value_type_v<Expr>)
-auto dynamic(bool condition, expression_as<Expr, NameTag> t)
-    -> dynamic_t<expression_as<Expr, NameTag>> {
+auto dynamic(bool condition, as_expression<Expr, NameTag> t)
+    -> dynamic_t<as_expression<Expr, NameTag>> {
   return {condition, std::move(t)};
 }
 

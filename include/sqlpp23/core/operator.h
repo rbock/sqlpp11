@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/operator/assign_expression.h>
 
 // misc
-#include <sqlpp23/core/operator/expression_as.h>
+#include <sqlpp23/core/operator/as_expression.h>
 
 #include <sqlpp23/core/operator/sort_order_expression.h>
 

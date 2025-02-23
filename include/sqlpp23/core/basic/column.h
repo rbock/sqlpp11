@@ -33,7 +33,7 @@
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/operator/expression_as.h>
+#include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/wrong.h>
 

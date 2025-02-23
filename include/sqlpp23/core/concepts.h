@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/operator/expression_as_fwd.h>
+#include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/type_traits.h>
 

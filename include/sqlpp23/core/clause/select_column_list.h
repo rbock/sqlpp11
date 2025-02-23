@@ -37,7 +37,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/field_spec.h>
 #include <sqlpp23/core/group_by_column.h>
-#include <sqlpp23/core/operator/expression_as.h>
+#include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>

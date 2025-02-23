@@ -29,59 +29,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <optional>
 #include <type_traits>
 
-#include <sqlpp23/core/operator/expression_as_fwd.h>
+#include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expression, typename NameTag> struct expression_as {
-  constexpr expression_as(Expression expression)
+template <typename Expression, typename NameTag> struct as_expression {
+  constexpr as_expression(Expression expression)
       : _expression(std::move(expression)) {}
-  expression_as(const expression_as &) = default;
-  expression_as(expression_as &&) = default;
-  expression_as &operator=(const expression_as &) = default;
-  expression_as &operator=(expression_as &&) = default;
-  ~expression_as() = default;
+  as_expression(const as_expression &) = default;
+  as_expression(as_expression &&) = default;
+  as_expression &operator=(const as_expression &) = default;
+  as_expression &operator=(as_expression &&) = default;
+  ~as_expression() = default;
 
   Expression _expression;
 };
 
 template <typename Expression, typename NameTag>
-struct name_tag_of<expression_as<Expression, NameTag>> {
+struct name_tag_of<as_expression<Expression, NameTag>> {
   using type = NameTag;
 };
 
-// No value_type_of defined for expression_as to prevent its usage outside of
+// No value_type_of defined for as_expression to prevent its usage outside of
 // select columns.
 
 template <typename Expression, typename NameTag>
-struct nodes_of<expression_as<Expression, NameTag>> {
+struct nodes_of<as_expression<Expression, NameTag>> {
   using type = detail::type_vector<Expression>;
 };
 
 template <typename Expression, typename NameTag>
-struct is_expression_as<expression_as<Expression, NameTag>>
+struct is_as_expression<as_expression<Expression, NameTag>>
     : public std::true_type {};
 
 template <typename Context, typename Expression, typename NameTag>
 auto to_sql_string(Context &context,
-                   const expression_as<Expression, NameTag> &t) -> std::string {
+                   const as_expression<Expression, NameTag> &t) -> std::string {
   return operand_to_sql_string(context, t._expression) + " AS " +
          name_to_sql_string(context, NameTag{});
 }
 
 template <typename Expr, typename NameTagProvider>
   requires(has_value_type_v<Expr> and not is_dynamic<Expr>::value and
-           not is_expression_as<Expr>::value and
+           not is_as_expression<Expr>::value and
            has_name_tag_v<NameTagProvider>)
 constexpr auto as(Expr expr, const NameTagProvider &)
-    -> expression_as<Expr, name_tag_of_t<NameTagProvider>> {
+    -> as_expression<Expr, name_tag_of_t<NameTagProvider>> {
   return {std::move(expr)};
 }
 
 template <typename NameTagProvider>
 constexpr auto as(std::nullopt_t expr, const NameTagProvider &)
-    -> expression_as<std::nullopt_t, name_tag_of_t<NameTagProvider>> {
+    -> as_expression<std::nullopt_t, name_tag_of_t<NameTagProvider>> {
   return {std::move(expr)};
 }
 

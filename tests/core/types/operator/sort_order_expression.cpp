@@ -26,7 +26,7 @@
 
 #include <sqlpp23/sqlpp23.h>
 
-template <typename Value> void test_as_expression(Value v) {
+template <typename Value> void test_order_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
@@ -95,42 +95,42 @@ template <typename Value> void test_as_expression(Value v) {
 
 int main() {
   // boolean
-  test_as_expression(bool{true});
+  test_order_expression(bool{true});
 
   // integral
-  test_as_expression(int8_t{7});
-  test_as_expression(int16_t{7});
-  test_as_expression(int32_t{7});
-  test_as_expression(int64_t{7});
+  test_order_expression(int8_t{7});
+  test_order_expression(int16_t{7});
+  test_order_expression(int32_t{7});
+  test_order_expression(int64_t{7});
 
   // unsigned integral
-  test_as_expression(uint8_t{7});
-  test_as_expression(uint16_t{7});
-  test_as_expression(uint32_t{7});
-  test_as_expression(uint64_t{7});
+  test_order_expression(uint8_t{7});
+  test_order_expression(uint16_t{7});
+  test_order_expression(uint32_t{7});
+  test_order_expression(uint64_t{7});
 
   // floating point
-  test_as_expression(float{7.7});
-  test_as_expression(double{7.7});
+  test_order_expression(float{7.7});
+  test_order_expression(double{7.7});
 
   // text
-  test_as_expression('7');
-  test_as_expression("seven");
-  test_as_expression(std::string("seven"));
-  test_as_expression(std::string_view("seven"));
+  test_order_expression('7');
+  test_order_expression("seven");
+  test_order_expression(std::string("seven"));
+  test_order_expression(std::string_view("seven"));
 
   // blob
-  test_as_expression(std::vector<uint8_t>{});
+  test_order_expression(std::vector<uint8_t>{});
 
   // date
-  test_as_expression(::sqlpp::chrono::day_point{});
+  test_order_expression(::sqlpp::chrono::day_point{});
 
   // timestamp
-  test_as_expression(::sqlpp::chrono::microsecond_point{});
+  test_order_expression(::sqlpp::chrono::microsecond_point{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_as_expression(minute_point{});
+  test_order_expression(minute_point{});
 
   // time_of_day
-  test_as_expression(std::chrono::microseconds{});
+  test_order_expression(std::chrono::microseconds{});
 }

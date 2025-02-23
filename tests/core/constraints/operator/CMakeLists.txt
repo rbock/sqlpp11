@@ -31,5 +31,5 @@ endfunction()
 
 create_test(assign_expression)
 create_test(case)
-create_test(expression_as)
+create_test(as_expression)
 

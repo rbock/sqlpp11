@@ -30,42 +30,42 @@
 
 SQLPP_CREATE_NAME_TAG(something);
 
-void test_is_expression_as() {
+void test_is_as_expression() {
   auto v = sqlpp::value(17);
   auto t = sqlpp::value("");
   auto col_int = test::TabFoo{}.id;
   auto col_txt = test::TabFoo{}.textNnD;
 
   // Constant values are no expression alias
-  static_assert(not sqlpp::is_expression_as<decltype(v)>::value, "");
-  static_assert(not sqlpp::is_expression_as<decltype(v + v)>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(v)>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(v + v)>::value, "");
 
   // Columns are no expression alias
-  static_assert(not sqlpp::is_expression_as<decltype(col_int)>::value, "");
-  static_assert(not sqlpp::is_expression_as<decltype(col_int + v)>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(col_int)>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(col_int + v)>::value, "");
 
   // Normal functions are no expression alias
-  static_assert(not sqlpp::is_expression_as<decltype(trim(t))>::value, "");
-  static_assert(not sqlpp::is_expression_as<decltype(trim(col_txt))>::value,
+  static_assert(not sqlpp::is_as_expression<decltype(trim(t))>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(trim(col_txt))>::value,
                 "");
 
   // But their alias is an expression alias (no surprise here, I guess)
-  static_assert(sqlpp::is_expression_as<decltype((v).as(something))>::value,
+  static_assert(sqlpp::is_as_expression<decltype((v).as(something))>::value,
                 "");
-  static_assert(sqlpp::is_expression_as<decltype((v + v).as(something))>::value,
+  static_assert(sqlpp::is_as_expression<decltype((v + v).as(something))>::value,
                 "");
 
   static_assert(
-      sqlpp::is_expression_as<decltype((col_int).as(something))>::value, "");
+      sqlpp::is_as_expression<decltype((col_int).as(something))>::value, "");
   static_assert(
-      sqlpp::is_expression_as<decltype((col_int + v).as(something))>::value,
+      sqlpp::is_as_expression<decltype((col_int + v).as(something))>::value,
       "");
 
   static_assert(
-      sqlpp::is_expression_as<decltype((trim(t)).as(something))>::value, "");
+      sqlpp::is_as_expression<decltype((trim(t)).as(something))>::value, "");
   static_assert(
-      sqlpp::is_expression_as<decltype((trim(col_txt)).as(something))>::value,
+      sqlpp::is_as_expression<decltype((trim(col_txt)).as(something))>::value,
       "");
 }
 
-int main() { void test_is_expression_as(); }
+int main() { void test_is_as_expression(); }
