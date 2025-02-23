@@ -96,7 +96,7 @@ db(remove_from(foo).where(not foo.hasFun));
 
 License:
 -------------
-sqlpp11 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp11/blob/master/LICENSE).
+sqlpp11 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp11/blob/main/LICENSE).
 
 Status:
 -------
