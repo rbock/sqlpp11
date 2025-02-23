@@ -65,8 +65,6 @@ if(DEPENDENCY_CHECK AND BUILD_SQLCIPHER_CONNECTOR)
     find_package(SQLCipher REQUIRED)
 endif()
 
-add_subdirectory(dependencies)
-
 ### Core targets
 include(Sqlpp23TargetHelper)
 

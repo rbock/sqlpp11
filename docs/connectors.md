@@ -13,4 +13,3 @@ Three connector libraries are included in this repository:
 
 If you want to use other databases, you would have to write your own connector. Don't worry, it is not that hard.
 
-The api is documented [here](https://github.com/rbock/sqlpp23/blob/master/connector_api/connection.h).
