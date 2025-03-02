@@ -33,6 +33,7 @@
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/prepared_update.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -41,6 +42,9 @@ struct update_t {};
 template <> struct is_clause<update_t> : public std::true_type {};
 
 struct update_result_methods_t {
+ private:
+  friend class statement_handler_t;
+
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement &&statement, Db &db) {

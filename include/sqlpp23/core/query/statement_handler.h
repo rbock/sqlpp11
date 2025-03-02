@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,42 +27,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <type_traits>
-
-#include <sqlpp23/core/database/prepared_execute.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/to_sql_string.h>
+#include <utility>
 
 namespace sqlpp {
-struct noop {
+class statement_handler_t
+{
+  public:
+    template <typename Statement, typename Db>
+    auto run(Statement&& statement, Db& db) {
+      return std::forward<Statement>(statement)._run(db);
+    }
+
+    template <typename Statement, typename Db>
+    auto prepare(Statement&& statement, Db& db) {
+      return std::forward<Statement>(statement)._prepare(db);
+    }
 };
 
-struct no_result_methods_t {
- private:
-  friend class statement_handler_t;
-
-  // Execute
-  template <typename Statement, typename Db>
-  auto _run(this Statement&& statement, Db& db) {
-    return db.execute(std::forward<Statement>(statement));
-  }
-
-  // Prepare
-  template <typename Statement, typename Db>
-  auto _prepare(this Statement&& statement, Db& db)
-      -> prepared_execute_t<Db, std::decay_t<Statement>> {
-    return {{}, db.prepare_execute(std::forward<Statement>(statement))};
-  }
-};
-
-template <> struct result_methods_of<noop> {
-  using type = no_result_methods_t;
-};
-
-template <typename Context>
-auto to_sql_string(Context &, const noop &) -> std::string {
-  return {};
-}
-
-template <typename T> struct is_noop : std::is_same<T, noop> {};
 } // namespace sqlpp

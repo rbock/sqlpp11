@@ -33,6 +33,7 @@
 #include <sqlpp23/core/clause/select_column_traits.h>
 #include <sqlpp23/core/clause/select_columns_aggregate_check.h>
 #include <sqlpp23/core/concepts.h>
+#include <sqlpp23/core/database/prepared_select.h>
 #include <sqlpp23/core/detail/flat_tuple.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/field_spec.h>
@@ -40,6 +41,8 @@
 #include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/result_row.h>
+#include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <tuple>
 
@@ -79,7 +82,7 @@ struct result_row_of<Statement, select_column_list_t<Columns...>> {
   using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
 };
 
-template <typename... Columns> struct select_result_methods {
+template <typename... Columns> struct select_result_methods_t {
   template <typename Statement, typename NameTagProvider>
   auto as(this Statement &&statement, const NameTagProvider &)
       -> select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
@@ -94,9 +97,13 @@ template <typename... Columns> struct select_result_methods {
     return table(std::forward<Statement>(statement));
   }
 
+#warning: Remove? Used for mysql only
   constexpr size_t get_no_of_result_columns() const {
     return sizeof...(Columns);
   }
+
+ private:
+  friend class statement_handler_t;
 
   // Execute
   template <typename Statement, typename Db>
@@ -116,7 +123,7 @@ template <typename... Columns> struct select_result_methods {
 
 template <typename... Columns>
 struct result_methods_of<select_column_list_t<Columns...>> {
-  using type = select_result_methods<Columns...>;
+  using type = select_result_methods_t<Columns...>;
 };
 
 template <typename Statement, typename... Columns>

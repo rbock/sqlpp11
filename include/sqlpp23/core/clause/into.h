@@ -31,12 +31,11 @@
 #include <sqlpp23/core/database/prepared_insert.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/no_data.h>
-#include <sqlpp23/core/query/statement_fwd.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-// A SINGLE TABLE DATA
 template <typename _Table> struct into_t {
   into_t(_Table table) : _table(table) {}
 
@@ -46,6 +45,12 @@ template <typename _Table> struct into_t {
   into_t &operator=(into_t &&) = default;
   ~into_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context &context, const into_t &t) -> std::string {
+    return " INTO " + to_sql_string(context, t._table);
+  }
+
+private:
   _Table _table;
 };
 
@@ -88,11 +93,6 @@ template <typename Statement> struct consistency_check<Statement, no_into_t> {
 template <typename Context>
 auto to_sql_string(Context &, const no_into_t &) -> std::string {
   return "";
-}
-
-template <typename Context, typename _Table>
-auto to_sql_string(Context &context, const into_t<_Table> &t) -> std::string {
-  return " INTO " + to_sql_string(context, t._table);
 }
 
 template <StaticRawTable T> auto into(T t) {

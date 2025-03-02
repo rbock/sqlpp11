@@ -150,18 +150,11 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   statement_t &operator=(statement_t &&r) = default;
   ~statement_t() = default;
 
-  static constexpr size_t _get_static_no_of_parameters() {
-    return parameters_of_t<statement_t>::size();
-  }
-
-  size_t _get_no_of_parameters() const {
-    return _get_static_no_of_parameters();
-  }
-
   // A select can be used as a pseudo table if
   //   - at least one column is selected
   //   - the select is complete (leaks no table requirements or cte
   //   requirements)
+#warning: Turn into trait
   static constexpr bool _can_be_used_as_table() {
     return has_result_row<statement_t>::value and
            _unknown_required_tables_of::empty() and

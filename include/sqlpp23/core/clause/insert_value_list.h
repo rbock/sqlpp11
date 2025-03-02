@@ -117,13 +117,14 @@ struct nodes_of<insert_set_t<Assignments...>> {
 };
 
 template <typename... Columns> struct column_list_t {
-  std::tuple<make_simple_column_t<Columns>...> _columns;
-  using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
-  std::vector<_value_tuple_t> _insert_values;
+  column_list_t(std::tuple<make_simple_column_t<Columns>...> columns) : _columns(std::move(columns)) {}
+  column_list_t(const column_list_t&) = default;
+  column_list_t(column_list_t&&) = default;
+  column_list_t& operator=(const column_list_t&) = default;
+  column_list_t& operator=(column_list_t&&) = default;
+  ~column_list_t() = default;
 
-  template <typename... Assignments,
-            typename = std::enable_if_t<logic::all<
-                is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+  template <DynamicAssignment... Assignments>
   auto add_values(Assignments... assignments) -> void {
     using _arg_value_tuple =
         std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
@@ -154,6 +155,31 @@ template <typename... Columns> struct column_list_t {
                     std::move(assignments)...);
   }
 
+#warning: All clauses should make their data members private and add to_sql_string as a member friend.
+  template <typename Context>
+  friend auto to_sql_string(Context &context, const column_list_t &t)
+      -> std::string {
+    auto result = std::string{" ("};
+    result += tuple_to_sql_string(context, t._columns,
+                                  tuple_operand_no_dynamic{", "});
+    result += ")";
+    bool first = true;
+    for (const auto &row : t._insert_values) {
+      if (first) {
+        result += " VALUES ";
+        first = false;
+      } else {
+        result += ", ";
+      }
+      result += '(';
+      result +=
+          tuple_to_sql_string(context, row, tuple_operand_no_dynamic{", "});
+      result += ')';
+    }
+
+    return result;
+  }
+
 private:
   auto add_values_impl(std::false_type, ...) -> void {}
 
@@ -162,6 +188,11 @@ private:
     _insert_values.emplace_back(
         make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
   }
+
+  std::tuple<make_simple_column_t<Columns>...> _columns;
+  using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
+  std::vector<_value_tuple_t> _insert_values;
+
 };
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
@@ -210,7 +241,7 @@ struct no_insert_value_list_t {
 
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(statement),
-        column_list_t<Columns...>{std::make_tuple(std::move(cols)...), {}});
+        column_list_t<Columns...>{std::make_tuple(std::move(cols)...)});
   }
 
   template <typename Statement, DynamicAssignment... Assignments>
@@ -250,29 +281,6 @@ auto to_sql_string(Context &, const no_insert_value_list_t &) -> std::string {
 template <typename Context>
 auto to_sql_string(Context &, const insert_default_values_t &) -> std::string {
   return " DEFAULT VALUES";
-}
-
-template <typename Context, typename... Columns>
-auto to_sql_string(Context &context, const column_list_t<Columns...> &t)
-    -> std::string {
-  auto result = std::string{" ("};
-  result +=
-      tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
-  result += ")";
-  bool first = true;
-  for (const auto &row : t._insert_values) {
-    if (first) {
-      result += " VALUES ";
-      first = false;
-    } else {
-      result += ", ";
-    }
-    result += '(';
-    result += tuple_to_sql_string(context, row, tuple_operand_no_dynamic{", "});
-    result += ')';
-  }
-
-  return result;
 }
 
 // Used to serialize left hand side of assignment tuple that should ignore

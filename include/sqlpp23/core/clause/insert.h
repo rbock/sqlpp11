@@ -33,6 +33,7 @@
 #include <sqlpp23/core/database/prepared_insert.h>
 #include <sqlpp23/core/default_value.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -41,9 +42,12 @@ struct insert_t {};
 template <> struct is_clause<insert_t> : public std::true_type {};
 
 struct insert_result_methods_t {
+ private:
+  friend class statement_handler_t;
+
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement &&statement, Db &db) {
+  auto _run(this Statement&& statement, Db& db) {
     return db.insert(std::forward<Statement>(statement));
   }
 

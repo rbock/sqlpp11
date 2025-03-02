@@ -47,6 +47,9 @@ template <typename Statement> struct consistency_check<Statement, delete_t> {
 template <> struct is_result_clause<delete_t> : public std::true_type {};
 
 struct delete_result_methods_t {
+ private:
+  friend class statement_handler_t;
+
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement &&statement, Db &db)
