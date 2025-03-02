@@ -36,7 +36,12 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-struct delete_t {};
+struct delete_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const delete_t&) -> std::string {
+    return "DELETE FROM ";
+  }
+};
 
 template <> struct is_clause<delete_t> : public std::true_type {};
 
@@ -68,11 +73,6 @@ struct delete_result_methods_t {
 template <> struct result_methods_of<delete_t> {
   using type = delete_result_methods_t;
 };
-
-template <typename Context>
-auto to_sql_string(Context &, const delete_t &) -> std::string {
-  return "DELETE FROM ";
-}
 
 using blank_delete_t =
     statement_t<delete_t, no_single_table_t, no_using_t, no_where_t>;

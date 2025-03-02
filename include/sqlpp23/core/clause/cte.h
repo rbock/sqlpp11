@@ -46,6 +46,23 @@ template <typename Flag, typename Lhs, typename Rhs> struct cte_union_t {
   cte_union_t &operator=(cte_union_t &&) = default;
   ~cte_union_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const cte_union_t& t)
+      -> std::string {
+    if constexpr (is_dynamic<Rhs>::value) {
+      if (t._rhs.has_value()) {
+        return to_sql_string(context, t._lhs) + " UNION " +
+               to_sql_string(context, Flag{}) +
+               to_sql_string(context, t._rhs.value());
+      }
+      return to_sql_string(context, t._lhs);
+    } else {
+      return to_sql_string(context, t._lhs) + " UNION " +
+             to_sql_string(context, Flag{}) + to_sql_string(context, t._rhs);
+    }
+  }
+
+ private:
   Lhs _lhs;
   Rhs _rhs;
 };
@@ -54,26 +71,6 @@ template <typename Flag, typename Lhs, typename Rhs>
 struct nodes_of<cte_union_t<Flag, Lhs, Rhs>> {
   using type = detail::type_vector<Lhs, Rhs>;
 };
-
-// Interpreters
-template <typename Context, typename Flag, typename Lhs, typename Rhs>
-auto to_sql_string(Context &context, const cte_union_t<Flag, Lhs, Rhs> &t)
-    -> std::string {
-  return to_sql_string(context, t._lhs) + " UNION " +
-         to_sql_string(context, Flag{}) + to_sql_string(context, t._rhs);
-}
-
-template <typename Context, typename Flag, typename Lhs, typename Rhs>
-auto to_sql_string(Context &context,
-                   const cte_union_t<Flag, Lhs, dynamic_t<Rhs>> &t)
-    -> std::string {
-  if (t._rhs.has_value()) {
-    return to_sql_string(context, t._lhs) + " UNION " +
-           to_sql_string(context, Flag{}) +
-           to_sql_string(context, t._rhs.value());
-  }
-  return to_sql_string(context, t._lhs);
-}
 
 template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
 struct cte_t;
@@ -135,6 +132,12 @@ struct cte_as_t
           cte_as_t<NameTagProvider, NewNameTagProvider, FieldSpecs...>> {
   using _column_tuple_t =
       std::tuple<column_t<cte_ref_t<NewNameTagProvider>, FieldSpecs>...>;
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const cte_as_t&) -> std::string {
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) +
+           " AS " +
+           name_to_sql_string(context, name_tag_of_t<NewNameTagProvider>{});
+  }
 };
 
 template <typename NameTagProvider, typename NewNameTagProvider,
@@ -170,17 +173,6 @@ struct required_static_ctes_of<
     : public required_ctes_of<
           cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> {};
 
-template <typename Context, typename NameTagProvider,
-          typename NewNameTagProvider, typename... ColumnSpecs>
-auto to_sql_string(
-    Context &context,
-    const cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...> &)
-    -> std::string {
-  return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) +
-         " AS " +
-         name_to_sql_string(context, name_tag_of_t<NewNameTagProvider>{});
-}
-
 SQLPP_WRAPPED_STATIC_ASSERT(
     assert_cte_union_arg_has_result_row_t,
     "argument of a union has to be a select statement or a union");
@@ -211,6 +203,13 @@ struct cte_t
 
   using _result_row_t = result_row_t<FieldSpecs...>;
 
+  cte_t(Statement statement) : _statement(statement) {}
+  cte_t(const cte_t &) = default;
+  cte_t(cte_t &&) = default;
+  cte_t &operator=(const cte_t &) = default;
+  cte_t &operator=(cte_t &&) = default;
+  ~cte_t() = default;
+
   template <typename NewNameTagProvider>
   constexpr auto as(const NewNameTagProvider & /*unused*/) const
       -> cte_as_t<NameTagProvider, NewNameTagProvider, FieldSpecs...> {
@@ -235,13 +234,13 @@ struct cte_t
     return cte_union_t<all_t, Statement, Rhs>{_statement, rhs};
   }
 
-  cte_t(Statement statement) : _statement(statement) {}
-  cte_t(const cte_t &) = default;
-  cte_t(cte_t &&) = default;
-  cte_t &operator=(const cte_t &) = default;
-  cte_t &operator=(cte_t &&) = default;
-  ~cte_t() = default;
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const cte_t& t) -> std::string {
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) +
+           " AS (" + to_sql_string(context, t._statement) + ")";
+  }
 
+private:
   Statement _statement;
 };
 
@@ -276,15 +275,6 @@ struct provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> {
   using type = detail::type_set<cte_ref_t<NameTagProvider>>;
 };
 
-template <typename Context, typename NameTagProvider, typename Statement,
-          typename... ColumnSpecs>
-auto to_sql_string(Context &context,
-                   const cte_t<NameTagProvider, Statement, ColumnSpecs...> &t)
-    -> std::string {
-  return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) +
-         " AS (" + to_sql_string(context, t._statement) + ")";
-}
-
 // The cte_ref_t represents the cte as table in FROM.
 // The cte_t needs to be provided by WITH.
 template <typename NameTagProvider> struct cte_ref_t {
@@ -302,6 +292,12 @@ template <typename NameTagProvider> struct cte_ref_t {
                         "for recursion");
 
     return {statement};
+  }
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&)
+      -> std::string {
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{});
   }
 };
 
@@ -322,12 +318,6 @@ struct required_ctes_of<cte_ref_t<NameTagProvider>> {
 template <typename NameTagProvider>
 struct required_static_ctes_of<cte_ref_t<NameTagProvider>>
     : public required_ctes_of<cte_ref_t<NameTagProvider>> {};
-
-template <typename Context, typename NameTagProvider>
-auto to_sql_string(Context &context, const cte_ref_t<NameTagProvider> &)
-    -> std::string {
-  return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{});
-}
 
 template <typename NameTagProvider>
 auto cte(const NameTagProvider & /*unused*/) -> cte_ref_t<NameTagProvider> {

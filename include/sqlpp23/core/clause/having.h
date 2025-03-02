@@ -30,6 +30,7 @@
 #include <sqlpp23/core/basic/value.h>
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/logic.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 

@@ -32,10 +32,34 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/concepts.h>
 #include <tuple>
 
 namespace sqlpp {
 template <typename... Columns> struct group_by_t {
+  group_by_t(std::tuple<Columns...> columns) : _columns(std::move(columns)){}
+
+  group_by_t(const group_by_t&) = default;
+  group_by_t(group_by_t&&) = default;
+  group_by_t& operator=(const group_by_t&) = default;
+  group_by_t& operator=(group_by_t&&) = default;
+  ~group_by_t() = default;
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const group_by_t& t)
+      -> std::string {
+    const auto columns = tuple_to_sql_string(context, t._columns,
+                                             tuple_operand_no_dynamic{", "});
+
+    if (columns.empty()) {
+      return "";
+    }
+
+    return " GROUP BY " + columns;
+  }
+
+ private:
   std::tuple<Columns...> _columns;
 };
 
@@ -118,31 +142,17 @@ struct no_group_by_t {
         std::forward<Statement>(statement),
         group_by_t<Columns...>{std::make_tuple(std::move(columns)...)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_group_by_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement>
 struct consistency_check<Statement, no_group_by_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_group_by_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename... Columns>
-auto to_sql_string(Context &context, const group_by_t<Columns...> &t)
-    -> std::string {
-  const auto columns =
-      tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
-
-  if (columns.empty()) {
-    return "";
-  }
-
-  return " GROUP BY " + columns;
-}
 
 template <DynamicValue... Columns> auto group_by(Columns... columns) {
   return statement_t<no_group_by_t>{}.group_by(std::move(columns)...);

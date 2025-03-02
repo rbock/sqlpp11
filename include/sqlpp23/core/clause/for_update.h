@@ -29,9 +29,15 @@
 
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/query/statement.h>
 
 namespace sqlpp {
-struct for_update_t {};
+struct for_update_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const for_update_t&) -> std::string {
+    return " FOR UPDATE";
+  }
+};
 
 template <> struct is_clause<for_update_t> : public std::true_type {};
 
@@ -45,23 +51,17 @@ struct no_for_update_t {
     return new_statement<no_for_update_t>(std::forward<Statement>(statement),
                                           for_update_t{});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_for_update_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement>
 struct consistency_check<Statement, no_for_update_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_for_update_t &) -> std::string {
-  return "";
-}
-
-template <typename Context>
-auto to_sql_string(Context &, const for_update_t &) -> std::string {
-  return " FOR UPDATE";
-}
 
 inline auto for_update() { return statement_t<no_for_update_t>().for_update(); }
 } // namespace sqlpp
