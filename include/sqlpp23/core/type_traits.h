@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <array>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -384,5 +383,8 @@ static inline constexpr bool is_select_column_v = is_select_column<T>::value;
 template <typename... T> struct is_select_column<std::tuple<T...>> {
   static constexpr bool value = (true and ... and is_select_column_v<T>);
 };
+
+template <typename Statement>
+struct can_be_used_as_table : public std::false_type{};
 
 } // namespace sqlpp

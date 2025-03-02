@@ -30,6 +30,7 @@
 #include <sqlpp23/core/basic/enable_join.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/query/statement.h>
 
 namespace sqlpp {
 template <typename NameTag> struct select_ref_t {};
@@ -78,11 +79,11 @@ struct nodes_of<select_as_t<Select, NameTag, FieldSpecs...>> {
 
 template <typename Select, typename NameTag, typename... FieldSpecs>
 struct is_table<select_as_t<Select, NameTag, FieldSpecs...>>
-    : std::integral_constant<bool, Select::_can_be_used_as_table()> {};
+    : std::integral_constant<bool, can_be_used_as_table<Select>::value> {};
 
 template <typename Select, typename NameTag, typename... FieldSpecs>
 struct provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
-    : public std::conditional<Select::_can_be_used_as_table(),
+    : public std::conditional<can_be_used_as_table<Select>::value,
                               sqlpp::detail::type_set<select_ref_t<NameTag>>,
                               sqlpp::detail::type_set<>> {};
 

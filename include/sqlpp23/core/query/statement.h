@@ -41,6 +41,7 @@
 #include <sqlpp23/core/result_type_provider.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/wrapped_static_assert.h>
+#include <type_traits>
 
 namespace sqlpp {
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_ctes_t,
@@ -150,16 +151,19 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   statement_t &operator=(statement_t &&r) = default;
   ~statement_t() = default;
 
+};
+
+template <typename... Clauses>
+struct can_be_used_as_table<statement_t<Clauses...>>
+{
   // A select can be used as a pseudo table if
   //   - at least one column is selected
   //   - the select is complete (leaks no table requirements or cte
   //   requirements)
-#warning: Turn into trait
-  static constexpr bool _can_be_used_as_table() {
-    return has_result_row<statement_t>::value and
-           _unknown_required_tables_of::empty() and
-           _unknown_required_ctes_of::empty();
-  }
+  using _S = statement_t<Clauses...>;
+  static constexpr bool value = has_result_row<_S>::value and
+                                _S::_unknown_required_tables_of::empty() and
+                                _S::_unknown_required_ctes_of::enpty();
 };
 
 template <typename... Clauses>
