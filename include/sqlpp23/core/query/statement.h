@@ -167,6 +167,10 @@ struct can_be_used_as_table<statement_t<Clauses...>>
 };
 
 template <typename... Clauses>
+struct no_of_result_columns<statement_t<Clauses...>>
+    : public no_of_result_columns<result_type_provider_t<Clauses...>> {};
+
+template <typename... Clauses>
 struct result_methods_of<statement_t<Clauses...>> {
   using type = result_methods_t<Clauses...>;
 };

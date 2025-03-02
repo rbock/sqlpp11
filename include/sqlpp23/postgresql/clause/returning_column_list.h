@@ -65,10 +65,6 @@ template <typename... Columns> struct returning_column_list_result_methods_t {
     return table(std::forward<Statement>(statement));
   }
 
-  constexpr size_t get_no_of_result_columns() const {
-    return sizeof...(Columns);
-  }
-
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement &&statement, Db &db) -> result_t<
@@ -86,6 +82,12 @@ template <typename... Columns> struct returning_column_list_result_methods_t {
   }
 };
 } // namespace postgresql
+
+template <typename... Columns>
+struct no_of_result_columns<postgresql::returning_column_list_t<Columns...>>
+{
+  static constexpr size_t value = sizeof...(Columns);
+};
 
 template <typename... Columns>
 struct has_result_row<postgresql::returning_column_list_t<Columns...>>

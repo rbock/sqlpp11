@@ -97,11 +97,6 @@ template <typename... Columns> struct select_result_methods_t {
     return table(std::forward<Statement>(statement));
   }
 
-#warning: Remove? Used for mysql only
-  constexpr size_t get_no_of_result_columns() const {
-    return sizeof...(Columns);
-  }
-
  private:
   friend class statement_handler_t;
 
@@ -119,6 +114,12 @@ template <typename... Columns> struct select_result_methods_t {
       -> prepared_select_t<Db, std::decay_t<Statement>> {
     return {{}, db.prepare_select(std::forward<Statement>(statement))};
   }
+};
+
+template <typename... Columns>
+struct no_of_result_columns<select_column_list_t<Columns...>>
+{
+  static constexpr size_t value = sizeof...(Columns);
 };
 
 template <typename... Columns>

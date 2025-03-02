@@ -387,4 +387,10 @@ template <typename... T> struct is_select_column<std::tuple<T...>> {
 template <typename Statement>
 struct can_be_used_as_table : public std::false_type{};
 
+template <typename StatementOrClause>
+struct no_of_result_columns
+{
+  static constexpr size_t value = 0;
+};
+
 } // namespace sqlpp

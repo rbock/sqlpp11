@@ -31,6 +31,7 @@
 #include <iostream>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/mysql/bind_result.h>
 #include <sqlpp23/mysql/char_result.h>
@@ -238,7 +239,7 @@ public:
     context_t context;
     const auto query = to_sql_string(context, s);
     return prepare_impl(query, parameters_of_t<Select>::size(),
-                        s.get_no_of_result_columns());
+                        sqlpp::no_of_result_columns<Select>::value);
   }
 
   template <typename PreparedSelect>
@@ -317,38 +318,17 @@ public:
   }
 
   //! call run on the argument
-  template <typename T> auto run(const T &t) -> decltype(t._run(*this)) {
-    return t._run(*this);
-  }
-
-  //! call run on the argument
   template <typename T>
-  auto _run(const T &t, ::sqlpp::consistent_t) -> decltype(t._run(*this)) {
-    return t._run(*this);
-  }
-
-  template <typename Check, typename T> auto _run(const T &t, Check) -> Check;
-
-  template <typename T>
-  auto operator()(const T &t)
-      -> decltype(this->_run(t, sqlpp::statement_run_check_t<T>{})) {
-    return _run(t, sqlpp::statement_run_check_t<T>{});
+    requires(sqlpp::statement_run_check_t<T>::value)
+  auto operator()(const T& t) {
+    return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
   //! call prepare on the argument
   template <typename T>
-  auto _prepare(const T &t, ::sqlpp::consistent_t)
-      -> decltype(t._prepare(*this)) {
-    return t._prepare(*this);
-  }
-
-  template <typename Check, typename T>
-  auto _prepare(const T &t, Check) -> Check;
-
-  template <typename T>
-  auto prepare(const T &t)
-      -> decltype(this->_prepare(t, sqlpp::statement_prepare_check_t<T>{})) {
-    return _prepare(t, sqlpp::statement_prepare_check_t<T>{});
+    requires(sqlpp::statement_prepare_check_t<T>::value)
+  auto prepare(const T& t) {
+    return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 
   //! start transaction
