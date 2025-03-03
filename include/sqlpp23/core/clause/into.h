@@ -83,17 +83,16 @@ struct no_into_t {
     return new_statement<no_into_t>(std::forward<Statement>(statement),
                                     into_t<_Table>{table});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_into_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement> struct consistency_check<Statement, no_into_t> {
   using type = assert_into_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_into_t &) -> std::string {
-  return "";
-}
 
 template <StaticRawTable T> auto into(T t) {
   return statement_t<no_into_t>().into(std::move(t));

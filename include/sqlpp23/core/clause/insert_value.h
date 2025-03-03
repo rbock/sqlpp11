@@ -50,6 +50,15 @@ template <typename Column> struct insert_value_t {
   insert_value_t &operator=(insert_value_t &&) = default;
   ~insert_value_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const insert_value_t& t) -> std::string {
+    if (t._is_default) {
+      return "DEFAULT";
+    }
+    return operand_to_sql_string(context, t._value);
+  }
+
+ private:
   bool _is_default;
   _value_t _value;
 };
@@ -64,12 +73,4 @@ template <typename Column> struct make_insert_value<dynamic_t<Column>> {
 template <typename Column>
 using make_insert_value_t = typename make_insert_value<Column>::type;
 
-template <typename Context, typename ValueType>
-auto to_sql_string(Context &context, const insert_value_t<ValueType> &t)
-    -> std::string {
-  if (t._is_default) {
-    return "DEFAULT";
-  }
-  return operand_to_sql_string(context, t._value);
-}
 } // namespace sqlpp

@@ -55,9 +55,65 @@ struct have_all_required_assignments {
   static constexpr bool value =
       have_all_required_columns<Clauses, lhs_t<Assignments>...>::value;
 };
-} // namespace detail
 
-struct insert_default_values_t {};
+// Used to serialize left hand side of assignment tuple that should ignore
+// dynamic elements.
+struct tuple_lhs_assignment_operand_no_dynamic {
+  template <typename Context, typename Lhs, typename Op, typename Rhs>
+  auto operator()(Context &context, const assign_expression<Lhs, Op, Rhs> &,
+                  size_t) const -> std::string {
+    const auto prefix = need_prefix ? std::string{separator} : std::string{};
+    need_prefix = true;
+    return prefix + name_to_sql_string(context, name_tag_of_t<Lhs>{});
+  }
+
+  template <typename Context, typename T>
+  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+                  size_t index) const -> std::string {
+    if (t.has_value()) {
+      return operator()(context, t.value(), index);
+    }
+    return "";
+  }
+
+  std::string_view separator;
+  mutable bool need_prefix = false;
+};
+
+// Used to serialize right hand side of assignment tuple that should ignore
+// dynamic elements.
+struct tuple_rhs_assignment_operand_no_dynamic {
+  template <typename Context, typename Lhs, typename Op, typename Rhs>
+  auto operator()(Context &context, const assign_expression<Lhs, Op, Rhs> &t,
+                  size_t) const -> std::string {
+    const auto prefix = need_prefix ? std::string{separator} : std::string{};
+    need_prefix = true;
+    return prefix + operand_to_sql_string(context, t._r);
+  }
+
+  template <typename Context, typename T>
+  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+                  size_t index) const -> std::string {
+    if (t.has_value()) {
+      return operator()(context, t.value(), index);
+    }
+    return "";
+  }
+
+  std::string_view separator;
+  mutable bool need_prefix = false;
+};
+
+}
+
+
+struct insert_default_values_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const insert_default_values_t&)
+      -> std::string {
+    return " DEFAULT VALUES";
+  }
+};
 
 template <>
 struct is_clause<insert_default_values_t> : public std::true_type {};
@@ -90,6 +146,22 @@ template <typename... Assignments> struct insert_set_t {
   insert_set_t &operator=(insert_set_t &&) = default;
   ~insert_set_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const insert_set_t& t)
+      -> std::string {
+    auto result = std::string{" ("};
+    result += tuple_to_sql_string(
+        context, t._assignments,
+        detail::tuple_lhs_assignment_operand_no_dynamic{", "});
+    result += ") VALUES(";
+    result += tuple_to_sql_string(
+        context, t._assignments,
+        detail::tuple_rhs_assignment_operand_no_dynamic{", "});
+    result += ")";
+    return result;
+  }
+
+private:
   std::tuple<Assignments...> _assignments;
 };
 
@@ -265,84 +337,18 @@ struct no_insert_value_list_t {
         insert_set_t<Assignments...>{
             std::make_tuple(std::move(assignments)...)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_insert_value_list_t&)
+      -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement>
 struct consistency_check<Statement, no_insert_value_list_t> {
   using type = assert_insert_values_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_insert_value_list_t &) -> std::string {
-  return "";
-}
-
-template <typename Context>
-auto to_sql_string(Context &, const insert_default_values_t &) -> std::string {
-  return " DEFAULT VALUES";
-}
-
-// Used to serialize left hand side of assignment tuple that should ignore
-// dynamic elements.
-struct tuple_lhs_assignment_operand_no_dynamic {
-  template <typename Context, typename Lhs, typename Op, typename Rhs>
-  auto operator()(Context &context, const assign_expression<Lhs, Op, Rhs> &,
-                  size_t) const -> std::string {
-    const auto prefix = need_prefix ? std::string{separator} : std::string{};
-    need_prefix = true;
-    return prefix + name_to_sql_string(context, name_tag_of_t<Lhs>{});
-  }
-
-  template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
-                  size_t index) const -> std::string {
-    if (t.has_value()) {
-      return operator()(context, t.value(), index);
-    }
-    return "";
-  }
-
-  std::string_view separator;
-  mutable bool need_prefix = false;
-};
-
-// Used to serialize right hand side of assignment tuple that should ignore
-// dynamic elements.
-struct tuple_rhs_assignment_operand_no_dynamic {
-  template <typename Context, typename Lhs, typename Op, typename Rhs>
-  auto operator()(Context &context, const assign_expression<Lhs, Op, Rhs> &t,
-                  size_t) const -> std::string {
-    const auto prefix = need_prefix ? std::string{separator} : std::string{};
-    need_prefix = true;
-    return prefix + operand_to_sql_string(context, t._r);
-  }
-
-  template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
-                  size_t index) const -> std::string {
-    if (t.has_value()) {
-      return operator()(context, t.value(), index);
-    }
-    return "";
-  }
-
-  std::string_view separator;
-  mutable bool need_prefix = false;
-};
-
-template <typename Context, typename... Assignments>
-auto to_sql_string(Context &context, const insert_set_t<Assignments...> &t)
-    -> std::string {
-  auto result = std::string{" ("};
-  result += tuple_to_sql_string(context, t._assignments,
-                                tuple_lhs_assignment_operand_no_dynamic{", "});
-  result += ") VALUES(";
-  result += tuple_to_sql_string(context, t._assignments,
-                                tuple_rhs_assignment_operand_no_dynamic{", "});
-  result += ")";
-  return result;
-}
 
 template <typename... Assignments> auto insert_default_values() {
   return statement_t<no_insert_value_list_t>().default_values();

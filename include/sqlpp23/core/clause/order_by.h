@@ -34,6 +34,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -55,6 +56,20 @@ template <typename... Expressions> struct order_by_t {
   order_by_t &operator=(order_by_t &&) = default;
   ~order_by_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const order_by_t& t)
+      -> std::string {
+    const auto columns = tuple_to_sql_string(context, t._expressions,
+                                             tuple_operand_no_dynamic{", "});
+
+    if (columns.empty()) {
+      return "";
+    }
+
+    return " ORDER BY " + columns;
+  }
+
+ private:
   std::tuple<Expressions...> _expressions;
 };
 
@@ -154,31 +169,17 @@ struct no_order_by_t {
         std::forward<Statement>(statement),
         order_by_t<Expressions...>{std::move(expressions)...});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_order_by_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement>
 struct consistency_check<Statement, no_order_by_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_order_by_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename... Expressions>
-auto to_sql_string(Context &context, const order_by_t<Expressions...> &t)
-    -> std::string {
-  const auto columns = tuple_to_sql_string(context, t._expressions,
-                                           tuple_operand_no_dynamic{", "});
-
-  if (columns.empty()) {
-    return "";
-  }
-
-  return " ORDER BY " + columns;
-}
 
 template <DynamicSortOrder... Expressions>
 auto order_by(Expressions... expressions) {

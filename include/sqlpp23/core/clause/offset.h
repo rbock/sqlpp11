@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/detail/type_set.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -43,7 +44,28 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "only known dynamically in the statement");
 
 template <typename Expression> struct offset_t {
-  Expression _expr;
+  offset_t(Expression expression) : _expression(expression) {}
+  offset_t(const offset_t&) = default;
+  offset_t(offset_t&&) = default;
+  offset_t& operator=(const offset_t&) = default;
+  offset_t& operator=(offset_t&&) = default;
+  ~offset_t() = default;
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const offset_t<Expression>& t)
+      -> std::string {
+    if constexpr (is_dynamic<Expression>::value) {
+      if (not t._expression.has_value()) {
+        return "";
+      }
+      return " OFFSET " + operand_to_sql_string(context, t._expression.value());
+    } else {
+      return " OFFSET " + operand_to_sql_string(context, t._expression);
+    }
+  }
+
+ private:
+  Expression _expression;
 };
 
 template <typename Expression>
@@ -72,32 +94,16 @@ struct no_offset_t {
     return new_statement<no_offset_t>(std::forward<Statement>(statement),
                                       offset_t<Arg>{std::move(arg)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_offset_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement> struct consistency_check<Statement, no_offset_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_offset_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const offset_t<Expression> &t)
-    -> std::string {
-  return " OFFSET " + operand_to_sql_string(context, t._expr);
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const offset_t<dynamic_t<Expression>> &t)
-    -> std::string {
-  if (t._expr.has_value()) {
-    return " OFFSET " + operand_to_sql_string(context, t._expr.value());
-  }
-  return "";
-}
 
 template <typename T>
   requires(is_integral<remove_dynamic_t<T>>::value or

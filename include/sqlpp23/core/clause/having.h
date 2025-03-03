@@ -36,6 +36,29 @@
 
 namespace sqlpp {
 template <typename Expression> struct having_t {
+  having_t(Expression expression)
+      : _expression(std::move(expression)) {}
+
+  having_t(const having_t&) = default;
+  having_t(having_t&&) = default;
+  having_t& operator=(const having_t&) = default;
+  having_t& operator=(having_t&&) = default;
+  ~having_t() = default;
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const having_t& t)
+      -> std::string {
+    if constexpr (is_dynamic<Expression>::value) {
+      if (t._expression.has_value()) {
+        return " HAVING " + to_sql_string(context, t._expression.value());
+      }
+      return "";
+    } else {
+      return " HAVING " + to_sql_string(context, t._expression);
+    }
+  }
+
+ private:
   Expression _expression;
 };
 
@@ -98,32 +121,17 @@ struct no_having_t {
     return new_statement<no_having_t>(std::forward<Statement>(statement),
                                       having_t<Expression>{expression});
   }
+
+template <typename Context>
+friend auto to_sql_string(Context &, const no_having_t &) -> std::string {
+  return "";
+}
+
 };
 
 template <typename Statement> struct consistency_check<Statement, no_having_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_having_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const having_t<Expression> &t)
-    -> std::string {
-  return " HAVING " + to_sql_string(context, t._expression);
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const having_t<dynamic_t<Expression>> &t)
-    -> std::string {
-  if (t._expression.has_value()) {
-    return " HAVING " + to_sql_string(context, t._expression.value());
-  }
-  return "";
-}
 
 template <typename T>
 auto having(T &&t)

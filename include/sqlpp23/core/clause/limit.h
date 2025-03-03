@@ -43,7 +43,28 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "only known dynamically in the statement");
 
 template <typename Expression> struct limit_t {
-  Expression _expr;
+  limit_t(Expression expression) : _expression(expression) {}
+  limit_t(const limit_t&) = default;
+  limit_t(limit_t&&) = default;
+  limit_t& operator=(const limit_t&) = default;
+  limit_t& operator=(limit_t&&) = default;
+  ~limit_t() = default;
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const limit_t<Expression>& t)
+      -> std::string {
+    if constexpr (is_dynamic<Expression>::value) {
+      if (not t._expression.has_value()) {
+        return "";
+      }
+      return " LIMIT " + operand_to_sql_string(context, t._expression.value());
+    } else {
+      return " LIMIT " + operand_to_sql_string(context, t._expression);
+    }
+  }
+
+ private:
+  Expression _expression;
 };
 
 template <typename Expression>
@@ -72,32 +93,16 @@ struct no_limit_t {
     return new_statement<no_limit_t>(std::forward<Statement>(statement),
                                      limit_t<Arg>{std::move(arg)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_limit_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement> struct consistency_check<Statement, no_limit_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_limit_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const limit_t<Expression> &t)
-    -> std::string {
-  return " LIMIT " + operand_to_sql_string(context, t._expr);
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const limit_t<dynamic_t<Expression>> &t)
-    -> std::string {
-  if (not t._expr.has_value()) {
-    return "";
-  }
-  return " LIMIT " + operand_to_sql_string(context, t._expr.value());
-}
 
 template <typename T>
   requires(is_integral<remove_dynamic_t<T>>::value or
