@@ -30,11 +30,29 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename... Assignments> struct update_set_list_t {
+template <typename... Assignments>
+struct update_set_list_t {
+  update_set_list_t(std::tuple<Assignments...> assignments)
+      : _assignments(std::move(assignments)) {}
+  update_set_list_t(const update_set_list_t&) = default;
+  update_set_list_t(update_set_list_t&&) = default;
+  update_set_list_t& operator=(const update_set_list_t&) = default;
+  update_set_list_t& operator=(update_set_list_t&&) = default;
+  ~update_set_list_t() = default;
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const update_set_list_t& t)
+      -> std::string {
+    return " SET " + tuple_to_sql_string(context, t._assignments,
+                                         tuple_operand_no_dynamic{", "});
+  }
+
+private:
   std::tuple<Assignments...> _assignments;
 };
 
@@ -81,6 +99,12 @@ struct no_update_set_list_t {
         std::forward<Statement>(statement),
         update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_update_set_list_t&)
+      -> std::string {
+    return "";
+  }
 };
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_update_assignments_t,
@@ -90,19 +114,6 @@ template <typename Statement>
 struct consistency_check<Statement, no_update_set_list_t> {
   using type = assert_update_assignments_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_update_set_list_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename... Assignments>
-auto to_sql_string(Context &context, const update_set_list_t<Assignments...> &t)
-    -> std::string {
-  return " SET " + tuple_to_sql_string(context, t._assignments,
-                                       tuple_operand_no_dynamic{", "});
-}
 
 template <DynamicAssignment... T> auto update_set(T... t) {
   return statement_t<no_update_set_list_t>().set(std::move(t)...);

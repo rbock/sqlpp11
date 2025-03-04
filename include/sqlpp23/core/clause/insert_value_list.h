@@ -227,7 +227,7 @@ template <typename... Columns> struct column_list_t {
                     std::move(assignments)...);
   }
 
-#warning: All clauses should make their data members private and add to_sql_string as a member friend.
+#warning: All expressions should make their data members private and add to_sql_string as a member friend.
   template <typename Context>
   friend auto to_sql_string(Context &context, const column_list_t &t)
       -> std::string {

@@ -37,7 +37,12 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-struct update_t {};
+struct update_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const update_t&) -> std::string {
+    return "UPDATE ";
+  }
+};
 
 template <> struct is_clause<update_t> : public std::true_type {};
 
@@ -68,12 +73,6 @@ template <typename Statement> struct consistency_check<Statement, update_t> {
 };
 
 template <> struct is_result_clause<update_t> : public std::true_type {};
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const update_t &) -> std::string {
-  return "UPDATE ";
-}
 
 using blank_update_t =
     statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t>;

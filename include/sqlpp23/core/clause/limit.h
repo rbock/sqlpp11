@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/detail/type_set.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {

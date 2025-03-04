@@ -33,6 +33,7 @@
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/query/statement.h>
 #include <tuple>
 
 namespace sqlpp {
@@ -45,6 +46,13 @@ template <typename... Flags> struct select_flag_list_t {
   select_flag_list_t &operator=(select_flag_list_t &&) = default;
   ~select_flag_list_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const select_flag_list_t& t)
+      -> std::string {
+    return tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{""});
+  }
+
+ private:
   std::tuple<Flags...> _flags;
 };
 
@@ -71,24 +79,18 @@ struct no_select_flag_list_t {
         std::forward<Statement>(statement),
         select_flag_list_t<Flags...>{flags...});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_select_flag_list_t&)
+      -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement>
 struct consistency_check<Statement, no_select_flag_list_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_select_flag_list_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename... Flags>
-auto to_sql_string(Context &context, const select_flag_list_t<Flags...> &t)
-    -> std::string {
-  return tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{""});
-}
 
 template <typename... Flags>
   requires(logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)

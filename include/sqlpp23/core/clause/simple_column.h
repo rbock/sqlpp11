@@ -31,15 +31,22 @@
 
 namespace sqlpp {
 template <typename Column> struct simple_column_t {
-  static_assert(is_column<Column>::value, "");
 
-  using _column_t = Column;
-  _column_t _column;
+  simple_column_t(const Column &column) : _column{column} {}
+  simple_column_t(const simple_column_t&) = default;
+  simple_column_t(simple_column_t&&) = default;
+  simple_column_t& operator=(const simple_column_t&) = default;
+  simple_column_t& operator=(simple_column_t&&) = default;
+  ~simple_column_t() = default;
 
-  // workaround for msvc bug
-  // https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-  simple_column_t() = default;
-  simple_column_t(const _column_t &column) : _column{column} {}
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const simple_column_t&)
+      -> std::string {
+    return name_to_sql_string(context, name_tag_of_t<Column>{});
+  }
+
+  private:
+  Column _column;
 };
 
 template <typename Column> struct make_simple_column {
@@ -52,13 +59,6 @@ template <typename Column> struct make_simple_column<dynamic_t<Column>> {
 
 template <typename Column>
 using make_simple_column_t = typename make_simple_column<Column>::type;
-
-template <typename Context, typename Column>
-auto to_sql_string(Context &context, const simple_column_t<Column> &)
-    -> std::string {
-  return name_to_sql_string(
-      context, name_tag_of_t<typename simple_column_t<Column>::_column_t>{});
-}
 
 template <typename Column>
 auto simple_column(Column c) -> simple_column_t<Column> {

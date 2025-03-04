@@ -50,6 +50,19 @@ template <typename _Table> struct using_t {
   using_t &operator=(using_t &&) = default;
   ~using_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const using_t& t) -> std::string {
+    if constexpr (is_dynamic<_Table>::value) {
+      if (t._table.has_value()) {
+        return " USING " + to_sql_string(context, t._table.value());
+      }
+      return {};
+    } else {
+      return " USING " + to_sql_string(context, t._table);
+    }
+  }
+
+private:
   _Table _table;
 };
 
@@ -81,31 +94,16 @@ struct no_using_t {
         std::forward<Statement>(statement),
         using_t<table_ref_t<_Table>>{make_table_ref(table)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_using_t&) -> std::string {
+    return {};
+  }
 };
 
 template <typename Statement> struct consistency_check<Statement, no_using_t> {
   using type = consistent_t;
 };
-
-// Serialization
-template <typename Context>
-inline auto to_sql_string(Context &, const no_using_t &) -> std::string {
-  return {};
-}
-
-template <typename Context, typename _Table>
-auto to_sql_string(Context &context, const using_t<dynamic_t<_Table>> &t)
-    -> std::string {
-  if (t._table.has_value()) {
-    return " USING " + to_sql_string(context, t._table.value());
-  }
-  return {};
-}
-
-template <typename Context, typename _Table>
-auto to_sql_string(Context &context, const using_t<_Table> &t) -> std::string {
-  return " USING " + to_sql_string(context, t._table);
-}
 
 template <DynamicTable T> auto using_(T t) {
   return statement_t<no_using_t>{}.using_(std::move(t));

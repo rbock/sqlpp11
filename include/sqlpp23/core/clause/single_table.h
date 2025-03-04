@@ -45,6 +45,13 @@ template <typename _Table> struct single_table_t {
   single_table_t &operator=(single_table_t &&) = default;
   ~single_table_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const single_table_t& t)
+      -> std::string {
+    return to_sql_string(context, t._table);
+  }
+
+ private:
   _Table _table;
 };
 
@@ -71,6 +78,11 @@ struct no_single_table_t {
     return new_statement<no_single_table_t>(std::forward<Statement>(statement),
                                             single_table_t<_Table>{table});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_single_table_t&) -> std::string {
+    return "";
+  }
 };
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_single_table_provided_t,
@@ -79,18 +91,6 @@ template <typename Statement>
 struct consistency_check<Statement, no_single_table_t> {
   using type = assert_single_table_provided_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_single_table_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename _Table>
-auto to_sql_string(Context &context, const single_table_t<_Table> &t)
-    -> std::string {
-  return to_sql_string(context, t._table);
-}
 
 template <StaticRawTable T> auto single_table(T t) {
   return statement_t<no_single_table_t>().single_table(std::move(t));

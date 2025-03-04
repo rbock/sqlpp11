@@ -30,7 +30,7 @@
 #include <sqlpp23/core/clause/union_flags.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement_fwd.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -47,6 +47,25 @@ template <typename Flag, typename Lhs, typename Rhs> struct union_t {
   union_t &operator=(union_t &&) = default;
   ~union_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const union_t& t) -> std::string {
+    if constexpr (is_dynamic<Rhs>::value) {
+      if (t._rhs.has_value()) {
+        // Note: Temporary required to enforce parameter ordering.
+        auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
+        ret_val += to_sql_string(context, Flag{}) + " ";
+        return ret_val += to_sql_string(context, t._rhs.value());
+      }
+      return to_sql_string(context, t._lhs);
+    } else {
+      // Note: Temporary required to enforce parameter ordering.
+      auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
+      ret_val += to_sql_string(context, Flag{}) + " ";
+      return ret_val += to_sql_string(context, t._rhs);
+    }
+  }
+
+ private:
   Lhs _lhs;
   Rhs _rhs;
 };
@@ -134,38 +153,16 @@ struct no_union_t {
                                          rhs},
             no_union_t{}}};
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_union_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement> struct consistency_check<Statement, no_union_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_union_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename Flag, typename Lhs, typename Rhs>
-auto to_sql_string(Context &context, const union_t<Flag, Lhs, Rhs> &t)
-    -> std::string {
-  // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
-  ret_val += to_sql_string(context, Flag{}) + " ";
-  return ret_val += to_sql_string(context, t._rhs);
-}
-
-template <typename Context, typename Flag, typename Lhs, typename Rhs>
-auto to_sql_string(Context &context,
-                   const union_t<Flag, Lhs, dynamic_t<Rhs>> &t) -> std::string {
-  if (t._rhs.has_value()) {
-    // Note: Temporary required to enforce parameter ordering.
-    auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
-    ret_val += to_sql_string(context, Flag{}) + " ";
-    return ret_val += to_sql_string(context, t._rhs.value());
-  }
-  return to_sql_string(context, t._lhs);
-}
 
 template <typename Lhs, typename Rhs>
   requires(is_statement<Lhs>::value and

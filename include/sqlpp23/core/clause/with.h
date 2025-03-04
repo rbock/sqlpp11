@@ -31,7 +31,7 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/no_data.h>
 #include <sqlpp23/core/operator/assign_expression.h>
-#include <sqlpp23/core/query/statement_fwd.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -41,9 +41,27 @@ namespace sqlpp {
 struct no_with_t;
 
 template <typename... Ctes> struct with_t {
+  with_t(std::tuple<Ctes...> ctes) : _ctes(std::move(ctes)) {}
+  with_t(const with_t&) = default;
+  with_t(with_t&&) = default;
+  with_t& operator=(const with_t&) = default;
+  with_t& operator=(with_t&&) = default;
+  ~with_t() = default;
+
   template <typename Statement> auto operator()(Statement &&statement) {
     return new_statement<no_with_t>(std::forward<Statement>(statement), *this);
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const with_t& t) -> std::string {
+    static constexpr bool _is_recursive =
+        logic::any<is_recursive_cte<Ctes>::value...>::value;
+
+    return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
+           tuple_to_sql_string(context, t._ctes, tuple_operand{", "}) + " ";
+  }
+
+ private:
   std::tuple<Ctes...> _ctes;
 };
 
@@ -140,26 +158,16 @@ struct no_with_t {
         std::forward<Statement>(statement),
         with_t<Ctes...>{std::make_tuple(std::move(ctes)...)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_with_t&) -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement> struct consistency_check<Statement, no_with_t> {
   using type = consistent_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_with_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename... Ctes>
-auto to_sql_string(Context &context, const with_t<Ctes...> &t) -> std::string {
-  static constexpr bool _is_recursive =
-      logic::any<is_recursive_cte<Ctes>::value...>::value;
-
-  return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
-         tuple_to_sql_string(context, t._ctes, tuple_operand{", "}) + " ";
-}
 
 template <DynamicCte... Ctes> auto with(Ctes... ctes) {
   return statement_t<no_with_t>{}.with(std::move(ctes)...);

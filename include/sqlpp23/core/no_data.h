@@ -27,11 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp {
-struct no_data_t {};
+#include <string>
 
-template <typename Context>
-auto to_sql_string(Context &, const no_data_t &) -> std::string {
-  return {};
-}
+namespace sqlpp {
+struct no_data_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_data_t&) -> std::string {
+    return {};
+  }
+};
 } // namespace sqlpp

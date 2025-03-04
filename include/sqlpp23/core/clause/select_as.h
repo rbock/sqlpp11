@@ -59,6 +59,14 @@ struct select_as_t
   using _column_tuple_t =
       std::tuple<column_t<select_ref_t<NameTag>, FieldSpecs>...>;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const select_as_t& t)
+      -> std::string {
+    return operand_to_sql_string(context, t._select) + " AS " +
+           name_to_sql_string(context, NameTag{});
+  }
+
+ private:
   Select _select;
 };
 
@@ -87,12 +95,4 @@ struct provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
                               sqlpp::detail::type_set<select_ref_t<NameTag>>,
                               sqlpp::detail::type_set<>> {};
 
-template <typename Context, typename Select, typename NameTag,
-          typename... FieldSpecs>
-auto to_sql_string(Context &context,
-                   const select_as_t<Select, NameTag, FieldSpecs...> &t)
-    -> std::string {
-  return operand_to_sql_string(context, t._select) + " AS " +
-         name_to_sql_string(context, NameTag{});
-}
 } // namespace sqlpp

@@ -67,6 +67,18 @@ template <typename... Columns> struct select_column_list_t {
   select_column_list_t &operator=(select_column_list_t &&) = default;
   ~select_column_list_t() = default;
 
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const select_column_list_t& t)
+      -> std::string {
+    // dynamic(false, foo.id) -> NULL as id
+    // dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake
+    // max(something) -> max(something) as _max
+    // max(something.as(cheesecake) -> max(something) AS cheesecake
+    return tuple_to_sql_string(context, t._columns,
+                               tuple_operand_select_column{", "});
+  }
+
+ private:
   std::tuple<Columns...> _columns;
 };
 
@@ -188,29 +200,18 @@ struct no_select_column_list_t {
         make_select_column_list_t<_Columns...>{
             std::tuple_cat(detail::tupelize(std::move(args))...)});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_select_column_list_t&)
+      -> std::string {
+    return "";
+  }
 };
 
 template <typename Statement>
 struct consistency_check<Statement, no_select_column_list_t> {
   using type = assert_columns_selected_t;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_select_column_list_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename... Columns>
-auto to_sql_string(Context &context, const select_column_list_t<Columns...> &t)
-    -> std::string {
-  // dynamic(false, foo.id) -> NULL as id
-  // dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake
-  // max(something) -> max(something) as _max
-  // max(something.as(cheesecake) -> max(something) AS cheesecake
-  return tuple_to_sql_string(context, t._columns,
-                             tuple_operand_select_column{", "});
-}
 
 template <DynamicSelectColumn... T> auto select_columns(T... t) {
   return statement_t<no_select_column_list_t>().columns(std::move(t)...);

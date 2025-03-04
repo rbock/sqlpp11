@@ -31,12 +31,32 @@
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/query/statement_fwd.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Expression> struct where_t {
+  where_t(Expression expression) : _expression(std::move(expression)) {}
+  where_t(const where_t&) = default;
+  where_t(where_t&&) = default;
+  where_t& operator=(const where_t&) = default;
+  where_t& operator=(where_t&&) = default;
+  ~where_t() = default;
+
+  template <typename Context>
+  friend auto to_sql_string(Context& context, const where_t& t) -> std::string {
+    if constexpr (is_dynamic<Expression>::value) {
+      if (t._expression.has_value()) {
+        return " WHERE " + to_sql_string(context, t._expression.value());
+      }
+      return "";
+    } else {
+      return " WHERE " + to_sql_string(context, t._expression);
+    }
+  }
+
+ private:
   Expression _expression;
 };
 
@@ -84,6 +104,11 @@ struct no_where_t {
     return new_statement<no_where_t>(std::forward<Statement>(statement),
                                      where_t<Expression>{expression});
   }
+
+  template <typename Context>
+  friend auto to_sql_string(Context&, const no_where_t&) -> std::string {
+    return "";
+  }
 };
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_where_called_t, "calling where() required");
@@ -93,27 +118,6 @@ template <typename Statement> struct consistency_check<Statement, no_where_t> {
       typename std::conditional<is_where_required<Statement>::value,
                                 assert_where_called_t, consistent_t>::type;
 };
-
-// Interpreters
-template <typename Context>
-auto to_sql_string(Context &, const no_where_t &) -> std::string {
-  return "";
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const where_t<Expression> &t)
-    -> std::string {
-  return " WHERE " + to_sql_string(context, t._expression);
-}
-
-template <typename Context, typename Expression>
-auto to_sql_string(Context &context, const where_t<dynamic_t<Expression>> &t)
-    -> std::string {
-  if (t._expression.has_value()) {
-    return " WHERE " + to_sql_string(context, t._expression.value());
-  }
-  return "";
-}
 
 template <DynamicBoolean Expression> auto where(Expression expression) {
   return statement_t<no_where_t>().where(std::move(expression));

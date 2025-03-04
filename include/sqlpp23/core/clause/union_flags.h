@@ -28,23 +28,23 @@
  */
 
 #include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <tuple>
 
 namespace sqlpp {
 // standard select flags
-struct union_all_t {};
+struct union_all_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const union_all_t&) -> std::string {
+    return "ALL";
+  }
+};
 
-template <typename Context>
-auto to_sql_string(Context &, const union_all_t &) -> std::string {
-  return "ALL";
-}
+struct union_distinct_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const union_distinct_t&) -> std::string {
+    return "DISTINCT";
+  }
+};
 
-struct union_distinct_t {};
-
-template <typename Context>
-auto to_sql_string(Context &, const union_distinct_t &) -> std::string {
-  return "DISTINCT";
-}
 } // namespace sqlpp

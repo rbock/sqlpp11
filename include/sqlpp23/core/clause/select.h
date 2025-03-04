@@ -45,7 +45,12 @@
 #include <sqlpp23/core/wrong.h>
 
 namespace sqlpp {
-struct select_t {};
+struct select_t {
+  template <typename Context>
+  friend auto to_sql_string(Context&, const select_t&) -> std::string {
+    return "SELECT ";
+  }
+};
 
 template <> struct is_clause<select_t> : public std::true_type {};
 
@@ -53,18 +58,13 @@ template <typename Statement> struct consistency_check<Statement, select_t> {
   using type = consistent_t;
 };
 
-template <typename Context>
-auto to_sql_string(Context &, const select_t &) -> std::string {
-  return "SELECT ";
-}
-
 using blank_select_t =
     statement_t<no_with_t, select_t, no_select_flag_list_t,
                 no_select_column_list_t, no_from_t, no_where_t, no_group_by_t,
                 no_having_t, no_order_by_t, no_limit_t, no_offset_t, no_union_t,
                 no_for_update_t>;
 
-inline blank_select_t select() // FIXME: These should be constexpr
+inline constexpr blank_select_t select()
 {
   return {};
 }
