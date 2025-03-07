@@ -32,6 +32,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/postgresql/database/serializer_context.h>
 
 namespace sqlpp {
 namespace postgresql {
@@ -48,6 +49,25 @@ SQLPP_WRAPPED_STATIC_ASSERT(
 // ON CONFLICT ... DO UPDATE ... WHERE ...
 template <typename OnConflictUpdate, typename Expression>
 struct on_conflict_do_update_where_t {
+  on_conflict_do_update_where_t(OnConflictUpdate on_conflict_update,
+                                Expression expression)
+      : _on_conflict_update(on_conflict_update), _expression(expression) {}
+  on_conflict_do_update_where_t(const on_conflict_do_update_where_t&) = default;
+  on_conflict_do_update_where_t(on_conflict_do_update_where_t&&) = default;
+  on_conflict_do_update_where_t& operator=(
+      const on_conflict_do_update_where_t&) = default;
+  on_conflict_do_update_where_t& operator=(on_conflict_do_update_where_t&&) =
+      default;
+  ~on_conflict_do_update_where_t() = default;
+
+  friend auto to_sql_string(postgresql::context_t& context,
+                     const on_conflict_do_update_where_t& t) -> std::string {
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, t._on_conflict_update) + " WHERE ";
+    return ret_val + to_sql_string(context, t._expression);
+  }
+
+ private:
   OnConflictUpdate _on_conflict_update;
   Expression _expression;
 };
@@ -91,6 +111,16 @@ namespace postgresql {
 // ON CONFLICT ... DO UPDATE ...
 template <typename OnConflict, typename... Assignments>
 struct on_conflict_do_update_t {
+  on_conflict_do_update_t(OnConflict on_conflict,
+                          std::tuple<Assignments...> assignments)
+      : _on_conflict(std::move(on_conflict)),
+        _assignments(std::move(assignments)) {}
+  on_conflict_do_update_t(const on_conflict_do_update_t&) = default;
+  on_conflict_do_update_t(on_conflict_do_update_t&&) = default;
+  on_conflict_do_update_t& operator=(const on_conflict_do_update_t&) = default;
+  on_conflict_do_update_t& operator=(on_conflict_do_update_t&&) = default;
+  ~on_conflict_do_update_t() = default;
+
   template <typename Statement, DynamicBoolean Expression>
   auto where(this Statement &&statement, Expression expression) {
     SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
@@ -103,6 +133,14 @@ struct on_conflict_do_update_t {
         std::forward<Statement>(statement), std::move(new_clause));
   }
 
+  friend auto to_sql_string(postgresql::context_t& context,
+                            const on_conflict_do_update_t& o) -> std::string {
+    return to_sql_string(context, o._on_conflict) + " DO UPDATE SET " +
+           tuple_to_sql_string(context, o._assignments,
+                               tuple_operand_no_dynamic{", "});
+  }
+
+ private:
   OnConflict _on_conflict;
   std::tuple<Assignments...> _assignments;
 };
@@ -130,23 +168,4 @@ struct consistency_check<Statement, postgresql::on_conflict_do_update_t<
   using type = postgresql::assert_on_conflict_update_where_t;
 };
 
-template <typename OnConflict, typename... Assignments>
-auto to_sql_string(
-    postgresql::context_t &context,
-    const postgresql::on_conflict_do_update_t<OnConflict, Assignments...> &o)
-    -> std::string {
-  return to_sql_string(context, o._on_conflict) + " DO UPDATE SET " +
-         tuple_to_sql_string(context, o._assignments,
-                             tuple_operand_no_dynamic{", "});
-}
-
-template <typename OnConflict, typename Expression>
-auto to_sql_string(
-    postgresql::context_t &context,
-    const postgresql::on_conflict_do_update_where_t<OnConflict, Expression> &t)
-    -> std::string {
-  // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = to_sql_string(context, t._on_conflict_update) + " WHERE ";
-  return ret_val + to_sql_string(context, t._expression);
-}
 } // namespace sqlpp

@@ -50,6 +50,20 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "returning columns must not contain aggregate functions");
 
 template <typename... Columns> struct returning_column_list_t {
+  returning_column_list_t(std::tuple<Columns...> columns) : _columns(std::move(columns)) {}
+  returning_column_list_t(const returning_column_list_t&) = default;
+  returning_column_list_t(returning_column_list_t&&) = default;
+  returning_column_list_t& operator=(const returning_column_list_t&) = default;
+  returning_column_list_t& operator=(returning_column_list_t&&) = default;
+  ~returning_column_list_t() = default;
+
+  friend auto to_sql_string(context_t& context,
+                            const returning_column_list_t& t) -> std::string {
+    return " RETURNING " +
+           tuple_to_sql_string(context, t._columns, tuple_operand{", "});
+  }
+
+private:
   std::tuple<Columns...> _columns;
 };
 
@@ -170,22 +184,14 @@ struct no_returning_column_list_t {
         make_returning_column_list_t<Columns...>{
             std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
   }
+
+  friend auto to_sql_string(postgresql::context_t&,
+                            const postgresql::no_returning_column_list_t&)
+      -> std::string {
+    return "";
+  }
 };
 
-// Serialization
-inline auto to_sql_string(postgresql::context_t &,
-                          const postgresql::no_returning_column_list_t &)
-    -> std::string {
-  return "";
-}
-
-template <typename... Columns>
-auto to_sql_string(postgresql::context_t &context,
-                   const postgresql::returning_column_list_t<Columns...> &t)
-    -> std::string {
-  return " RETURNING " +
-         tuple_to_sql_string(context, t._columns, tuple_operand{", "});
-}
 } // namespace postgresql
 
 template <typename Statement>

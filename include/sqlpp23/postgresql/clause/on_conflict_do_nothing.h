@@ -28,21 +28,30 @@
  */
 
 #include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/postgresql/database/serializer_context.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 namespace postgresql {
-template <typename OnConflict> struct on_conflict_do_nothing_t {
+template <typename OnConflict>
+struct on_conflict_do_nothing_t {
+  on_conflict_do_nothing_t(OnConflict on_conflict, bool /* disambiguate*/)
+      : _on_conflict(on_conflict) {}
+  on_conflict_do_nothing_t(const on_conflict_do_nothing_t&) = default;
+  on_conflict_do_nothing_t(on_conflict_do_nothing_t&&) = default;
+  on_conflict_do_nothing_t& operator=(const on_conflict_do_nothing_t&) = default;
+  on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
+  ~on_conflict_do_nothing_t() = default;
+
+  friend auto to_sql_string(postgresql::context_t& context,
+                            const on_conflict_do_nothing_t& t) -> std::string {
+    return to_sql_string(context, t._on_conflict) + " DO NOTHING";
+  }
+
+ private:
   OnConflict _on_conflict;
 };
 
-// Serialization
-template <typename OnConflict>
-auto to_sql_string(postgresql::context_t &context,
-                   const postgresql::on_conflict_do_nothing_t<OnConflict> &t)
-    -> std::string {
-  return to_sql_string(context, t._on_conflict) + " DO NOTHING";
-}
 } // namespace postgresql
 
 template <typename ConflictTarget>
