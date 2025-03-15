@@ -53,14 +53,14 @@ template <typename Flag, typename Lhs, typename Rhs> struct union_t {
       if (t._rhs.has_value()) {
         // Note: Temporary required to enforce parameter ordering.
         auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
-        ret_val += to_sql_string(context, Flag{}) + " ";
+        ret_val += to_sql_string(context, Flag{});
         return ret_val += to_sql_string(context, t._rhs.value());
       }
       return to_sql_string(context, t._lhs);
     } else {
       // Note: Temporary required to enforce parameter ordering.
       auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
-      ret_val += to_sql_string(context, Flag{}) + " ";
+      ret_val += to_sql_string(context, Flag{});
       return ret_val += to_sql_string(context, t._rhs);
     }
   }

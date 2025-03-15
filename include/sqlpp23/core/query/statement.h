@@ -163,7 +163,7 @@ struct can_be_used_as_table<statement_t<Clauses...>>
   using _S = statement_t<Clauses...>;
   static constexpr bool value = has_result_row<_S>::value and
                                 _S::_unknown_required_tables_of::empty() and
-                                _S::_unknown_required_ctes_of::enpty();
+                                _S::_unknown_required_ctes_of::empty();
 };
 
 template <typename... Clauses>

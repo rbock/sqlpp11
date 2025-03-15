@@ -55,7 +55,7 @@ template <> struct is_select_flag<distinct_t> : public std::true_type {};
 
 struct no_flag_t {
   template <typename Context>
-  auto to_sql_string(Context&, const no_flag_t&) -> std::string {
+  friend auto to_sql_string(Context&, const no_flag_t&) -> std::string {
     return "";
   }
 };
