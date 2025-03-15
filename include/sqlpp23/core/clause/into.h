@@ -45,14 +45,13 @@ template <typename _Table> struct into_t {
   into_t &operator=(into_t &&) = default;
   ~into_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context &context, const into_t &t) -> std::string {
-    return " INTO " + to_sql_string(context, t._table);
-  }
-
-private:
   _Table _table;
 };
+
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context &context, const into_t<_Table> &t) -> std::string {
+    return " INTO " + to_sql_string(context, t._table);
+  }
 
 template <typename _Table>
 struct is_clause<into_t<_Table>> : public std::true_type {};
@@ -83,12 +82,12 @@ struct no_into_t {
     return new_statement<no_into_t>(std::forward<Statement>(statement),
                                     into_t<_Table>{table});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_into_t&) -> std::string {
+  auto to_sql_string(Context&, const no_into_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement> struct consistency_check<Statement, no_into_t> {
   using type = assert_into_t;

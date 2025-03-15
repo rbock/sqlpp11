@@ -34,31 +34,37 @@
 namespace sqlpp {
 // standard select flags
 struct all_t {
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const all_t&) -> std::string {
+  auto to_sql_string(Context&, const all_t&) -> std::string {
     return "ALL ";
   }
-};
+
 static constexpr all_t all = {};
 
 template <> struct is_select_flag<all_t> : public std::true_type {};
 
 struct distinct_t {
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const distinct_t&) -> std::string {
+  auto to_sql_string(Context&, const distinct_t&) -> std::string {
     return "DISTINCT ";
   }
-};
+
 static constexpr distinct_t distinct = {};
 
 template <> struct is_select_flag<distinct_t> : public std::true_type {};
 
 struct no_flag_t {
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_flag_t&) -> std::string {
+  auto to_sql_string(Context&, const no_flag_t&) -> std::string {
     return "";
   }
-};
+
 static constexpr no_flag_t no_flag = {};
 
 template <> struct is_select_flag<no_flag_t> : public std::true_type {};

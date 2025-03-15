@@ -60,17 +60,18 @@ struct on_conflict_do_update_where_t {
       default;
   ~on_conflict_do_update_where_t() = default;
 
-  friend auto to_sql_string(postgresql::context_t& context,
-                     const on_conflict_do_update_where_t& t) -> std::string {
+  OnConflictUpdate _on_conflict_update;
+  Expression _expression;
+};
+
+template <typename OnConflictUpdate, typename Expression>
+  auto to_sql_string(postgresql::context_t& context,
+                     const on_conflict_do_update_where_t<OnConflictUpdate, Expression>& t) -> std::string {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._on_conflict_update) + " WHERE ";
     return ret_val + to_sql_string(context, t._expression);
   }
 
- private:
-  OnConflictUpdate _on_conflict_update;
-  Expression _expression;
-};
 } // namespace postgresql
 
 template <typename OnConflictUpdate, typename Expression>
@@ -133,17 +134,18 @@ struct on_conflict_do_update_t {
         std::forward<Statement>(statement), std::move(new_clause));
   }
 
-  friend auto to_sql_string(postgresql::context_t& context,
-                            const on_conflict_do_update_t& o) -> std::string {
+  OnConflict _on_conflict;
+  std::tuple<Assignments...> _assignments;
+};
+
+template <typename OnConflict, typename... Assignments>
+  auto to_sql_string(postgresql::context_t& context,
+                            const on_conflict_do_update_t<OnConflict, Assignments...>& o) -> std::string {
     return to_sql_string(context, o._on_conflict) + " DO UPDATE SET " +
            tuple_to_sql_string(context, o._assignments,
                                tuple_operand_no_dynamic{", "});
   }
 
- private:
-  OnConflict _on_conflict;
-  std::tuple<Assignments...> _assignments;
-};
 } // namespace postgresql
 
 template <typename OnConflict, typename... Assignments>

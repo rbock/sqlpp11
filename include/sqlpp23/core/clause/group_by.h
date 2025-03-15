@@ -46,8 +46,11 @@ template <typename... Columns> struct group_by_t {
   group_by_t& operator=(group_by_t&&) = default;
   ~group_by_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const group_by_t& t)
+  std::tuple<Columns...> _columns;
+};
+
+  template <typename Context, typename... Columns>
+  auto to_sql_string(Context& context, const group_by_t<Columns...>& t)
       -> std::string {
     const auto columns = tuple_to_sql_string(context, t._columns,
                                              tuple_operand_no_dynamic{", "});
@@ -58,10 +61,6 @@ template <typename... Columns> struct group_by_t {
 
     return " GROUP BY " + columns;
   }
-
- private:
-  std::tuple<Columns...> _columns;
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_group_by_t,
                             "at least one group-by expression requires a table "
@@ -142,12 +141,12 @@ struct no_group_by_t {
         std::forward<Statement>(statement),
         group_by_t<Columns...>{std::make_tuple(std::move(columns)...)});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_group_by_t&) -> std::string {
+  auto to_sql_string(Context&, const no_group_by_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement>
 struct consistency_check<Statement, no_group_by_t> {

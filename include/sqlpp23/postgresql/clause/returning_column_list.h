@@ -57,15 +57,15 @@ template <typename... Columns> struct returning_column_list_t {
   returning_column_list_t& operator=(returning_column_list_t&&) = default;
   ~returning_column_list_t() = default;
 
-  friend auto to_sql_string(context_t& context,
-                            const returning_column_list_t& t) -> std::string {
+  std::tuple<Columns...> _columns;
+};
+
+template <typename... Columns>
+  auto to_sql_string(context_t& context,
+                            const returning_column_list_t<Columns...>& t) -> std::string {
     return " RETURNING " +
            tuple_to_sql_string(context, t._columns, tuple_operand{", "});
   }
-
-private:
-  std::tuple<Columns...> _columns;
-};
 
 template <typename... Columns> struct returning_column_list_result_methods_t {
   template <typename Statement, typename NameTagProvider>
@@ -184,13 +184,13 @@ struct no_returning_column_list_t {
         make_returning_column_list_t<Columns...>{
             std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
   }
+};
 
-  friend auto to_sql_string(postgresql::context_t&,
+  inline auto to_sql_string(postgresql::context_t&,
                             const postgresql::no_returning_column_list_t&)
       -> std::string {
     return "";
   }
-};
 
 } // namespace postgresql
 

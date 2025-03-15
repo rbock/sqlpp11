@@ -47,8 +47,12 @@ template <typename Flag, typename Lhs, typename Rhs> struct union_t {
   union_t &operator=(union_t &&) = default;
   ~union_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const union_t& t) -> std::string {
+  Lhs _lhs;
+  Rhs _rhs;
+};
+
+  template <typename Context, typename Flag, typename Lhs, typename Rhs>
+  auto to_sql_string(Context& context, const union_t<Flag, Lhs, Rhs>& t) -> std::string {
     if constexpr (is_dynamic<Rhs>::value) {
       if (t._rhs.has_value()) {
         // Note: Temporary required to enforce parameter ordering.
@@ -64,11 +68,6 @@ template <typename Flag, typename Lhs, typename Rhs> struct union_t {
       return ret_val += to_sql_string(context, t._rhs);
     }
   }
-
- private:
-  Lhs _lhs;
-  Rhs _rhs;
-};
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct has_result_row<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
@@ -153,12 +152,12 @@ struct no_union_t {
                                          rhs},
             no_union_t{}}};
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_union_t&) -> std::string {
+  auto to_sql_string(Context&, const no_union_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement> struct consistency_check<Statement, no_union_t> {
   using type = consistent_t;

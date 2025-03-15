@@ -97,7 +97,11 @@ struct on_conflict_t {
                                         std::move(new_clause));
   }
 
-  friend auto to_sql_string(postgresql::context_t& context, const on_conflict_t& t)
+  std::tuple<Columns...> _columns;
+};
+
+template <typename... Columns>
+  auto to_sql_string(postgresql::context_t& context, const on_conflict_t<Columns...>& t)
       -> std::string {
     const auto targets = tuple_to_sql_string(
         context, t._columns, tuple_operand_name_no_dynamic{", "});
@@ -106,10 +110,6 @@ struct on_conflict_t {
     }
     return " ON CONFLICT (" + targets + ")";
   }
-
- private:
-  std::tuple<Columns...> _columns;
-};
 
 } // namespace postgresql
 
@@ -132,13 +132,13 @@ struct no_on_conflict_t {
         on_conflict_t<Columns...>{std::make_tuple(std::move(columns)...)});
   }
 
-  friend auto to_sql_string(context_t&,
+};
+
+  inline auto to_sql_string(context_t&,
                             const no_on_conflict_t&)
       -> std::string {
     return "";
   }
-};
-
 } // namespace postgresql
 
 template <typename Statement>

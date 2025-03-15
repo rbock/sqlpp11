@@ -31,9 +31,10 @@
 
 namespace sqlpp {
 struct no_data_t {
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_data_t&) -> std::string {
+  auto to_sql_string(Context&, const no_data_t&) -> std::string {
     return {};
   }
-};
 } // namespace sqlpp

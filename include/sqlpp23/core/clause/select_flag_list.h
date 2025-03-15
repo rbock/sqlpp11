@@ -46,15 +46,14 @@ template <typename... Flags> struct select_flag_list_t {
   select_flag_list_t &operator=(select_flag_list_t &&) = default;
   ~select_flag_list_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const select_flag_list_t& t)
+  std::tuple<Flags...> _flags;
+};
+
+  template <typename Context, typename... Flags>
+  auto to_sql_string(Context& context, const select_flag_list_t<Flags...>& t)
       -> std::string {
     return tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{""});
   }
-
- private:
-  std::tuple<Flags...> _flags;
-};
 
 template <typename... Flags>
 struct is_clause<select_flag_list_t<Flags...>> : public std::true_type {};
@@ -79,13 +78,13 @@ struct no_select_flag_list_t {
         std::forward<Statement>(statement),
         select_flag_list_t<Flags...>{flags...});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_select_flag_list_t&)
+  auto to_sql_string(Context&, const no_select_flag_list_t&)
       -> std::string {
     return "";
   }
-};
 
 template <typename Statement>
 struct consistency_check<Statement, no_select_flag_list_t> {

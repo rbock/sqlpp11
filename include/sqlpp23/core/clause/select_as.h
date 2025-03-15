@@ -59,16 +59,15 @@ struct select_as_t
   using _column_tuple_t =
       std::tuple<column_t<select_ref_t<NameTag>, FieldSpecs>...>;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const select_as_t& t)
+  Select _select;
+};
+
+  template <typename Context, typename Select, typename NameTag, typename... FieldSpecs>
+  auto to_sql_string(Context& context, const select_as_t<Select, NameTag, FieldSpecs...>& t)
       -> std::string {
     return operand_to_sql_string(context, t._select) + " AS " +
            name_to_sql_string(context, NameTag{});
   }
-
- private:
-  Select _select;
-};
 
 // No value_type_of defined. select_as_t represents a table, not a value.
 // Rationale: select.as() requires prepare_check to be used as tbale, whereas

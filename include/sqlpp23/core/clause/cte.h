@@ -46,8 +46,12 @@ template <typename Flag, typename Lhs, typename Rhs> struct cte_union_t {
   cte_union_t &operator=(cte_union_t &&) = default;
   ~cte_union_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const cte_union_t& t)
+  Lhs _lhs;
+  Rhs _rhs;
+};
+
+  template <typename Context, typename Flag, typename Lhs, typename Rhs>
+  auto to_sql_string(Context& context, const cte_union_t<Flag, Lhs, Rhs>& t)
       -> std::string {
     if constexpr (is_dynamic<Rhs>::value) {
       if (t._rhs.has_value()) {
@@ -61,11 +65,6 @@ template <typename Flag, typename Lhs, typename Rhs> struct cte_union_t {
              to_sql_string(context, Flag{}) + to_sql_string(context, t._rhs);
     }
   }
-
- private:
-  Lhs _lhs;
-  Rhs _rhs;
-};
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct nodes_of<cte_union_t<Flag, Lhs, Rhs>> {
@@ -234,15 +233,14 @@ struct cte_t
     return cte_union_t<all_t, Statement, Rhs>{_statement, rhs};
   }
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const cte_t& t) -> std::string {
+  Statement _statement;
+};
+
+  template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string {
     return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) +
            " AS (" + to_sql_string(context, t._statement) + ")";
   }
-
-private:
-  Statement _statement;
-};
 
 // Note that `cte_t` is not a table, because `join` and `from` store
 // `cte_ref_t`.
@@ -294,12 +292,13 @@ template <typename NameTagProvider> struct cte_ref_t {
     return {statement};
   }
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&)
+};
+
+  template <typename Context, typename NameTagProvider>
+  auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&)
       -> std::string {
     return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{});
   }
-};
 
 template <typename NameTagProvider>
 struct name_tag_of<cte_ref_t<NameTagProvider>>

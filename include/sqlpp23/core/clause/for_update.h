@@ -33,11 +33,12 @@
 
 namespace sqlpp {
 struct for_update_t {
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const for_update_t&) -> std::string {
+  auto to_sql_string(Context&, const for_update_t&) -> std::string {
     return " FOR UPDATE";
   }
-};
 
 template <> struct is_clause<for_update_t> : public std::true_type {};
 
@@ -51,12 +52,12 @@ struct no_for_update_t {
     return new_statement<no_for_update_t>(std::forward<Statement>(statement),
                                           for_update_t{});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_for_update_t&) -> std::string {
+  auto to_sql_string(Context&, const no_for_update_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement>
 struct consistency_check<Statement, no_for_update_t> {

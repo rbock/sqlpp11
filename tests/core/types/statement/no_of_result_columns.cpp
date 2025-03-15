@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2016, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,50 +24,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include <cassert>
-#include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/tables.h>
+#include "sqlpp23/core/type_traits.h"
 
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
-#include <iostream>
+void test_no_of_result_columns() {
 
-namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabSample{};
+  const auto foo = test::TabFoo{};
 
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
-  if (not t)
-    return os << "NULL";
-  return os << t.value();
-}
+  static_assert(sqlpp::no_of_result_columns<int>::value == 0);
 
-int With(int, char *[]) {
-#if SQLITE_VERSION_NUMBER >= 3008003
-  sql::connection_config config;
-  config.path_to_database = ":memory:";
-  config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config.debug = true;
-
-  sql::connection db(config);
-  test::createTabSample(db);
-
-  auto a = sqlpp::cte(sqlpp::alias::a)
-               .as(select(all_of(tab)).from(tab).where(tab.alpha > 3));
-  for (const auto &row : db(with(a)(select(a.alpha).from(a)).where(true))) {
-    std::cout << row.alpha << std::endl;
+  {
+    using X = decltype(insert_into(foo));
+    static_assert(sqlpp::no_of_result_columns<X>::value == 0);
   }
 
-  for (const auto &row : db(with(a.union_all(
-           select(all_of(a)).from(a).where(true)))(select(all_of(a)).from(a))
-                                .where(true))) {
-    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+  {
+    using X = decltype(select(foo.id));
+    static_assert(sqlpp::no_of_result_columns<X>::value == 1);
   }
 
-#endif
-  return 0;
+  {
+    using X = decltype(select(foo.id, foo.intN));
+    static_assert(sqlpp::no_of_result_columns<X>::value == 2);
+  }
+
+  {
+    using X = decltype(select(all_of(foo)));
+    static_assert(sqlpp::no_of_result_columns<X>::value > 2);
+  }
+
 }
+
+int main() { void test_no_of_result_columns(); }

@@ -36,6 +36,7 @@
 #include <sqlpp23/core/basic/schema.h>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/database/transaction.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
@@ -44,7 +45,6 @@
 #include <sqlpp23/sqlite3/detail/connection_handle.h>
 #include <sqlpp23/sqlite3/export.h>
 #include <sqlpp23/sqlite3/prepared_statement.h>
-#include <sstream>
 #include <string>
 
 #ifdef SQLPP_DYNAMIC_LOADING
@@ -334,26 +334,15 @@ public:
   template <typename Check, typename T> auto _run(const T &t, Check) -> Check;
 
   template <typename T>
-  auto operator()(const T &t)
-      -> decltype(this->_run(t, sqlpp::statement_run_check_t<T>{})) {
-    return _run(t, sqlpp::statement_run_check_t<T>{});
-  }
-
-  //! call prepare on the argument
-  template <typename T>
-  auto _prepare(const T &t, const std::true_type &)
-      -> decltype(t._prepare(*this)) {
-    return t._prepare(*this);
+    requires(sqlpp::statement_run_check_t<T>::value)
+  auto operator()(const T &t){
+    return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
   template <typename T>
-  auto _prepare(const T &t, const std::false_type &) -> void;
-
-  template <typename T>
-  auto prepare(const T &t) -> decltype(this->_prepare(
-      t, typename sqlpp::statement_prepare_check_t<T>::type{})) {
-    (void)sqlpp::statement_prepare_check_t<T>{};
-    return _prepare(t, sqlpp::statement_prepare_check_t<T>{});
+    requires(sqlpp::statement_prepare_check_t<T>::value)
+  auto prepare(const T& t) {
+    return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 
   //! set the transaction isolation level for this connection

@@ -45,16 +45,15 @@ struct update_set_list_t {
   update_set_list_t& operator=(update_set_list_t&&) = default;
   ~update_set_list_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const update_set_list_t& t)
+  std::tuple<Assignments...> _assignments;
+};
+
+  template <typename Context, typename... Assignments>
+  auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
       -> std::string {
     return " SET " + tuple_to_sql_string(context, t._assignments,
                                          tuple_operand_no_dynamic{", "});
   }
-
-private:
-  std::tuple<Assignments...> _assignments;
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_update_assignments_t,
                             "at least one update assignment requires a table "
@@ -100,12 +99,13 @@ struct no_update_set_list_t {
         update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
   }
 
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_update_set_list_t&)
+  auto to_sql_string(Context&, const no_update_set_list_t&)
       -> std::string {
     return "";
   }
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_update_assignments_t,
                             "update assignments required, i.e. set(...)");

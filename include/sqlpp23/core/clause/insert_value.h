@@ -50,18 +50,17 @@ template <typename Column> struct insert_value_t {
   insert_value_t &operator=(insert_value_t &&) = default;
   ~insert_value_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const insert_value_t& t) -> std::string {
+  bool _is_default;
+  _value_t _value;
+};
+
+  template <typename Context, typename Column>
+  auto to_sql_string(Context& context, const insert_value_t<Column>& t) -> std::string {
     if (t._is_default) {
       return "DEFAULT";
     }
     return operand_to_sql_string(context, t._value);
   }
-
- private:
-  bool _is_default;
-  _value_t _value;
-};
 
 template <typename Column> struct make_insert_value {
   using type = insert_value_t<Column>;

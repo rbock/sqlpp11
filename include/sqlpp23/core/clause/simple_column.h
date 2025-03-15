@@ -39,15 +39,14 @@ template <typename Column> struct simple_column_t {
   simple_column_t& operator=(simple_column_t&&) = default;
   ~simple_column_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const simple_column_t&)
+  Column _column;
+};
+
+  template <typename Context, typename Column>
+  auto to_sql_string(Context& context, const simple_column_t<Column>&)
       -> std::string {
     return name_to_sql_string(context, name_tag_of_t<Column>{});
   }
-
-  private:
-  Column _column;
-};
 
 template <typename Column> struct make_simple_column {
   using type = simple_column_t<Column>;

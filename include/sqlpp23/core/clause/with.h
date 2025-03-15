@@ -52,18 +52,17 @@ template <typename... Ctes> struct with_t {
     return new_statement<no_with_t>(std::forward<Statement>(statement), *this);
   }
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const with_t& t) -> std::string {
+  std::tuple<Ctes...> _ctes;
+};
+
+  template <typename Context, typename... Ctes>
+  auto to_sql_string(Context& context, const with_t<Ctes...>& t) -> std::string {
     static constexpr bool _is_recursive =
         logic::any<is_recursive_cte<Ctes>::value...>::value;
 
     return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
            tuple_to_sql_string(context, t._ctes, tuple_operand{", "}) + " ";
   }
-
- private:
-  std::tuple<Ctes...> _ctes;
-};
 
 template <typename... Ctes>
 struct is_clause<with_t<Ctes...>> : public std::true_type {};
@@ -158,12 +157,12 @@ struct no_with_t {
         std::forward<Statement>(statement),
         with_t<Ctes...>{std::make_tuple(std::move(ctes)...)});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_with_t&) -> std::string {
+  auto to_sql_string(Context&, const no_with_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement> struct consistency_check<Statement, no_with_t> {
   using type = consistent_t;

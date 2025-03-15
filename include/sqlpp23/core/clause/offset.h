@@ -51,8 +51,11 @@ template <typename Expression> struct offset_t {
   offset_t& operator=(offset_t&&) = default;
   ~offset_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const offset_t<Expression>& t)
+  Expression _expression;
+};
+
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const offset_t<Expression>& t)
       -> std::string {
     if constexpr (is_dynamic<Expression>::value) {
       if (not t._expression.has_value()) {
@@ -63,10 +66,6 @@ template <typename Expression> struct offset_t {
       return " OFFSET " + operand_to_sql_string(context, t._expression);
     }
   }
-
- private:
-  Expression _expression;
-};
 
 template <typename Expression>
 struct is_clause<offset_t<Expression>> : public std::true_type {};
@@ -94,12 +93,12 @@ struct no_offset_t {
     return new_statement<no_offset_t>(std::forward<Statement>(statement),
                                       offset_t<Arg>{std::move(arg)});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_offset_t&) -> std::string {
+  auto to_sql_string(Context&, const no_offset_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement> struct consistency_check<Statement, no_offset_t> {
   using type = consistent_t;

@@ -32,7 +32,6 @@
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/mysql/bind_result.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
-#include <string>
 
 namespace sqlpp {
 namespace mysql {
@@ -49,7 +48,7 @@ public:
       : _handle{std::move(handle)} {
     if (_handle and _handle->debug)
       std::cerr << "MySQL debug: Constructing prepared_statement, "
-                   "clause/using.handle at "
+                   "using handle at "
                 << _handle.get() << std::endl;
   }
 

@@ -34,17 +34,19 @@
 namespace sqlpp {
 // standard select flags
 struct union_all_t {
-  template <typename Context>
-  friend auto to_sql_string(Context&, const union_all_t&) -> std::string {
-    return "ALL ";
-  }
 };
 
-struct union_distinct_t {
   template <typename Context>
-  friend auto to_sql_string(Context&, const union_distinct_t&) -> std::string {
+  auto to_sql_string(Context&, const union_all_t&) -> std::string {
+    return "ALL ";
+  }
+
+struct union_distinct_t {
+};
+
+  template <typename Context>
+  auto to_sql_string(Context&, const union_distinct_t&) -> std::string {
     return "DISTINCT ";
   }
-};
 
 } // namespace sqlpp

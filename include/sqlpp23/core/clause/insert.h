@@ -38,11 +38,12 @@
 
 namespace sqlpp {
 struct insert_t {
+};
+
   template <typename Context>
-  friend auto to_sql_string(Context&, const insert_t&) -> std::string {
+  auto to_sql_string(Context&, const insert_t&) -> std::string {
     return "INSERT";
   }
-};
 
 template <> struct is_clause<insert_t> : public std::true_type {};
 

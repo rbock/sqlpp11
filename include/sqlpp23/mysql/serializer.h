@@ -28,6 +28,7 @@
  */
 
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/mysql/database/connection.h>
 
 namespace sqlpp {
 template <typename Lhs, typename Rhs, typename Condition>

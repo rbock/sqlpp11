@@ -227,9 +227,23 @@ template <typename... Columns> struct column_list_t {
                     std::move(assignments)...);
   }
 
-#warning: All expressions should make their data members private and add to_sql_string as a member friend.
-  template <typename Context>
-  friend auto to_sql_string(Context &context, const column_list_t &t)
+private:
+  auto add_values_impl(std::false_type, ...) -> void {}
+
+  template <typename... Assignments>
+  auto add_values_impl(std::true_type, Assignments... assignments) -> void {
+    _insert_values.emplace_back(
+        make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+  }
+
+public:
+  std::tuple<make_simple_column_t<Columns>...> _columns;
+  using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
+  std::vector<_value_tuple_t> _insert_values;
+};
+
+  template <typename Context, typename... Columns>
+  auto to_sql_string(Context &context, const column_list_t<Columns...> &t)
       -> std::string {
     auto result = std::string{" ("};
     result += tuple_to_sql_string(context, t._columns,
@@ -251,21 +265,6 @@ template <typename... Columns> struct column_list_t {
 
     return result;
   }
-
-private:
-  auto add_values_impl(std::false_type, ...) -> void {}
-
-  template <typename... Assignments>
-  auto add_values_impl(std::true_type, Assignments... assignments) -> void {
-    _insert_values.emplace_back(
-        make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
-  }
-
-  std::tuple<make_simple_column_t<Columns>...> _columns;
-  using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
-  std::vector<_value_tuple_t> _insert_values;
-
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
                             "at least one column requires a table which is "
@@ -337,13 +336,13 @@ struct no_insert_value_list_t {
         insert_set_t<Assignments...>{
             std::make_tuple(std::move(assignments)...)});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_insert_value_list_t&)
+  auto to_sql_string(Context&, const no_insert_value_list_t&)
       -> std::string {
     return "";
   }
-};
 
 template <typename Statement>
 struct consistency_check<Statement, no_insert_value_list_t> {

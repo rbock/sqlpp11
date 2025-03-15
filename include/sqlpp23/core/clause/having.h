@@ -45,8 +45,11 @@ template <typename Expression> struct having_t {
   having_t& operator=(having_t&&) = default;
   ~having_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const having_t& t)
+  Expression _expression;
+};
+
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const having_t<Expression>& t)
       -> std::string {
     if constexpr (is_dynamic<Expression>::value) {
       if (t._expression.has_value()) {
@@ -57,10 +60,6 @@ template <typename Expression> struct having_t {
       return " HAVING " + to_sql_string(context, t._expression);
     }
   }
-
- private:
-  Expression _expression;
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_having_t,
                             "at least one having-expression requires a table "
@@ -122,12 +121,12 @@ struct no_having_t {
                                       having_t<Expression>{expression});
   }
 
+};
+
 template <typename Context>
-friend auto to_sql_string(Context &, const no_having_t &) -> std::string {
+auto to_sql_string(Context &, const no_having_t &) -> std::string {
   return "";
 }
-
-};
 
 template <typename Statement> struct consistency_check<Statement, no_having_t> {
   using type = consistent_t;

@@ -43,14 +43,14 @@ struct on_conflict_do_nothing_t {
   on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
   ~on_conflict_do_nothing_t() = default;
 
-  friend auto to_sql_string(postgresql::context_t& context,
-                            const on_conflict_do_nothing_t& t) -> std::string {
-    return to_sql_string(context, t._on_conflict) + " DO NOTHING";
-  }
-
- private:
   OnConflict _on_conflict;
 };
+
+template <typename OnConflict>
+  auto to_sql_string(postgresql::context_t& context,
+                            const on_conflict_do_nothing_t<OnConflict>& t) -> std::string {
+    return to_sql_string(context, t._on_conflict) + " DO NOTHING";
+  }
 
 } // namespace postgresql
 

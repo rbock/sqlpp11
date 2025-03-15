@@ -45,8 +45,11 @@ template <typename _Table> struct from_t {
   from_t& operator=(from_t&&) = default;
   ~from_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const from_t& t)
+  _Table _table;
+};
+
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const from_t<_Table>& t)
       -> std::string {
     if constexpr (is_dynamic<_Table>::value) {
       if (t._table.has_value()) {
@@ -57,10 +60,6 @@ template <typename _Table> struct from_t {
       return " FROM " + to_sql_string(context, t._table);
     }
   }
-
-private:
-  _Table _table;
-};
 
 template <typename _Table>
 struct is_clause<from_t<_Table>> : public std::true_type {};
@@ -93,12 +92,12 @@ struct no_from_t {
         std::forward<Statement>(statement),
         from_t<table_ref_t<_Table>>{make_table_ref(table)});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_from_t&) -> std::string {
+  auto to_sql_string(Context&, const no_from_t&) -> std::string {
     return "";
   }
-};
 
 template <typename Statement> struct consistency_check<Statement, no_from_t> {
   using type = consistent_t;

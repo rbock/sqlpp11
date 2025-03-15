@@ -44,8 +44,11 @@ template <typename Expression> struct where_t {
   where_t& operator=(where_t&&) = default;
   ~where_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const where_t& t) -> std::string {
+  Expression _expression;
+};
+
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const where_t<Expression>& t) -> std::string {
     if constexpr (is_dynamic<Expression>::value) {
       if (t._expression.has_value()) {
         return " WHERE " + to_sql_string(context, t._expression.value());
@@ -55,10 +58,6 @@ template <typename Expression> struct where_t {
       return " WHERE " + to_sql_string(context, t._expression);
     }
   }
-
- private:
-  Expression _expression;
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(
     assert_no_unknown_tables_in_where_t,
@@ -104,12 +103,12 @@ struct no_where_t {
     return new_statement<no_where_t>(std::forward<Statement>(statement),
                                      where_t<Expression>{expression});
   }
+};
 
   template <typename Context>
-  friend auto to_sql_string(Context&, const no_where_t&) -> std::string {
+  auto to_sql_string(Context&, const no_where_t&) -> std::string {
     return "";
   }
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_where_called_t, "calling where() required");
 

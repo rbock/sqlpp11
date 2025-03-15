@@ -238,8 +238,8 @@ public:
   template <typename Select> _prepared_statement_t prepare_select(Select &s) {
     context_t context;
     const auto query = to_sql_string(context, s);
-    return prepare_impl(query, parameters_of_t<Select>::size(),
-                        sqlpp::no_of_result_columns<Select>::value);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Select>>::size(),
+                        sqlpp::no_of_result_columns<std::decay_t<Select>>::value);
   }
 
   template <typename PreparedSelect>
@@ -258,7 +258,7 @@ public:
   template <typename Insert> _prepared_statement_t prepare_insert(Insert &i) {
     context_t context;
     const auto query = to_sql_string(context, i);
-    return prepare_impl(query, parameters_of_t<Insert>::size(), 0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size(), 0);
   }
 
   template <typename PreparedInsert>
@@ -277,7 +277,7 @@ public:
   template <typename Update> _prepared_statement_t prepare_update(Update &u) {
     context_t context;
     const auto query = to_sql_string(context, u);
-    return prepare_impl(query, parameters_of_t<Update>::size(), 0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size(), 0);
   }
 
   template <typename PreparedUpdate>
@@ -296,7 +296,7 @@ public:
   template <typename Remove> _prepared_statement_t prepare_remove(Remove &r) {
     context_t context;
     const auto query = to_sql_string(context, r);
-    return prepare_impl(query, parameters_of_t<Remove>::size(), 0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Remove>>::size(), 0);
   }
 
   template <typename PreparedRemove>
