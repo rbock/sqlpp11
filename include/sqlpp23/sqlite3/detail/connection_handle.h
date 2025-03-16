@@ -47,15 +47,15 @@ using namespace dynamic;
 namespace detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<::sqlite3, int (*)(::sqlite3 *)> sqlite;
+  std::unique_ptr<::sqlite3, int (*)(::sqlite3*)> sqlite;
 
-  connection_handle(const std::shared_ptr<const connection_config> &conf)
+  connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, sqlite{nullptr, sqlite3_close} {
 #ifdef SQLPP_DYNAMIC_LOADING
     init_sqlite("");
 #endif
 
-    ::sqlite3 *sqlite_ptr;
+    ::sqlite3* sqlite_ptr;
     const auto rc = sqlite3_open_v2(
         conf->path_to_database.c_str(), &sqlite_ptr, conf->flags,
         conf->vfs.empty() ? nullptr : conf->vfs.c_str());
@@ -81,12 +81,12 @@ struct connection_handle {
 #endif
   }
 
-  connection_handle(const connection_handle &) = delete;
-  connection_handle(connection_handle &&) = default;
-  connection_handle &operator=(const connection_handle &) = delete;
-  connection_handle &operator=(connection_handle &&) = default;
+  connection_handle(const connection_handle&) = delete;
+  connection_handle(connection_handle&&) = default;
+  connection_handle& operator=(const connection_handle&) = delete;
+  connection_handle& operator=(connection_handle&&) = default;
 
-  ::sqlite3 *native_handle() const { return sqlite.get(); }
+  ::sqlite3* native_handle() const { return sqlite.get(); }
 
   bool is_connected() const {
     // The connection is established in the constructor and the SQLite3 client
@@ -104,6 +104,6 @@ struct connection_handle {
     return true;
   }
 };
-} // namespace detail
-} // namespace sqlite3
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlite3
+}  // namespace sqlpp

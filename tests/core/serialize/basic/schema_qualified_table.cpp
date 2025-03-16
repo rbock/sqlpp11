@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   // A schema-qualified table cannot be used without AS.
   auto major = schema_qualified_table(sqlpp::schema("major"), test::TabFoo{});
   using M = decltype(major);

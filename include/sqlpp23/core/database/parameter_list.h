@@ -35,7 +35,8 @@
 #include <sqlpp23/core/wrong.h>
 
 namespace sqlpp {
-template <typename T> struct parameter_list_t {
+template <typename T>
+struct parameter_list_t {
   static_assert(
       wrong_t<parameter_list_t>::value,
       "Template parameter for parameter_list_t has to be a type_vector");
@@ -49,15 +50,16 @@ struct parameter_list_t<detail::type_vector<Parameter...>>
 
   parameter_list_t() = default;
 
-  template <typename Target> void _bind(Target &target) const {
+  template <typename Target>
+  void _bind(Target& target) const {
     _bind_impl(target, std::make_index_sequence<size::value>{});
   }
 
-private:
+ private:
   template <typename Target, size_t... Is>
-  void _bind_impl(Target &target,
-                  const std::index_sequence<Is...> & /*unused*/) const {
-    using swallow = int[]; // see core tuple_to_sql_string.h
+  void _bind_impl(Target& target,
+                  const std::index_sequence<Is...>& /*unused*/) const {
+    using swallow = int[];  // see core tuple_to_sql_string.h
     (void)swallow{
         0,
         (target._bind_parameter(
@@ -68,4 +70,4 @@ private:
 
 template <typename Exp>
 using make_parameter_list_t = parameter_list_t<parameters_of_t<Exp>>;
-} // namespace sqlpp
+}  // namespace sqlpp

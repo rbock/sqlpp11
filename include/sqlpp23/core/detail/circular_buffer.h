@@ -34,33 +34,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 namespace detail {
 // This class is modeled after boost::circular_buffer
-template <typename T> class circular_buffer {
-public:
+template <typename T>
+class circular_buffer {
+ public:
   circular_buffer(std::size_t capacity);
   std::size_t capacity() const;
   void set_capacity(std::size_t capacity);
   std::size_t size() const;
   bool empty() const;
   bool full() const;
-  T &front();
+  T& front();
   void pop_front();
-  void push_back(T &&t);
+  void push_back(T&& t);
 
-private:
+ private:
   std::vector<T> _data;
   std::size_t _capacity;
   std::size_t _size;
   std::size_t _back;
   std::size_t _front;
 
-  void increment(std::size_t &pos);
+  void increment(std::size_t& pos);
 };
 
 template <typename T>
 circular_buffer<T>::circular_buffer(std::size_t capacity)
     : _data(capacity), _capacity{capacity}, _size{0}, _back{0}, _front{0} {}
 
-template <typename T> std::size_t circular_buffer<T>::capacity() const {
+template <typename T>
+std::size_t circular_buffer<T>::capacity() const {
   return _capacity;
 }
 
@@ -80,26 +82,31 @@ void circular_buffer<T>::set_capacity(std::size_t new_capacity) {
   _size = std::min(_size, new_capacity);
 }
 
-template <typename T> std::size_t circular_buffer<T>::size() const {
+template <typename T>
+std::size_t circular_buffer<T>::size() const {
   return _size;
 }
 
-template <typename T> bool circular_buffer<T>::empty() const {
+template <typename T>
+bool circular_buffer<T>::empty() const {
   return _size == 0;
 }
 
-template <typename T> bool circular_buffer<T>::full() const {
+template <typename T>
+bool circular_buffer<T>::full() const {
   return _size == _capacity;
 }
 
-template <typename T> T &circular_buffer<T>::front() {
+template <typename T>
+T& circular_buffer<T>::front() {
   if (empty()) {
     throw std::runtime_error{"circular_buffer::front() called on empty buffer"};
   }
   return _data[_front];
 }
 
-template <typename T> void circular_buffer<T>::pop_front() {
+template <typename T>
+void circular_buffer<T>::pop_front() {
   if (empty()) {
     throw std::runtime_error{
         "circular_buffer::pop_front() called on empty buffer"};
@@ -109,7 +116,8 @@ template <typename T> void circular_buffer<T>::pop_front() {
   --_size;
 }
 
-template <typename T> void circular_buffer<T>::push_back(T &&t) {
+template <typename T>
+void circular_buffer<T>::push_back(T&& t) {
   if (full()) {
     throw std::runtime_error{
         "circular_buffer::push_back() called on full buffer"};
@@ -119,8 +127,9 @@ template <typename T> void circular_buffer<T>::push_back(T &&t) {
   ++_size;
 }
 
-template <typename T> void circular_buffer<T>::increment(std::size_t &pos) {
+template <typename T>
+void circular_buffer<T>::increment(std::size_t& pos) {
   pos = (pos + 1) % _capacity;
 }
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

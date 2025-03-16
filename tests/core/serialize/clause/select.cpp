@@ -32,7 +32,7 @@ namespace {
 SQLPP_CREATE_NAME_TAG(something);
 }
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto expr = sqlpp::value(17) + 4;
 
   const auto foo = test::TabFoo{};

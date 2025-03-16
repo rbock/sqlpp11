@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto foo = test::TabFoo{};
 
   // Plain columns.
@@ -82,10 +82,10 @@ int main(int, char *[]) {
                          dynamic(false, foo.textNnD.asc()), foo.boolN.asc()),
                 " ORDER BY tab_foo.bool_n ASC");
 
-  SQLPP_COMPARE(order_by(dynamic(false, foo.id.asc()),
-                         dynamic(false, foo.textNnD.asc()),
-                         dynamic(false, foo.boolN.asc())),
-                "");
+  SQLPP_COMPARE(
+      order_by(dynamic(false, foo.id.asc()), dynamic(false, foo.textNnD.asc()),
+               dynamic(false, foo.boolN.asc())),
+      "");
 
   return 0;
 }

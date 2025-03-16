@@ -36,13 +36,14 @@ enum class sort_type {
   desc,
 };
 
-template <typename L> struct sort_order_expression {
+template <typename L>
+struct sort_order_expression {
   constexpr sort_order_expression(L l, sort_type r)
       : _l(std::move(l)), _r(std::move(r)) {}
-  sort_order_expression(const sort_order_expression &) = default;
-  sort_order_expression(sort_order_expression &&) = default;
-  sort_order_expression &operator=(const sort_order_expression &) = default;
-  sort_order_expression &operator=(sort_order_expression &&) = default;
+  sort_order_expression(const sort_order_expression&) = default;
+  sort_order_expression(sort_order_expression&&) = default;
+  sort_order_expression& operator=(const sort_order_expression&) = default;
+  sort_order_expression& operator=(sort_order_expression&&) = default;
   ~sort_order_expression() = default;
 
   L _l;
@@ -53,7 +54,8 @@ template <typename L>
 using check_sort_order_args =
     std::enable_if_t<values_are_comparable<L, L>::value>;
 
-template <typename L> struct nodes_of<sort_order_expression<L>> {
+template <typename L>
+struct nodes_of<sort_order_expression<L>> {
   using type = detail::type_vector<L>;
 };
 
@@ -61,7 +63,7 @@ template <typename L>
 struct is_sort_order<sort_order_expression<L>> : std::true_type {};
 
 template <typename Context>
-auto to_sql_string(Context &, const sort_type &t) -> std::string {
+auto to_sql_string(Context&, const sort_type& t) -> std::string {
   if (t == sort_type::asc) {
     return " ASC";
   }
@@ -69,7 +71,7 @@ auto to_sql_string(Context &, const sort_type &t) -> std::string {
 }
 
 template <typename Context, typename L>
-auto to_sql_string(Context &context, const sort_order_expression<L> &t)
+auto to_sql_string(Context& context, const sort_order_expression<L>& t)
     -> std::string {
   return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
 }
@@ -89,4 +91,4 @@ constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
   return {l, order};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

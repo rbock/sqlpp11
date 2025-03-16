@@ -41,10 +41,10 @@ struct count_t : public enable_as<count_t<Flag, Expr>>,
                  public enable_over<count_t<Flag, Expr>> {
   constexpr count_t(Expr expr) : _expr(std::move(expr)) {}
 
-  count_t(const count_t &) = default;
-  count_t(count_t &&) = default;
-  count_t &operator=(const count_t &) = default;
-  count_t &operator=(count_t &&) = default;
+  count_t(const count_t&) = default;
+  count_t(count_t&&) = default;
+  count_t& operator=(const count_t&) = default;
+  count_t& operator=(count_t&&) = default;
   ~count_t() = default;
 
   Expr _expr;
@@ -53,7 +53,8 @@ struct count_t : public enable_as<count_t<Flag, Expr>>,
 template <typename Flag, typename Expr>
 struct is_aggregate_function<count_t<Flag, Expr>> : public std::true_type {};
 
-template <typename Flag, typename Expr> struct nodes_of<count_t<Flag, Expr>> {
+template <typename Flag, typename Expr>
+struct nodes_of<count_t<Flag, Expr>> {
   using type = sqlpp::detail::type_vector<Expr>;
 };
 
@@ -63,7 +64,7 @@ struct value_type_of<count_t<Flag, Expr>> {
 };
 
 template <typename Context, typename Flag, typename Expr>
-auto to_sql_string(Context &context, const count_t<Flag, Expr> &t)
+auto to_sql_string(Context& context, const count_t<Flag, Expr>& t)
     -> std::string {
   return "COUNT(" + to_sql_string(context, Flag()) +
          to_sql_string(context, t._expr) + ")";
@@ -80,10 +81,10 @@ auto count(T t) -> count_t<no_flag_t, T> {
 }
 
 template <typename T, typename = check_count_arg<T>>
-auto count(const distinct_t & /*unused*/, T t) -> count_t<distinct_t, T> {
+auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "count() must not be used on an aggregate function");
   return {std::move(t)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

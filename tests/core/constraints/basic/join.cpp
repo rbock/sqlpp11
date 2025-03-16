@@ -33,15 +33,15 @@ SQLPP_CREATE_NAME_TAG(something);
 
 // Returns true if `JOIN(declval<Lhs>(), JOIN(declval<Rhs>)` is a valid function
 // call.
-#define MAKE_CAN_CALL_JOIN_WITH(JOIN)                                          \
-  template <typename Lhs, typename Rhs, typename = void>                       \
-  struct can_call_##JOIN##_with : public std::false_type {};                   \
-                                                                               \
-  template <typename Lhs, typename Rhs>                                        \
-  struct can_call_##JOIN##_with<                                               \
-      Lhs, Rhs,                                                                \
-      std::void_t<decltype(sqlpp::JOIN(std::declval<Lhs>(),                    \
-                                       std::declval<Rhs>()))>>                 \
+#define MAKE_CAN_CALL_JOIN_WITH(JOIN)                          \
+  template <typename Lhs, typename Rhs, typename = void>       \
+  struct can_call_##JOIN##_with : public std::false_type {};   \
+                                                               \
+  template <typename Lhs, typename Rhs>                        \
+  struct can_call_##JOIN##_with<                               \
+      Lhs, Rhs,                                                \
+      std::void_t<decltype(sqlpp::JOIN(std::declval<Lhs>(),    \
+                                       std::declval<Rhs>()))>> \
       : public std::true_type {};
 
 MAKE_CAN_CALL_JOIN_WITH(join);
@@ -82,25 +82,29 @@ MAKE_CAN_CALL_JOIN_WITH(cross_join);
   static_assert(                                                               \
       not can_call_cross_join_with<decltype(LHS), decltype(RHS)>::value, "");
 
-#define CHECK_JOIN_STATIC_ASSERTS(LHS, RHS, MESSAGE)                           \
-  SQLPP_CHECK_STATIC_ASSERT(join(LHS, RHS), MESSAGE);                          \
-  SQLPP_CHECK_STATIC_ASSERT(inner_join(LHS, RHS), MESSAGE);                    \
-  SQLPP_CHECK_STATIC_ASSERT(left_outer_join(LHS, RHS), MESSAGE);               \
-  SQLPP_CHECK_STATIC_ASSERT(right_outer_join(LHS, RHS), MESSAGE);              \
-  SQLPP_CHECK_STATIC_ASSERT(full_outer_join(LHS, RHS), MESSAGE);               \
+#define CHECK_JOIN_STATIC_ASSERTS(LHS, RHS, MESSAGE)              \
+  SQLPP_CHECK_STATIC_ASSERT(join(LHS, RHS), MESSAGE);             \
+  SQLPP_CHECK_STATIC_ASSERT(inner_join(LHS, RHS), MESSAGE);       \
+  SQLPP_CHECK_STATIC_ASSERT(left_outer_join(LHS, RHS), MESSAGE);  \
+  SQLPP_CHECK_STATIC_ASSERT(right_outer_join(LHS, RHS), MESSAGE); \
+  SQLPP_CHECK_STATIC_ASSERT(full_outer_join(LHS, RHS), MESSAGE);  \
   SQLPP_CHECK_STATIC_ASSERT(cross_join(LHS, RHS), MESSAGE);
 
 struct weird_table : public sqlpp::enable_join<weird_table> {};
 
-inline auto make_table_ref(weird_table) -> weird_table { return {}; };
-} // namespace
+inline auto make_table_ref(weird_table) -> weird_table {
+  return {};
+};
+}  // namespace
 
 namespace sqlpp {
-template <> struct is_table<weird_table> : public std::true_type {};
-template <> struct required_tables_of<weird_table> {
+template <>
+struct is_table<weird_table> : public std::true_type {};
+template <>
+struct required_tables_of<weird_table> {
   using type = detail::type_vector<test::TabBar>;
 };
-} // namespace sqlpp
+}  // namespace sqlpp
 
 int main() {
   const auto maybe = true;

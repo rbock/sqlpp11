@@ -30,11 +30,10 @@
 #include <string>
 
 namespace sqlpp {
-struct no_data_t {
-};
+struct no_data_t {};
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_data_t&) -> std::string {
-    return {};
-  }
-} // namespace sqlpp
+template <typename Context>
+auto to_sql_string(Context&, const no_data_t&) -> std::string {
+  return {};
+}
+}  // namespace sqlpp

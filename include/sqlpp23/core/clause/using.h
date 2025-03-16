@@ -32,9 +32,9 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
 // USING is used in DELETE statements in
@@ -42,16 +42,17 @@ namespace sqlpp {
 // * MySQL
 
 // USING
-template <typename _Table> struct using_t {
+template <typename _Table>
+struct using_t {
   using_t(_Table table) : _table(table) {}
 
-  using_t(const using_t &) = default;
-  using_t(using_t &&) = default;
-  using_t &operator=(const using_t &) = default;
-  using_t &operator=(using_t &&) = default;
+  using_t(const using_t&) = default;
+  using_t(using_t&&) = default;
+  using_t& operator=(const using_t&) = default;
+  using_t& operator=(using_t&&) = default;
   ~using_t() = default;
 
-  private:
+ private:
   friend reader_t;
   _Table _table;
 };
@@ -64,7 +65,8 @@ auto to_sql_string(Context& context, const using_t<_Table>& t) -> std::string {
 template <typename _Table>
 struct is_clause<using_t<_Table>> : public std::true_type {};
 
-template <typename _Table> struct nodes_of<using_t<_Table>> {
+template <typename _Table>
+struct nodes_of<using_t<_Table>> {
   using type = detail::type_vector<_Table>;
 };
 
@@ -84,24 +86,26 @@ struct provided_optional_tables_of<using_t<_Table>>
 // NO USING YET
 struct no_using_t {
   template <typename Statement, DynamicTable _Table>
-  auto using_(this Statement &&statement, _Table table) {
+  auto using_(this Statement&& statement, _Table table) {
     return new_statement<no_using_t>(
         std::forward<Statement>(statement),
         using_t<table_ref_t<_Table>>{make_table_ref(table)});
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_using_t&) -> std::string {
-    return {};
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_using_t&) -> std::string {
+  return {};
+}
 
-template <typename Statement> struct consistency_check<Statement, no_using_t> {
+template <typename Statement>
+struct consistency_check<Statement, no_using_t> {
   using type = consistent_t;
 };
 
-template <DynamicTable T> auto using_(T t) {
+template <DynamicTable T>
+auto using_(T t) {
   return statement_t<no_using_t>{}.using_(std::move(t));
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

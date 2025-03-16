@@ -30,7 +30,7 @@
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   auto const foo = test::TabFoo{};
 
   SQLPP_COMPARE(avg(foo.doubleN).over().as(cheese),

@@ -49,8 +49,8 @@ namespace sqlpp::sqlite3 {
 // See https://www.sqlite.org/changes.html
 #if SQLITE_VERSION_NUMBER < 3039000
 template <typename Lhs, typename Rhs, typename Condition>
-auto to_sql_string(context_t &,
-                   const join_t<Lhs, full_outer_join_t, Rhs, Condition> &)
+auto to_sql_string(context_t&,
+                   const join_t<Lhs, full_outer_join_t, Rhs, Condition>&)
     -> std::string {
   SQLPP_STATIC_ASSERT(
       (wrong_t<Lhs, Rhs>::value),
@@ -59,8 +59,8 @@ auto to_sql_string(context_t &,
 }
 
 template <typename Lhs, typename Rhs, typename Condition>
-auto to_sql_string(context_t &,
-                   const join_t<Lhs, right_outer_join_t, Rhs, Condition> &)
+auto to_sql_string(context_t&,
+                   const join_t<Lhs, right_outer_join_t, Rhs, Condition>&)
     -> std::string {
   SQLPP_STATIC_ASSERT(
       (wrong_t<Lhs, Rhs>::value),
@@ -71,8 +71,7 @@ auto to_sql_string(context_t &,
 
 #if SQLITE_VERSION_NUMBER < 3008003
 template <typename... Ctes>
-auto to_sql_string(context_t &, const with_t<Ctes...> &)
-    -> std::string {
+auto to_sql_string(context_t&, const with_t<Ctes...>&) -> std::string {
   SQLPP_STATIC_ASSERT(wrong_t<Ctes...>::value,
                       "Sqlite3: No support for WITH before version 3.8.3");
   return {};
@@ -80,59 +79,57 @@ auto to_sql_string(context_t &, const with_t<Ctes...> &)
 #endif
 
 template <typename Select>
-auto to_sql_string(context_t &, const any_t<Select> &) -> std::string {
+auto to_sql_string(context_t&, const any_t<Select>&) -> std::string {
   SQLPP_STATIC_ASSERT(wrong_t<Select>::value, "Sqlite3: No support for any()");
   return {};
 }
 
 template <typename _Table>
-auto to_sql_string(context_t &, const using_t<_Table> &)
-    -> std::string {
+auto to_sql_string(context_t&, const using_t<_Table>&) -> std::string {
   SQLPP_STATIC_ASSERT(wrong_t<_Table>::value, "Sqlite3: No support for USING");
   return {};
 }
 
-inline auto to_sql_string(context_t&, const union_distinct_t&)
-    -> std::string {
+inline auto to_sql_string(context_t&, const union_distinct_t&) -> std::string {
   return {};
 }
 
 // Serialize parameters
 template <typename ValueType, typename NameType>
-auto to_sql_string(context_t &context,
-                   const parameter_t<ValueType, NameType> &) -> std::string {
+auto to_sql_string(context_t& context, const parameter_t<ValueType, NameType>&)
+    -> std::string {
   return "?" + std::to_string(++context._count);
 }
 
 // Some special treatment of data types
 template <typename Period>
 auto to_sql_string(
-    context_t &,
-    const std::chrono::time_point<std::chrono::system_clock, Period> &t)
+    context_t&,
+    const std::chrono::time_point<std::chrono::system_clock, Period>& t)
     -> std::string {
   return std::format("DATETIME('{0:%Y-%m-%d %H:%M:%S}', 'subsec')", t);
 }
 
-inline auto to_sql_string(context_t &,
-                          const std::chrono::microseconds &t) -> std::string {
+inline auto to_sql_string(context_t&, const std::chrono::microseconds& t)
+    -> std::string {
   return std::format("TIME('{0:%H:%M:%S}', 'subsec')", t);
 }
 
-inline auto to_sql_string(context_t &,
-                          const sqlpp::chrono::day_point &t) -> std::string {
+inline auto to_sql_string(context_t&, const sqlpp::chrono::day_point& t)
+    -> std::string {
   return std::format("DATE('{0:%Y-%m-%d}')", t);
 }
 
-inline auto nan_to_sql_string(context_t &) -> std::string {
+inline auto nan_to_sql_string(context_t&) -> std::string {
   return "'NaN'";
 }
 
-inline auto inf_to_sql_string(context_t &) -> std::string {
+inline auto inf_to_sql_string(context_t&) -> std::string {
   return "'Inf'";
 }
 
-inline auto neg_inf_to_sql_string(context_t &) -> std::string {
+inline auto neg_inf_to_sql_string(context_t&) -> std::string {
   return "'-Inf'";
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp::sqlite3

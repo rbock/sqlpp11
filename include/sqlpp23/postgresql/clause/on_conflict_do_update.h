@@ -32,8 +32,8 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/postgresql/reader.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp23/postgresql/reader.h>
 
 namespace sqlpp {
 namespace postgresql {
@@ -61,7 +61,7 @@ struct on_conflict_do_update_where_t {
       default;
   ~on_conflict_do_update_where_t() = default;
 
-  private:
+ private:
   friend ::sqlpp::reader_t;
   friend ::sqlpp::postgresql::reader_t;
   OnConflictUpdate _on_conflict_update;
@@ -78,7 +78,7 @@ auto to_sql_string(
   return ret_val + to_sql_string(context, read.expression(t));
 }
 
-} // namespace postgresql
+}  // namespace postgresql
 
 template <typename OnConflictUpdate, typename Expression>
 struct nodes_of<
@@ -92,14 +92,16 @@ struct is_clause<
     : public std::true_type {};
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
-struct consistency_check<Statement, postgresql::on_conflict_do_update_where_t<
-                                        OnConflictUpdate, Expression>> {
+struct consistency_check<
+    Statement,
+    postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   using type = consistent_t;
 };
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
-struct prepare_check<Statement, postgresql::on_conflict_do_update_where_t<
-                                    OnConflictUpdate, Expression>> {
+struct prepare_check<
+    Statement,
+    postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   using type = static_combined_check_t<
       static_check_t<
           Statement::template _no_unknown_tables<
@@ -129,7 +131,7 @@ struct on_conflict_do_update_t {
   ~on_conflict_do_update_t() = default;
 
   template <typename Statement, DynamicBoolean Expression>
-  auto where(this Statement &&statement, Expression expression) {
+  auto where(this Statement&& statement, Expression expression) {
     SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
                         "where() must not contain aggregate functions");
 
@@ -140,7 +142,7 @@ struct on_conflict_do_update_t {
         std::forward<Statement>(statement), std::move(new_clause));
   }
 
-  private:
+ private:
   friend ::sqlpp::reader_t;
   friend ::sqlpp::postgresql::reader_t;
   OnConflict _on_conflict;
@@ -156,7 +158,7 @@ auto to_sql_string(postgresql::context_t& context,
                              tuple_operand_no_dynamic{", "});
 }
 
-} // namespace postgresql
+}  // namespace postgresql
 
 template <typename OnConflict, typename... Assignments>
 struct is_clause<
@@ -175,9 +177,10 @@ SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_update_where_t,
 }
 
 template <typename Statement, typename OnConflict, typename... Assignments>
-struct consistency_check<Statement, postgresql::on_conflict_do_update_t<
-                                        OnConflict, Assignments...>> {
+struct consistency_check<
+    Statement,
+    postgresql::on_conflict_do_update_t<OnConflict, Assignments...>> {
   using type = postgresql::assert_on_conflict_update_where_t;
 };
 
-} // namespace sqlpp
+}  // namespace sqlpp

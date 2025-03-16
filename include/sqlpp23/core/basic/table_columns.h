@@ -39,4 +39,4 @@ struct table_columns : public ColumnSpec::_sqlpp_name_tag::template _member_t<
                 "at least one column required per table");
   using _column_tuple_t = std::tuple<column_t<_Table, ColumnSpec>...>;
 };
-} // namespace sqlpp
+}  // namespace sqlpp

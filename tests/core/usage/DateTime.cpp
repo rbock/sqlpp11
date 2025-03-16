@@ -24,24 +24,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <iostream>
 
 SQLPP_CREATE_NAME_TAG(now);
 
-int DateTime(int, char *[]) {
+int DateTime(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t printer = {};
   const auto t = test::TabDateTime{};
 
-  for (const auto &row :
+  for (const auto& row :
        db(select(::sqlpp::value(std::chrono::system_clock::now()).as(now)))) {
     std::cout << row.now;
   }
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     std::cout << row.dayPointN;
     std::cout << row.timePointN;
     const auto tp =

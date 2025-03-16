@@ -34,9 +34,9 @@ SQLPP_CREATE_NAME_TAG(a);
 SQLPP_CREATE_NAME_TAG(b);
 SQLPP_CREATE_NAME_TAG(left);
 SQLPP_CREATE_NAME_TAG(right);
-} // namespace alias
+}  // namespace alias
 
-int SelectType(int, char *[]) {
+int SelectType(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t printer = {};
 
@@ -215,7 +215,7 @@ int SelectType(int, char *[]) {
                   "identical result_types");
   }
 
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     const auto a = row.id;
     std::cout << a << std::endl;
   }
@@ -283,7 +283,7 @@ int SelectType(int, char *[]) {
                                  .from(r.cross_join(t).cross_join(l))
                                  .where(t.textN == "hello world" and
                                         select(t.boolNn).from(t).where(
-                                            t.id == 7)) // .as(alias::right))
+                                            t.id == 7))  // .as(alias::right))
                                  .group_by(l.boolNn, r.a)
                                  .having(r.a != true)
                                  .order_by(l.boolNn.asc())

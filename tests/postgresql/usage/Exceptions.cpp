@@ -31,11 +31,11 @@
 
 #include "assertThrow.h"
 
-#include "make_test_connection.h"
 #include <sqlpp23/tests/postgresql/tables.h>
+#include "make_test_connection.h"
 
 namespace sql = sqlpp::postgresql;
-int Exceptions(int, char *[]) {
+int Exceptions(int, char*[]) {
   {
     // broken_connection exception on bad config
     auto config = std::make_shared<sql::connection_config>();
@@ -69,12 +69,12 @@ int Exceptions(int, char *[]) {
                     )");
 
       db.execute("select cause_error();");
-    } catch (const sql::sql_user_error &e) {
+    } catch (const sql::sql_user_error& e) {
       std::cout << "Caught expected error. Code: " << e.code() << '\n';
       if (e.code() != "ZX123")
         throw std::runtime_error("unexpected error code");
     }
-  } catch (const sql::failure &e) {
+  } catch (const sql::failure& e) {
     std::cout << e.what();
     return 1;
   }

@@ -30,12 +30,12 @@
 namespace sqlpp {
 namespace mysql {
 struct char_result_row_t {
-  const char **data;
-  unsigned long *len;
+  const char** data;
+  unsigned long* len;
 
-  bool operator==(const char_result_row_t &rhs) const {
+  bool operator==(const char_result_row_t& rhs) const {
     return data == rhs.data && len == rhs.len;
   }
 };
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   // Note: The tests below serialize the string returned by `get_sql_name`.
   //       That serialization adds ticks.
   SQLPP_COMPARE(get_sql_name(test::TabFoo{}), "'tab_foo'");

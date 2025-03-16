@@ -44,14 +44,15 @@
 
 namespace sqlpp {
 template <typename Context, typename Expression>
-auto flatten(Context &context, const Expression &exp)
+auto flatten(Context& context, const Expression& exp)
     -> verbatim_t<value_type_of_t<Expression>> {
   static_assert(parameters_of_t<Expression>::empty(),
                 "parameters are not allowed in flattened expressions");
   return {to_sql_string(context, exp)};
 }
 
-template <typename T> constexpr const char *get_sql_name(const T & /*unused*/) {
+template <typename T>
+constexpr const char* get_sql_name(const T& /*unused*/) {
   return name_tag_of_t<T>::name;
 }
-} // namespace sqlpp
+}  // namespace sqlpp

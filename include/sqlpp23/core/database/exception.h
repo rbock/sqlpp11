@@ -31,8 +31,8 @@
 
 namespace sqlpp {
 class exception : public std::runtime_error {
-public:
-  exception(const std::string &what_arg) : std::runtime_error(what_arg) {}
-  exception(const char *what_arg) : std::runtime_error(what_arg) {}
+ public:
+  exception(const std::string& what_arg) : std::runtime_error(what_arg) {}
+  exception(const char* what_arg) : std::runtime_error(what_arg) {}
 };
-} // namespace sqlpp
+}  // namespace sqlpp

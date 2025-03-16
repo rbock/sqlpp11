@@ -49,7 +49,7 @@ template <typename... Expressions>
 concept cannot_call_having_with =
     not(can_call_having_with_standalone<Expressions...> or
         can_call_having_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

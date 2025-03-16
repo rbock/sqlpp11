@@ -30,5 +30,6 @@
 namespace sqlpp {
 struct noop;
 
-template <typename T> struct is_noop;
-} // namespace sqlpp
+template <typename T>
+struct is_noop;
+}  // namespace sqlpp

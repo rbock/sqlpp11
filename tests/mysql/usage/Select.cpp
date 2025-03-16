@@ -24,12 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
-#include <cassert>
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/result_helpers.h>
+#include <cassert>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include <iostream>
 #include <vector>
@@ -43,12 +43,12 @@ const auto tab = test::TabSample{};
 
 SQLPP_CREATE_NAME_TAG(something);
 SQLPP_CREATE_NAME_TAG(max_int_n);
-} // namespace
+}  // namespace
 
-void testSelectAll(sql::connection &db, int expectedRowCount) {
+void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
-  for (const auto &row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
               << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
@@ -61,7 +61,7 @@ void testSelectAll(sql::connection &db, int expectedRowCount) {
       db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
   std::cerr << "--------------------------------------" << std::endl;
   i = 0;
-  for (const auto &row : db(preparedSelectAll)) {
+  for (const auto& row : db(preparedSelectAll)) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
               << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
@@ -73,7 +73,7 @@ void testSelectAll(sql::connection &db, int expectedRowCount) {
   // Try running the same prepared statement again
   std::cerr << "--------------------------------------" << std::endl;
   i = 0;
-  for (const auto &row : db(preparedSelectAll)) {
+  for (const auto& row : db(preparedSelectAll)) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
               << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
@@ -84,7 +84,7 @@ void testSelectAll(sql::connection &db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
 }
 
-int Select(int, char *[]) {
+int Select(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
     test::createTabSample(db);
@@ -162,7 +162,7 @@ int Select(int, char *[]) {
                   .as(max_int_n))
               .from(tab)
               .where(true));
-      if (const auto &row = *result.begin()) {
+      if (const auto& row = *result.begin()) {
         std::optional<long> a = row.intN;
         std::optional<long> m = row.max_int_n;
         std::cerr << "-----------------------------" << a << ", " << m
@@ -170,7 +170,7 @@ int Select(int, char *[]) {
       }
       tx.commit();
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

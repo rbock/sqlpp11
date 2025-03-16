@@ -37,23 +37,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 enum class connection_check { none, passive, ping };
 
-template <typename ConnectionBase> class connection_pool {
-public:
+template <typename ConnectionBase>
+class connection_pool {
+ public:
   using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
   using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
   using _pooled_connection_t = sqlpp::pooled_connection<ConnectionBase>;
 
   class pool_core : public std::enable_shared_from_this<pool_core> {
-  public:
-    pool_core(const _config_ptr_t &connection_config, std::size_t capacity)
+   public:
+    pool_core(const _config_ptr_t& connection_config, std::size_t capacity)
         : _connection_config{connection_config}, _handles{capacity} {}
 
     pool_core() = delete;
-    pool_core(const pool_core &) = delete;
-    pool_core(pool_core &&) = delete;
+    pool_core(const pool_core&) = delete;
+    pool_core(pool_core&&) = delete;
 
-    pool_core &operator=(const pool_core &) = delete;
-    pool_core &operator=(pool_core &&) = delete;
+    pool_core& operator=(const pool_core&) = delete;
+    pool_core& operator=(pool_core&&) = delete;
 
     _pooled_connection_t get(connection_check check) {
       std::unique_lock<std::mutex> lock{_mutex};
@@ -74,7 +75,7 @@ public:
                                         this->shared_from_this()};
     }
 
-    void put(_handle_ptr_t &handle) {
+    void put(_handle_ptr_t& handle) {
       std::unique_lock<std::mutex> lock{_mutex};
       if (_handles.full()) {
         _handles.set_capacity(_handles.capacity() + 5);
@@ -88,18 +89,18 @@ public:
       return _handles.size();
     }
 
-  private:
-    inline bool check_connection(_handle_ptr_t &handle,
+   private:
+    inline bool check_connection(_handle_ptr_t& handle,
                                  connection_check check) {
       switch (check) {
-      case connection_check::none:
-        return true;
-      case connection_check::passive:
-        return handle->is_connected();
-      case connection_check::ping:
-        return handle->ping_server();
-      default:
-        throw std::invalid_argument{"Invalid connection check value"};
+        case connection_check::none:
+          return true;
+        case connection_check::passive:
+          return handle->is_connected();
+        case connection_check::ping:
+          return handle->ping_server();
+        default:
+          throw std::invalid_argument{"Invalid connection check value"};
       }
     }
 
@@ -110,16 +111,16 @@ public:
 
   connection_pool() = default;
 
-  connection_pool(const _config_ptr_t &connection_config, std::size_t capacity)
+  connection_pool(const _config_ptr_t& connection_config, std::size_t capacity)
       : _core{std::make_shared<pool_core>(connection_config, capacity)} {}
 
-  connection_pool(const connection_pool &) = delete;
-  connection_pool(connection_pool &&) = default;
+  connection_pool(const connection_pool&) = delete;
+  connection_pool(connection_pool&&) = default;
 
-  connection_pool &operator=(const connection_pool &) = delete;
-  connection_pool &operator=(connection_pool &&) = default;
+  connection_pool& operator=(const connection_pool&) = delete;
+  connection_pool& operator=(connection_pool&&) = default;
 
-  void initialize(const _config_ptr_t &connection_config,
+  void initialize(const _config_ptr_t& connection_config,
                   std::size_t capacity) {
     if (_core) {
       throw std::runtime_error{"Connection pool already initialized"};
@@ -134,7 +135,7 @@ public:
   // Returns number of connections available in the pool. Only used in tests.
   std::size_t available() { return _core->available(); }
 
-private:
+ private:
   std::shared_ptr<pool_core> _core;
 };
-} // namespace sqlpp
+}  // namespace sqlpp

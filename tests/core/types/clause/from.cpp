@@ -194,4 +194,6 @@ void test_from() {
   }
 }
 
-int main() { void test_from(); }
+int main() {
+  void test_from();
+}

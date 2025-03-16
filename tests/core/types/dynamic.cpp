@@ -35,7 +35,8 @@ template <typename T, typename ValueType>
 using is_select_column_value_type =
     std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
 
-template <typename Value> void test_dynamic(Value v) {
+template <typename Value>
+void test_dynamic(Value v) {
   using ValueType = sqlpp::value_type_of_t<Value>;
   using OptValueType = std::optional<ValueType>;
 

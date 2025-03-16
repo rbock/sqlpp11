@@ -30,32 +30,39 @@
 #include <optional>
 
 namespace sqlpp {
-template <typename T> struct is_optional : public std::false_type {};
+template <typename T>
+struct is_optional : public std::false_type {};
 
 template <typename T>
 struct is_optional<std::optional<T>> : public std::true_type {};
 
-template <> struct is_optional<std::nullopt_t> : public std::true_type {};
+template <>
+struct is_optional<std::nullopt_t> : public std::true_type {};
 
-template <typename T> struct remove_optional {
+template <typename T>
+struct remove_optional {
   using type = T;
 };
 
-template <typename T> struct remove_optional<std::optional<T>> {
+template <typename T>
+struct remove_optional<std::optional<T>> {
   using type = T;
 };
 
 template <typename T>
 using remove_optional_t = typename remove_optional<T>::type;
 
-template <typename T> struct force_optional {
+template <typename T>
+struct force_optional {
   using type = std::optional<T>;
 };
 
-template <typename T> struct force_optional<std::optional<T>> {
+template <typename T>
+struct force_optional<std::optional<T>> {
   using type = std::optional<T>;
 };
 
-template <typename T> using force_optional_t = typename force_optional<T>::type;
+template <typename T>
+using force_optional_t = typename force_optional<T>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -31,13 +31,14 @@
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/no_data.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/query/statement.h>
 
 namespace sqlpp {
-template <typename _Table> struct from_t {
+template <typename _Table>
+struct from_t {
   from_t(_Table table) : _table(std::move(table)) {}
 
   from_t(const from_t&) = default;
@@ -46,16 +47,15 @@ template <typename _Table> struct from_t {
   from_t& operator=(from_t&&) = default;
   ~from_t() = default;
 
-  private:
+ private:
   friend reader_t;
   _Table _table;
 };
 
-  template <typename Context, typename _Table>
-  auto to_sql_string(Context& context, const from_t<_Table>& t)
-      -> std::string {
-    return dynamic_clause_to_sql_string(context, "FROM", read.table(t));
-  }
+template <typename Context, typename _Table>
+auto to_sql_string(Context& context, const from_t<_Table>& t) -> std::string {
+  return dynamic_clause_to_sql_string(context, "FROM", read.table(t));
+}
 
 template <typename _Table>
 struct is_clause<from_t<_Table>> : public std::true_type {};
@@ -65,7 +65,8 @@ struct consistency_check<Statement, from_t<_Table>> {
   using type = consistent_t;
 };
 
-template <typename _Table> struct nodes_of<from_t<_Table>> {
+template <typename _Table>
+struct nodes_of<from_t<_Table>> {
   using type = detail::type_vector<_Table>;
 };
 
@@ -83,24 +84,26 @@ struct provided_optional_tables_of<from_t<_Table>>
 
 struct no_from_t {
   template <typename Statement, DynamicTable _Table>
-  auto from(this Statement &&statement, _Table table) {
+  auto from(this Statement&& statement, _Table table) {
     return new_statement<no_from_t>(
         std::forward<Statement>(statement),
         from_t<table_ref_t<_Table>>{make_table_ref(table)});
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_from_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_from_t&) -> std::string {
+  return "";
+}
 
-template <typename Statement> struct consistency_check<Statement, no_from_t> {
+template <typename Statement>
+struct consistency_check<Statement, no_from_t> {
   using type = consistent_t;
 };
 
-template <DynamicTable T> auto from(T t) {
+template <DynamicTable T>
+auto from(T t) {
   return statement_t<no_from_t>{}.from(std::move(t));
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

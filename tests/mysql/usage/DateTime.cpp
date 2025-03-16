@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include "sqlpp23/tests/core/result_helpers.h"
 
@@ -39,7 +39,7 @@ const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
 namespace {
 template <typename L, typename R>
-auto require_close(int line, const L &l, const R &r) -> void {
+auto require_close(int line, const L& l, const R& r) -> void {
   if (std::chrono::abs(l - r) > std::chrono::seconds{1}) {
     std::cerr << line << ": abs(";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
@@ -49,10 +49,10 @@ auto require_close(int line, const L &l, const R &r) -> void {
     throw std::runtime_error("Unexpected result");
   }
 }
-} // namespace
+}  // namespace
 
 namespace sql = sqlpp::mysql;
-int DateTime(int, char *[]) {
+int DateTime(int, char*[]) {
   sql::global_library_init();
   try {
     const auto now = std::chrono::floor<::std::chrono::milliseconds>(
@@ -63,13 +63,13 @@ int DateTime(int, char *[]) {
 
     auto db = sql::make_test_connection();
     db.execute(
-        R"(SET time_zone = '+00:00')"); // To force MySQL's CURRENT_TIMESTAMP
-                                        // into the right timezone
+        R"(SET time_zone = '+00:00')");  // To force MySQL's CURRENT_TIMESTAMP
+                                         // into the right timezone
     test::createTabDateTime(db);
 
     const auto tab = test::TabDateTime{};
     db(insert_into(tab).default_values());
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.has_value(), false);
       require_equal(__LINE__, row.timePointN.has_value(), false);
       require_close(__LINE__, row.dateTimePointND.value(), now);
@@ -81,14 +81,14 @@ int DateTime(int, char *[]) {
                 tab.timeOfDayN = current)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
       require_close(__LINE__, row.timeOfDayN.value(), current);
     }
 
     auto statement = db.prepare(select(all_of(tab)).from(tab).where(true));
-    for (const auto &row : db(statement)) {
+    for (const auto& row : db(statement)) {
       require_close(__LINE__, row.dateTimePointND.value(), now);
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
@@ -99,7 +99,7 @@ int DateTime(int, char *[]) {
            .set(tab.dayPointN = yesterday, tab.timePointN = today)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
       require_equal(__LINE__, row.timePointN.value(), today);
     }
@@ -116,12 +116,12 @@ int DateTime(int, char *[]) {
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
       require_equal(__LINE__, row.timeOfDayN.value(), current);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   } catch (...) {

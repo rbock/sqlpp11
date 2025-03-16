@@ -24,14 +24,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <iostream>
+#include "is_regular.h"
 
-int Insert(int, char *[]) {
+int Insert(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t ctx = {};
   const auto maybe = true;

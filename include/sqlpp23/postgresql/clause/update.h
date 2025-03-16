@@ -32,9 +32,11 @@
 
 namespace sqlpp {
 namespace postgresql {
-using blank_update_t =
-    statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t,
-                no_returning_column_list_t>;
+using blank_update_t = statement_t<update_t,
+                                   no_single_table_t,
+                                   no_update_set_list_t,
+                                   no_where_t,
+                                   no_returning_column_list_t>;
 
 template <typename _Table>
 constexpr auto update(_Table table)
@@ -42,5 +44,5 @@ constexpr auto update(_Table table)
   return {blank_update_t().single_table(table)};
 }
 
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

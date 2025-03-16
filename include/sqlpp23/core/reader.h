@@ -73,4 +73,4 @@ struct reader_t {
 
 inline constexpr auto read = reader_t{};
 
-} // namespace sqlpp
+}  // namespace sqlpp

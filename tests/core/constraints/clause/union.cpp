@@ -65,8 +65,8 @@ concept cannot_call_union_distinct_with =
     not(can_call_union_distinct_with_standalone<Lhs, Rhs> or
         can_call_union_distinct_with_in_statement<Lhs, Rhs>);
 
-#define CAN_CALL_ALL_UNIONS_WITH(LHS, RHS)                                     \
-  static_assert(can_call_union_all_with<decltype(LHS), decltype(RHS)>, "");    \
+#define CAN_CALL_ALL_UNIONS_WITH(LHS, RHS)                                  \
+  static_assert(can_call_union_all_with<decltype(LHS), decltype(RHS)>, ""); \
   static_assert(can_call_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
 
 #define CANNOT_CALL_ANY_UNION_WITH(LHS, RHS)                                   \
@@ -74,11 +74,11 @@ concept cannot_call_union_distinct_with =
   static_assert(cannot_call_union_distinct_with<decltype(LHS), decltype(RHS)>, \
                 "");
 
-#define CHECK_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE)                          \
-  SQLPP_CHECK_STATIC_ASSERT(union_all(LHS, RHS), MESSAGE);                     \
+#define CHECK_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE)      \
+  SQLPP_CHECK_STATIC_ASSERT(union_all(LHS, RHS), MESSAGE); \
   SQLPP_CHECK_STATIC_ASSERT(union_distinct(LHS, RHS), MESSAGE);
 
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;
@@ -94,7 +94,7 @@ int main() {
   union_distinct(lhs, rhs);
   static_assert(
       can_call_union_all_with_in_statement<decltype(lhs), decltype(rhs)>,
-      ""); // OK
+      "");  // OK
   CAN_CALL_ALL_UNIONS_WITH(lhs, rhs);
   CAN_CALL_ALL_UNIONS_WITH(lhs, dynamic(maybe, rhs));
 

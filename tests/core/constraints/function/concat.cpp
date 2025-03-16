@@ -44,7 +44,7 @@ struct can_call_concat_with : public can_call_concat_with_impl<
                                   sqlpp::detail::type_vector<Expressions...>> {
 };
 
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

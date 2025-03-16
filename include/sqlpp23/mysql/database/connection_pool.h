@@ -33,5 +33,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 namespace mysql {
 using connection_pool = sqlpp::connection_pool<connection_base>;
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

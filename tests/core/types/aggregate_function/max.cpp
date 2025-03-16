@@ -33,7 +33,8 @@ template <typename T, typename V>
 using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
 }
 
-template <typename Value> void test_max(Value v) {
+template <typename Value>
+void test_max(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 

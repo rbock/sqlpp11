@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include <iostream>
 #include <vector>
@@ -36,17 +36,16 @@ namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
 template <typename T>
-auto operator<<(std::ostream &out, const std::optional<T> &t)
-    -> std::ostream & {
+auto operator<<(std::ostream& out, const std::optional<T>& t) -> std::ostream& {
   if (t) {
     return out << *t;
   }
   return out << "NULL";
 }
-} // namespace
+}  // namespace
 
 namespace sql = sqlpp::mysql;
-int DynamicSelect(int, char *[]) {
+int DynamicSelect(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -62,11 +61,11 @@ int DynamicSelect(int, char *[]) {
 
     auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab).where(true);
 
-    for (const auto &row : db(s)) {
+    for (const auto& row : db(s)) {
       std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN
                 << std::endl;
     };
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

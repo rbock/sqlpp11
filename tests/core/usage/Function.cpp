@@ -34,7 +34,7 @@
 SQLPP_CREATE_NAME_TAG(kaesekuchen);
 SQLPP_CREATE_NAME_TAG(something);
 
-int Function(int, char *[]) {
+int Function(int, char*[]) {
   MockDb db = {};
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};

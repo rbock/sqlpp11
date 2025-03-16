@@ -35,10 +35,10 @@ namespace sqlpp {
 template <typename Select>
 struct exists_expression : public enable_as<exists_expression<Select>> {
   constexpr exists_expression(Select s) : _select(std::move(s)) {}
-  exists_expression(const exists_expression &) = default;
-  exists_expression(exists_expression &&) = default;
-  exists_expression &operator=(const exists_expression &) = default;
-  exists_expression &operator=(exists_expression &&) = default;
+  exists_expression(const exists_expression&) = default;
+  exists_expression(exists_expression&&) = default;
+  exists_expression& operator=(const exists_expression&) = default;
+  exists_expression& operator=(exists_expression&&) = default;
   ~exists_expression() = default;
 
   Select _select;
@@ -48,16 +48,18 @@ template <typename Select>
 using check_exists_arg = std::enable_if_t<is_statement<Select>::value and
                                           has_result_row<Select>::value>;
 
-template <typename Select> struct value_type_of<exists_expression<Select>> {
+template <typename Select>
+struct value_type_of<exists_expression<Select>> {
   using type = boolean;
 };
 
-template <typename Select> struct nodes_of<exists_expression<Select>> {
+template <typename Select>
+struct nodes_of<exists_expression<Select>> {
   using type = detail::type_vector<Select>;
 };
 
 template <typename Context, typename Select>
-auto to_sql_string(Context &context, const exists_expression<Select> &t)
+auto to_sql_string(Context& context, const exists_expression<Select>& t)
     -> std::string {
   return "EXISTS (" + to_sql_string(context, t._select) + ")";
 }
@@ -70,4 +72,4 @@ constexpr auto exists(statement_t<Clauses...> s)
   return exists_expression<statement_t<Clauses...>>{std::move(s)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -33,12 +33,13 @@
 #include <sqlpp23/core/name/name_tag.h>
 
 namespace sqlpp {
-template <char... Cs> struct char_sequence {};
+template <char... Cs>
+struct char_sequence {};
 
-template <std::size_t N, const char *s, typename T>
+template <std::size_t N, const char* s, typename T>
 struct make_char_sequence_impl;
 
-template <std::size_t N, const char *s, std::size_t... i>
+template <std::size_t N, const char* s, std::size_t... i>
 struct make_char_sequence_impl<N, s, std::index_sequence<i...>> {
   using type = char_sequence<s[i]...>;
 };
@@ -46,11 +47,12 @@ struct make_char_sequence_impl<N, s, std::index_sequence<i...>> {
 template <typename T>
 struct make_char_sequence
     : make_char_sequence_impl<
-          sizeof(sqlpp::name_tag_of_t<T>::name), sqlpp::name_tag_of_t<T>::name,
+          sizeof(sqlpp::name_tag_of_t<T>::name),
+          sqlpp::name_tag_of_t<T>::name,
           std::make_index_sequence<sizeof(sqlpp::name_tag_of_t<T>::name) - 1>> {
 };
 
 template <typename T>
 using make_char_sequence_t = typename make_char_sequence<T>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

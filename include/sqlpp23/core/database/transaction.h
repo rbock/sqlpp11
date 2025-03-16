@@ -36,46 +36,48 @@ static constexpr bool quiet_auto_rollback = false;
 static constexpr bool report_auto_rollback = true;
 
 enum class isolation_level {
-  undefined,       // use the current database default
-  serializable,    // highest level, stronguest guarantee
-  repeatable_read, // DBMS holds read and write locks
-  read_committed,  // DMBS holds read locks, non-repeatable reads can occur
-  read_uncommitted // lowest isolation level, dirty reads may occur
+  undefined,        // use the current database default
+  serializable,     // highest level, stronguest guarantee
+  repeatable_read,  // DBMS holds read and write locks
+  read_committed,   // DMBS holds read locks, non-repeatable reads can occur
+  read_uncommitted  // lowest isolation level, dirty reads may occur
 };
 
-template <typename Db> class transaction_t {
-  Db &_db;
+template <typename Db>
+class transaction_t {
+  Db& _db;
   const bool _report_unfinished_transaction;
   bool _finished = false;
 
-public:
-  transaction_t(Db &db, bool report_unfinished_transaction)
+ public:
+  transaction_t(Db& db, bool report_unfinished_transaction)
       : _db(db), _report_unfinished_transaction(report_unfinished_transaction) {
     _db.start_transaction();
   }
 
-  transaction_t(Db &db, bool report_unfinished_transaction,
+  transaction_t(Db& db,
+                bool report_unfinished_transaction,
                 isolation_level isolation)
       : _db(db), _report_unfinished_transaction(report_unfinished_transaction) {
     _db.start_transaction(isolation);
   }
 
-  transaction_t(const transaction_t &) = delete;
-  transaction_t(transaction_t &&other)
+  transaction_t(const transaction_t&) = delete;
+  transaction_t(transaction_t&& other)
       : _db(other._db),
         _report_unfinished_transaction(other._report_unfinished_transaction),
         _finished(other._finished) {
     other._finished = true;
   }
 
-  transaction_t &operator=(const transaction_t &) = delete;
-  transaction_t &operator=(transaction_t &&) = delete;
+  transaction_t& operator=(const transaction_t&) = delete;
+  transaction_t& operator=(transaction_t&&) = delete;
 
   ~transaction_t() {
     if (not _finished) {
       try {
         _db.rollback_transaction(_report_unfinished_transaction);
-      } catch (const std::exception &e) {
+      } catch (const std::exception& e) {
         _db.report_rollback_failure(std::string("auto rollback failed: ") +
                                     e.what());
       } catch (...) {
@@ -97,16 +99,17 @@ public:
 };
 
 template <typename Db>
-transaction_t<Db>
-start_transaction(Db &db,
-                  bool report_unfinished_transaction = report_auto_rollback) {
+transaction_t<Db> start_transaction(
+    Db& db,
+    bool report_unfinished_transaction = report_auto_rollback) {
   return {db, report_unfinished_transaction};
 }
 
 template <typename Db>
-transaction_t<Db>
-start_transaction(Db &db, isolation_level isolation,
-                  bool report_unfinished_transaction = report_auto_rollback) {
+transaction_t<Db> start_transaction(
+    Db& db,
+    isolation_level isolation,
+    bool report_unfinished_transaction = report_auto_rollback) {
   return {db, report_unfinished_transaction, isolation};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

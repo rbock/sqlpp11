@@ -30,7 +30,7 @@
 
 SQLPP_CREATE_NAME_TAG(verb);
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::verbatim<sqlpp::integral>("whatever"), "whatever");
   SQLPP_COMPARE(sqlpp::verbatim<sqlpp::integral>("what'ver"), "what'ver");
   SQLPP_COMPARE(sqlpp::verbatim<sqlpp::integral>("'what''ver'"), "'what''ver'");

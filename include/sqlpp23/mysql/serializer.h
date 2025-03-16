@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/mysql/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
 
 namespace sqlpp {
 template <typename Lhs, typename Rhs, typename Condition>
-auto to_sql_string(mysql::context_t &,
-                   const join_t<Lhs, full_outer_join_t, Rhs, Condition> &)
+auto to_sql_string(mysql::context_t&,
+                   const join_t<Lhs, full_outer_join_t, Rhs, Condition>&)
     -> std::string {
   SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value),
                       "MySQL: No support for full outer join");
@@ -41,15 +41,15 @@ auto to_sql_string(mysql::context_t &,
 }
 
 namespace mysql {
-inline auto to_sql_string(mysql::context_t &, const insert_default_values_t &)
+inline auto to_sql_string(mysql::context_t&, const insert_default_values_t&)
     -> std::string {
   return " () VALUES()";
 }
 
-inline auto quoted_name_to_sql_string(mysql::context_t &,
-                                      const std::string_view &name)
+inline auto quoted_name_to_sql_string(mysql::context_t&,
+                                      const std::string_view& name)
     -> std::string {
   return '`' + std::string(name) + '`';
 }
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

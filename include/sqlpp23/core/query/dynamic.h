@@ -41,43 +41,47 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expr> struct dynamic_t : public enable_as<dynamic_t<Expr>> {
+template <typename Expr>
+struct dynamic_t : public enable_as<dynamic_t<Expr>> {
   dynamic_t(std::optional<Expr> expr) : _expr(std::move(expr)) {
     SQLPP_STATIC_ASSERT(
         parameters_of_t<Expr>::empty(),
         "dynamic expressions must not contain query parameters");
   }
 
-  dynamic_t(const dynamic_t &) = default;
-  dynamic_t(dynamic_t &&) = default;
-  dynamic_t &operator=(const dynamic_t &) = default;
-  dynamic_t &operator=(dynamic_t &&) = default;
+  dynamic_t(const dynamic_t&) = default;
+  dynamic_t(dynamic_t&&) = default;
+  dynamic_t& operator=(const dynamic_t&) = default;
+  dynamic_t& operator=(dynamic_t&&) = default;
   ~dynamic_t() = default;
 
   template <typename OtherExpr>
-  dynamic_t(const dynamic_t<OtherExpr> &d) : _expr(d._expr) {}
+  dynamic_t(const dynamic_t<OtherExpr>& d) : _expr(d._expr) {}
   template <typename OtherExpr>
-  dynamic_t(dynamic_t<OtherExpr> &&d) : _expr(std::move(d._expr)) {}
+  dynamic_t(dynamic_t<OtherExpr>&& d) : _expr(std::move(d._expr)) {}
   template <typename OtherExpr>
-  dynamic_t &operator=(const dynamic_t<OtherExpr> &d) {
+  dynamic_t& operator=(const dynamic_t<OtherExpr>& d) {
     _expr = Expr{d._expr};
   }
-  template <typename OtherExpr> dynamic_t &operator=(dynamic_t<OtherExpr> &&d) {
+  template <typename OtherExpr>
+  dynamic_t& operator=(dynamic_t<OtherExpr>&& d) {
     _expr = Expr{std::move(d._expr)};
   }
 
   auto has_value() const -> bool { return _expr.has_value(); }
-  auto value() const -> const Expr & { return _expr.value(); }
+  auto value() const -> const Expr& { return _expr.value(); }
 
-private:
-  template <typename OtherExpr> friend struct dynamic_t;
+ private:
+  template <typename OtherExpr>
+  friend struct dynamic_t;
   std::optional<Expr> _expr;
 };
 
 // No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage
 // outside of select columns or similar explicitly allowed areas.
 
-template <typename Expr> struct nodes_of<dynamic_t<Expr>> {
+template <typename Expr>
+struct nodes_of<dynamic_t<Expr>> {
   using type = detail::type_vector<Expr>;
 };
 
@@ -113,4 +117,4 @@ auto dynamic(bool condition, Expr t) -> dynamic_t<Expr> {
   return {std::nullopt};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

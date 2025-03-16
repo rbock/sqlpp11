@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -49,10 +49,11 @@ const auto tab = test::BlobSample{};
 constexpr size_t blob_size = 1000 * 1000ul;
 constexpr size_t blob_small_size = 999;
 
-void verify_blob(sql::connection &db, const std::vector<uint8_t> &expected,
+void verify_blob(sql::connection& db,
+                 const std::vector<uint8_t>& expected,
                  uint64_t id) {
   auto result = db(select(tab.data).from(tab).where(tab.id == id));
-  const auto &result_row = result.front();
+  const auto& result_row = result.front();
   if (!result_row.data)
     throw std::runtime_error("blob data is unpexpectedly NULL for id " +
                              std::to_string(id));
@@ -76,7 +77,7 @@ void verify_blob(sql::connection &db, const std::vector<uint8_t> &expected,
   }
 }
 
-int Blob(int, char *[]) {
+int Blob(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -108,7 +109,7 @@ int Blob(int, char *[]) {
   verify_blob(db, data, prep_id);
   {
     auto result = db(select(tab.data).from(tab).where(tab.id == null_id));
-    const auto &result_row = result.front();
+    const auto& result_row = result.front();
     std::cerr << "Null blob is_null:\t" << std::boolalpha
               << (result_row.data == std::nullopt) << std::endl;
   }

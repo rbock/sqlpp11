@@ -34,42 +34,46 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Column> struct insert_value_t {
+template <typename Column>
+struct insert_value_t {
   using _is_insert_value = std::true_type;
   using _value_t = parameter_value_t<value_type_of_t<Column>>;
 
   insert_value_t(_value_t value)
       : _is_default(false), _value(std::move(value)) {}
 
-  insert_value_t(const default_value_t & /*unused*/)
+  insert_value_t(const default_value_t& /*unused*/)
       : _is_default(true), _value{} {}
 
-  insert_value_t(const insert_value_t &) = default;
-  insert_value_t(insert_value_t &&) = default;
-  insert_value_t &operator=(const insert_value_t &) = default;
-  insert_value_t &operator=(insert_value_t &&) = default;
+  insert_value_t(const insert_value_t&) = default;
+  insert_value_t(insert_value_t&&) = default;
+  insert_value_t& operator=(const insert_value_t&) = default;
+  insert_value_t& operator=(insert_value_t&&) = default;
   ~insert_value_t() = default;
 
   bool _is_default;
   _value_t _value;
 };
 
-  template <typename Context, typename Column>
-  auto to_sql_string(Context& context, const insert_value_t<Column>& t) -> std::string {
-    if (t._is_default) {
-      return "DEFAULT";
-    }
-    return operand_to_sql_string(context, t._value);
+template <typename Context, typename Column>
+auto to_sql_string(Context& context, const insert_value_t<Column>& t)
+    -> std::string {
+  if (t._is_default) {
+    return "DEFAULT";
   }
+  return operand_to_sql_string(context, t._value);
+}
 
-template <typename Column> struct make_insert_value {
+template <typename Column>
+struct make_insert_value {
   using type = insert_value_t<Column>;
 };
 
-template <typename Column> struct make_insert_value<dynamic_t<Column>> {
+template <typename Column>
+struct make_insert_value<dynamic_t<Column>> {
   using type = dynamic_t<insert_value_t<Column>>;
 };
 template <typename Column>
 using make_insert_value_t = typename make_insert_value<Column>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

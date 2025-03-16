@@ -44,19 +44,23 @@ struct result_field
 
   result_field() = default;
 
-  template <typename Target> void _bind_field(Target &target) {
+  template <typename Target>
+  void _bind_field(Target& target) {
     target.bind_field(index, _field::operator()());
   }
 
-  template <typename Target> void _read_field(Target &target) {
+  template <typename Target>
+  void _read_field(Target& target) {
     target.read_field(index, _field::operator()());
   }
 
-  template <typename Callable> void _apply(Callable &callable) const {
+  template <typename Callable>
+  void _apply(Callable& callable) const {
     callable(_field::operator()());
   }
 
-  template <typename Callable> void _apply(const Callable &callable) const {
+  template <typename Callable>
+  void _apply(const Callable& callable) const {
     callable(_field::operator()());
   }
 };
@@ -66,32 +70,36 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
     : public result_field<Is, FieldSpecs>... {
   result_row_impl() = default;
 
-  template <typename Target> void _bind_fields(Target &target) {
+  template <typename Target>
+  void _bind_fields(Target& target) {
     using swallow = int[];
     (void)swallow{(result_field<Is, FieldSpecs>::_bind_field(target), 0)...};
   }
 
-  template <typename Target> void _read_fields(Target &target) {
+  template <typename Target>
+  void _read_fields(Target& target) {
     using swallow = int[];
     (void)swallow{(result_field<Is, FieldSpecs>::_read_field(target), 0)...};
   }
 
-  template <typename Callable> void _apply(Callable &callable) const {
+  template <typename Callable>
+  void _apply(Callable& callable) const {
     using swallow = int[];
     (void)swallow{(result_field<Is, FieldSpecs>::_apply(callable), 0)...};
   }
 
-  template <typename Callable> void _apply(const Callable &callable) const {
+  template <typename Callable>
+  void _apply(const Callable& callable) const {
     using swallow = int[];
     (void)swallow{(result_field<Is, FieldSpecs>::_apply(callable), 0)...};
   }
 };
-} // namespace detail
+}  // namespace detail
 
 template <typename... FieldSpecs>
-struct result_row_t
-    : public detail::result_row_impl<
-          std::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...> {
+struct result_row_t : public detail::result_row_impl<
+                          std::make_index_sequence<sizeof...(FieldSpecs)>,
+                          FieldSpecs...> {
   using _impl =
       detail::result_row_impl<std::make_index_sequence<sizeof...(FieldSpecs)>,
                               FieldSpecs...>;
@@ -99,16 +107,16 @@ struct result_row_t
 
   result_row_t() : _impl() {}
 
-  result_row_t(const result_row_t &) = delete;
-  result_row_t(result_row_t &&) = default;
-  result_row_t &operator=(const result_row_t &) = delete;
-  result_row_t &operator=(result_row_t &&) = default;
+  result_row_t(const result_row_t&) = delete;
+  result_row_t(result_row_t&&) = default;
+  result_row_t& operator=(const result_row_t&) = delete;
+  result_row_t& operator=(result_row_t&&) = default;
 
   void _validate() { _is_valid = true; }
 
   void _invalidate() { _is_valid = false; }
 
-  bool operator==(const result_row_t &rhs) const {
+  bool operator==(const result_row_t& rhs) const {
     return _is_valid == rhs._is_valid;
   }
 
@@ -116,19 +124,23 @@ struct result_row_t
 
   static constexpr size_t static_size() { return sizeof...(FieldSpecs); }
 
-  template <typename Target> void _bind_fields(Target &target) {
+  template <typename Target>
+  void _bind_fields(Target& target) {
     _impl::_bind_fields(target);
   }
 
-  template <typename Target> void _read_fields(Target &target) {
+  template <typename Target>
+  void _read_fields(Target& target) {
     _impl::_read_fields(target);
   }
 
-  template <typename Callable> void _apply(Callable &callable) const {
+  template <typename Callable>
+  void _apply(Callable& callable) const {
     _impl::_apply(callable);
   }
 
-  template <typename Callable> void _apply(const Callable &callable) const {
+  template <typename Callable>
+  void _apply(const Callable& callable) const {
     _impl::_apply(callable);
   }
 };
@@ -140,19 +152,20 @@ struct is_result_compatible {
 
 template <typename LDb, typename... LFields, typename RDb, typename... RFields>
 struct is_result_compatible<
-    result_row_t<LDb, LFields...>, result_row_t<RDb, RFields...>,
+    result_row_t<LDb, LFields...>,
+    result_row_t<RDb, RFields...>,
     typename std::enable_if<sizeof...(LFields) == sizeof...(RFields)>::type> {
   static constexpr auto value =
       logic::all<is_field_compatible<LFields, RFields>::value...>::value;
 };
 
 template <typename Row, typename Callable>
-void for_each_field(const Row &row, const Callable &callable) {
+void for_each_field(const Row& row, const Callable& callable) {
   row._apply(callable);
 }
 
 template <typename Row, typename Callable>
-void for_each_field(const Row &row, Callable &callable) {
+void for_each_field(const Row& row, Callable& callable) {
   row._apply(callable);
 }
-} // namespace sqlpp
+}  // namespace sqlpp

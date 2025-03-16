@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::concat("a"), "CONCAT('a')");
   SQLPP_COMPARE(sqlpp::concat("a", "b"), "CONCAT('a', 'b')");
   SQLPP_COMPARE(sqlpp::concat("a", sqlpp::dynamic(true, "b"), "c"),

@@ -36,7 +36,7 @@ struct schema_t {
 };
 
 template <typename Context>
-auto to_sql_string(Context &context, const schema_t &t) -> std::string {
+auto to_sql_string(Context& context, const schema_t& t) -> std::string {
   return quoted_name_to_sql_string(context, t._name);
 }
 
@@ -44,4 +44,4 @@ inline auto schema(std::string name) -> schema_t {
   return schema_t{std::move(name)};
 };
 
-} // namespace sqlpp
+}  // namespace sqlpp

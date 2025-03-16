@@ -114,4 +114,4 @@ struct TabDateTime_ : public ::sqlpp::name_tag_base {
 };
 using TabDateTime = ::sqlpp::table_t<TabDateTime_>;
 
-} // namespace test
+}  // namespace test

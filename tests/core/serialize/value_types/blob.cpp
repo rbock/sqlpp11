@@ -27,7 +27,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   // vector<uint8_t>
   std::vector<uint8_t> vec{{'c', 'h', 'e', 'e', 's', 'e', 'c', 'a', 'k', 'e'}};
   SQLPP_COMPARE(vec, "x'63686565736563616B65'");

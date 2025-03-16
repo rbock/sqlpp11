@@ -24,17 +24,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include "is_regular.h"
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 }
 
-int Result(int, char *[]) {
+int Result(int, char*[]) {
   MockDb db = {};
 
   const auto t = test::TabBar{};
@@ -43,13 +43,13 @@ int Result(int, char *[]) {
                 "t.id cannot be null");
 
   // Using a non-enforcing db
-  for (const auto &row : db(select(all_of(t), t.textN.like("").as(something))
+  for (const auto& row : db(select(all_of(t), t.textN.like("").as(something))
                                 .from(t)
                                 .where(true))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
 
-    for (const auto &sub :
+    for (const auto& sub :
          db(select(all_of(t)).from(t).where(t.id == row.id))) {
       std::cerr << sub.id << std::endl;
     }
@@ -57,12 +57,12 @@ int Result(int, char *[]) {
   }
 
   sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
   }
 
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
   }

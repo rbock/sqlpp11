@@ -35,23 +35,29 @@ namespace sqlite3 {
 struct connection_config {
   connection_config()
       : path_to_database{}, flags{0}, vfs{}, debug{false}, password{} {}
-  connection_config(const connection_config &) = default;
-  connection_config(connection_config &&) = default;
-  connection_config &operator=(const connection_config &) = default;
-  connection_config &operator=(connection_config &&) = default;
+  connection_config(const connection_config&) = default;
+  connection_config(connection_config&&) = default;
+  connection_config& operator=(const connection_config&) = default;
+  connection_config& operator=(connection_config&&) = default;
 
-  connection_config(std::string path, int fl = 0, std::string vf = "",
-                    bool dbg = false, std::string password = "")
-      : path_to_database{std::move(path)}, flags{fl}, vfs{std::move(vf)},
-        debug{dbg}, password{password} {}
+  connection_config(std::string path,
+                    int fl = 0,
+                    std::string vf = "",
+                    bool dbg = false,
+                    std::string password = "")
+      : path_to_database{std::move(path)},
+        flags{fl},
+        vfs{std::move(vf)},
+        debug{dbg},
+        password{password} {}
 
-  bool operator==(const connection_config &other) const {
+  bool operator==(const connection_config& other) const {
     return (other.path_to_database == path_to_database &&
             other.flags == flags && other.vfs == vfs && other.debug == debug &&
             other.password == password);
   }
 
-  bool operator!=(const connection_config &other) const {
+  bool operator!=(const connection_config& other) const {
     return !operator==(other);
   }
 
@@ -61,5 +67,5 @@ struct connection_config {
   bool debug;
   std::string password;
 };
-} // namespace sqlite3
-} // namespace sqlpp
+}  // namespace sqlite3
+}  // namespace sqlpp

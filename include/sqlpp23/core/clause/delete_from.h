@@ -36,21 +36,23 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-struct delete_t {
-};
+struct delete_t {};
 
-  template <typename Context>
-  auto to_sql_string(Context&, const delete_t&) -> std::string {
-    return "DELETE FROM ";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const delete_t&) -> std::string {
+  return "DELETE FROM ";
+}
 
-template <> struct is_clause<delete_t> : public std::true_type {};
+template <>
+struct is_clause<delete_t> : public std::true_type {};
 
-template <typename Statement> struct consistency_check<Statement, delete_t> {
+template <typename Statement>
+struct consistency_check<Statement, delete_t> {
   using type = consistent_t;
 };
 
-template <> struct is_result_clause<delete_t> : public std::true_type {};
+template <>
+struct is_result_clause<delete_t> : public std::true_type {};
 
 struct delete_result_methods_t {
  private:
@@ -58,27 +60,30 @@ struct delete_result_methods_t {
 
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement &&statement, Db &db)
+  auto _run(this Statement&& statement, Db& db)
       -> decltype(db.remove(std::forward<Statement>(statement))) {
     return db.remove(std::forward<Statement>(statement));
   }
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement &&statement, Db &db)
+  auto _prepare(this Statement&& statement, Db& db)
       -> prepared_delete_t<Db, std::decay_t<Statement>> {
     return {{}, db.prepare_remove(std::forward<Statement>(statement))};
   }
 };
 
-template <> struct result_methods_of<delete_t> {
+template <>
+struct result_methods_of<delete_t> {
   using type = delete_result_methods_t;
 };
 
 using blank_delete_t =
     statement_t<delete_t, no_single_table_t, no_using_t, no_where_t>;
 
-inline auto delete_from() -> blank_delete_t { return {}; }
+inline auto delete_from() -> blank_delete_t {
+  return {};
+}
 
 template <typename _Table>
 auto delete_from(_Table table)
@@ -86,4 +91,4 @@ auto delete_from(_Table table)
   return {blank_delete_t().single_table(table)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

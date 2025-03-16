@@ -30,22 +30,24 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
-#include "make_test_connection.h"
 #include <sqlpp23/tests/postgresql/tables.h>
+#include "make_test_connection.h"
 
 namespace {
-void save_regular(sqlpp::postgresql::connection &db,
+void save_regular(sqlpp::postgresql::connection& db,
                   sqlpp::chrono::microsecond_point tp,
-                  std::chrono::microseconds tod, sqlpp::chrono::day_point dp) {
+                  std::chrono::microseconds tod,
+                  sqlpp::chrono::day_point dp) {
   test::TabDateTime tab{};
   db(update(tab)
          .set(tab.timePointNTz = tp, tab.timeOfDayNTz = tod, tab.dayPointN = dp)
          .where(true));
 }
 
-void save_prepared(sqlpp::postgresql::connection &db,
+void save_prepared(sqlpp::postgresql::connection& db,
                    sqlpp::chrono::microsecond_point tp,
-                   std::chrono::microseconds tod, sqlpp::chrono::day_point dp) {
+                   std::chrono::microseconds tod,
+                   sqlpp::chrono::day_point dp) {
   test::TabDateTime tab{};
   auto prepared_update =
       db.prepare(update(tab)
@@ -60,7 +62,7 @@ void save_prepared(sqlpp::postgresql::connection &db,
 }
 
 template <typename L, typename R>
-void require_equal(int line, const L &l, const R &r) {
+void require_equal(int line, const L& l, const R& r) {
   if (l != r) {
     std::cerr << __FILE__ << ": " << line << ": ";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
@@ -70,13 +72,13 @@ void require_equal(int line, const L &l, const R &r) {
   }
 }
 
-void check_saved_values(sqlpp::postgresql::connection &db,
+void check_saved_values(sqlpp::postgresql::connection& db,
                         sqlpp::chrono::microsecond_point tp,
                         std::chrono::microseconds tod,
                         sqlpp::chrono::day_point dp) {
   test::TabDateTime tab{};
 
-  const auto &rows_1 =
+  const auto& rows_1 =
       db(select(
              // timePointNTz as microseconds from the start of the UNIX epoch
              // (1970-01-01 00:00:00 UTC)
@@ -99,7 +101,7 @@ void check_saved_values(sqlpp::postgresql::connection &db,
   // values of the PostgreSQL date/time fields. This tests the conversion of
   // date/time types from C++ to PostgreSQL while skipping the conversion from
   // C++ to PostgreSQL.
-  const auto &row_1 = rows_1.front();
+  const auto& row_1 = rows_1.front();
   require_equal(__LINE__, row_1.a.value(), tp.time_since_epoch().count());
   require_equal(__LINE__, row_1.b.value(), tod.count());
   require_equal(__LINE__, row_1.c.value(), dp.time_since_epoch().count());
@@ -108,16 +110,16 @@ void check_saved_values(sqlpp::postgresql::connection &db,
   // them back yields the same values. This tests the conversion of date/time
   // types from C++ to PostgreSQL and then back from PostgreSQL to C++.
   const auto rows_2 = db(select(all_of(tab)).from(tab).where(true));
-  const auto &row_2 = rows_2.front();
+  const auto& row_2 = rows_2.front();
   require_equal(__LINE__, row_2.timePointNTz.value(), tp);
   require_equal(__LINE__, row_2.timeOfDayNTz.value(), tod);
   require_equal(__LINE__, row_2.dayPointN.value(), dp);
 }
 
-void test_time_point(sqlpp::postgresql::connection &db,
+void test_time_point(sqlpp::postgresql::connection& db,
                      sqlpp::chrono::microsecond_point tp) {
   auto dp = std::chrono::floor<std::chrono::days>(tp);
-  auto tod = tp - dp; // Time of day
+  auto tod = tp - dp;  // Time of day
 
   // Test time values passed in a regular (non-prepared) statement
   save_regular(db, tp, tod, dp);
@@ -127,9 +129,9 @@ void test_time_point(sqlpp::postgresql::connection &db,
   save_prepared(db, tp, tod, dp);
   check_saved_values(db, tp, tod, dp);
 }
-}; // namespace
+};  // namespace
 
-int TimeZone(int, char *[]) {
+int TimeZone(int, char*[]) {
   namespace sql = sqlpp::postgresql;
 
   // We use a time zone with non-zero offset from UTC in order to catch
@@ -152,10 +154,10 @@ int TimeZone(int, char *[]) {
         static_cast<std::chrono::sys_days>(std::chrono::December / 31 / 2022) +
             std::chrono::hours{0} + std::chrono::minutes{59} +
             std::chrono::seconds{59} + std::chrono::microseconds{987654}};
-    for (const auto &tp : tps) {
+    for (const auto& tp : tps) {
       test_time_point(db, tp);
     }
-  } catch (const sql::failure &e) {
+  } catch (const sql::failure& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

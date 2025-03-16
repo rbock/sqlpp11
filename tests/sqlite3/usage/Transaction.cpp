@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <cassert>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -40,7 +40,7 @@ namespace sql = sqlpp::sqlite3;
 
 SQLPP_CREATE_NAME_TAG(pragma);
 
-int Transaction(int, char *[]) {
+int Transaction(int, char*[]) {
   sql::connection db(
       {":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
 

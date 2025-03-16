@@ -49,7 +49,7 @@ template <typename... Expressions>
 concept cannot_call_select_columns_with =
     not(can_call_select_columns_with_standalone<Expressions...> or
         can_call_select_columns_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 namespace test {
 SQLPP_CREATE_NAME_TAG(max_id);

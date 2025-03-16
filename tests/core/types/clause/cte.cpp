@@ -300,4 +300,6 @@ void test_cte() {
   }
 }
 
-int main() { void test_cte(); }
+int main() {
+  void test_cte();
+}

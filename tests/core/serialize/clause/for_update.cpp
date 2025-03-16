@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   // No parameters.
   SQLPP_COMPARE(sqlpp::for_update(), " FOR UPDATE");
 

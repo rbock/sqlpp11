@@ -26,7 +26,8 @@
 
 #include <sqlpp23/sqlpp23.h>
 
-template <typename Value> void test_order_expression(Value v) {
+template <typename Value>
+void test_order_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 

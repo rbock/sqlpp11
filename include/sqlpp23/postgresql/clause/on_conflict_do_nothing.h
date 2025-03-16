@@ -28,9 +28,9 @@
  */
 
 #include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 #include <sqlpp23/postgresql/reader.h>
-#include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 namespace postgresql {
@@ -40,11 +40,12 @@ struct on_conflict_do_nothing_t {
       : _on_conflict(on_conflict) {}
   on_conflict_do_nothing_t(const on_conflict_do_nothing_t&) = default;
   on_conflict_do_nothing_t(on_conflict_do_nothing_t&&) = default;
-  on_conflict_do_nothing_t& operator=(const on_conflict_do_nothing_t&) = default;
+  on_conflict_do_nothing_t& operator=(const on_conflict_do_nothing_t&) =
+      default;
   on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
   ~on_conflict_do_nothing_t() = default;
 
-  private:
+ private:
   friend ::sqlpp::postgresql::reader_t;
   OnConflict _on_conflict;
 };
@@ -56,7 +57,7 @@ auto to_sql_string(context_t& context,
   return to_sql_string(context, read.on_conflict(t)) + " DO NOTHING";
 }
 
-} // namespace postgresql
+}  // namespace postgresql
 
 template <typename ConflictTarget>
 struct is_clause<postgresql::on_conflict_do_nothing_t<ConflictTarget>>
@@ -73,4 +74,4 @@ struct consistency_check<Statement,
   using type = consistent_t;
 };
 
-} // namespace sqlpp
+}  // namespace sqlpp

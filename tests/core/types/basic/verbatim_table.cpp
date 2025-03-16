@@ -29,7 +29,7 @@
 
 namespace test {
 SQLPP_CREATE_NAME_TAG(verb);
-} // namespace test
+}  // namespace test
 
 int main() {
   auto verb = sqlpp::verbatim_table("verb").as(test::verb);

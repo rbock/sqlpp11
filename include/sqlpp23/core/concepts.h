@@ -62,4 +62,4 @@ concept DynamicBoolean = is_boolean_v<remove_dynamic_t<T>>;
 template <typename T>
 concept DynamicCte = is_cte_v<remove_dynamic_t<T>>;
 
-} // namespace sqlpp
+}  // namespace sqlpp

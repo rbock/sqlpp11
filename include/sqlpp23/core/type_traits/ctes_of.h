@@ -36,11 +36,13 @@ namespace sqlpp {
 // `required_ctes_of` recursively determines the type_set of ctes referenced
 // within `T`. `cte_ref_t` and other structs that might reference a cte shall
 // specialize this template to indicate their cte requirement.
-template <typename T> struct required_ctes_of {
+template <typename T>
+struct required_ctes_of {
   using type = typename required_ctes_of<nodes_of_t<T>>::type;
 };
 
-template <typename... T> struct required_ctes_of<detail::type_vector<T...>> {
+template <typename... T>
+struct required_ctes_of<detail::type_vector<T...>> {
   using type = detail::make_joined_set_t<typename required_ctes_of<T>::type...>;
 };
 
@@ -53,11 +55,13 @@ using required_ctes_of_t = typename required_ctes_of<T>::type;
 // requirement.
 //
 // Dynamic query parts are ignored.
-template <typename T> struct required_static_ctes_of {
+template <typename T>
+struct required_static_ctes_of {
   using type = typename required_static_ctes_of<nodes_of_t<T>>::type;
 };
 
-template <typename T> struct required_static_ctes_of<dynamic_t<T>> {
+template <typename T>
+struct required_static_ctes_of<dynamic_t<T>> {
   using type = detail::type_set<>;
 };
 
@@ -76,7 +80,8 @@ using required_static_ctes_of_t = typename required_static_ctes_of<T>::type;
 //
 // Note: In contrast to `required_ctes_of` above, `provided_ctes_of` is
 // non-recursive.
-template <typename T> struct provided_ctes_of {
+template <typename T>
+struct provided_ctes_of {
   // This needs to the specialized by `cte_ref_t`.
   using type = detail::type_set<>;
 };
@@ -92,11 +97,12 @@ using provided_ctes_of_t = typename provided_ctes_of<T>::type;
 template <typename T>
 struct provided_static_ctes_of : public provided_ctes_of<T> {};
 
-template <typename T> struct provided_static_ctes_of<dynamic_t<T>> {
+template <typename T>
+struct provided_static_ctes_of<dynamic_t<T>> {
   using type = detail::type_set<>;
 };
 
 template <typename T>
 using provided_static_ctes_of_t = typename provided_static_ctes_of<T>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

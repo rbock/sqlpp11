@@ -33,16 +33,16 @@
 namespace sqlpp {
 // Serialize parameters
 template <typename ValueType, typename NameType>
-auto to_sql_string(postgresql::context_t &context,
-                   const parameter_t<ValueType, NameType> &) -> std::string {
+auto to_sql_string(postgresql::context_t& context,
+                   const parameter_t<ValueType, NameType>&) -> std::string {
   return std::string("$") + std::to_string(++context._count);
 }
 
 namespace postgresql {
 // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode
 // hexadecimal literals
-inline auto to_sql_string(postgresql::context_t &,
-                          const std::span<const uint8_t> &t) -> std::string {
+inline auto to_sql_string(postgresql::context_t&,
+                          const std::span<const uint8_t>& t) -> std::string {
   constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
   auto result = std::string("'\\x");
@@ -58,26 +58,26 @@ inline auto to_sql_string(postgresql::context_t &,
 
 template <typename Period>
 auto to_sql_string(
-    postgresql::context_t &,
-    const std::chrono::time_point<std::chrono::system_clock, Period> &t)
+    postgresql::context_t&,
+    const std::chrono::time_point<std::chrono::system_clock, Period>& t)
     -> std::string {
   return std::format("TIMESTAMP WITH TIME ZONE '{0:%Y-%m-%d %H:%M:%S+00}'", t);
 }
 
-inline auto to_sql_string(postgresql::context_t &,
-                          const ::sqlpp::chrono::day_point &t) -> std::string {
+inline auto to_sql_string(postgresql::context_t&,
+                          const ::sqlpp::chrono::day_point& t) -> std::string {
   return std::format("DATE '{0:%Y-%m-%d}'", t);
 }
 
-inline auto to_sql_string(postgresql::context_t &,
-                          const std::chrono::microseconds &t) -> std::string {
+inline auto to_sql_string(postgresql::context_t&,
+                          const std::chrono::microseconds& t) -> std::string {
   return std::format("TIME WITH TIME ZONE'{0:%H:%M:%S+00}'", t);
 }
 
-inline auto to_sql_string(postgresql::context_t &, const bool &t)
+inline auto to_sql_string(postgresql::context_t&, const bool& t)
     -> std::string {
   return t ? "'t'" : "'f'";
 }
-} // namespace postgresql
+}  // namespace postgresql
 
-} // namespace sqlpp
+}  // namespace sqlpp

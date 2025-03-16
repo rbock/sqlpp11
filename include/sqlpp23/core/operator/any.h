@@ -31,12 +31,13 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Select> struct any_t {
+template <typename Select>
+struct any_t {
   constexpr any_t(Select select) : _select(std::move(select)) {}
-  any_t(const any_t &) = default;
-  any_t(any_t &&) = default;
-  any_t &operator=(const any_t &) = default;
-  any_t &operator=(any_t &&) = default;
+  any_t(const any_t&) = default;
+  any_t(any_t&&) = default;
+  any_t& operator=(const any_t&) = default;
+  any_t& operator=(any_t&&) = default;
   ~any_t() = default;
 
   Select _select;
@@ -45,22 +46,26 @@ template <typename Select> struct any_t {
 // No value_type_of defined for any_t, because it is to be used with basic
 // comparison operators, only.
 
-template <typename Select> struct nodes_of<any_t<Select>> {
+template <typename Select>
+struct nodes_of<any_t<Select>> {
   using type = detail::type_vector<Select>;
 };
 
-template <typename T> struct remove_any {
+template <typename T>
+struct remove_any {
   using type = T;
 };
 
-template <typename Select> struct remove_any<any_t<Select>> {
+template <typename Select>
+struct remove_any<any_t<Select>> {
   using type = Select;
 };
 
-template <typename T> using remove_any_t = typename remove_any<T>::type;
+template <typename T>
+using remove_any_t = typename remove_any<T>::type;
 
 template <typename Context, typename Select>
-auto to_sql_string(Context &context, const any_t<Select> &t) -> std::string {
+auto to_sql_string(Context& context, const any_t<Select>& t) -> std::string {
   return "ANY (" + to_sql_string(context, t._select) + ")";
 }
 
@@ -73,4 +78,4 @@ auto any(statement_t<Clauses...> t) -> any_t<statement_t<Clauses...>> {
   statement_consistency_check_t<statement_t<Clauses...>>::verify();
   return {std::move(t)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -35,10 +35,10 @@ using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 template <typename T>
 using is_maybe_bool =
     std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::boolean>>;
-} // namespace
+}  // namespace
 
 template <typename Column, typename Value>
-void test_assign_expression(const Column &col, const Value &v) {
+void test_assign_expression(const Column& col, const Value& v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
@@ -93,7 +93,7 @@ void test_assign_expression(const Column &col, const Value &v) {
 }
 
 template <typename Column, typename Value>
-void test_compound_assign_expression(const Column &col, const Value &v) {
+void test_compound_assign_expression(const Column& col, const Value& v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 

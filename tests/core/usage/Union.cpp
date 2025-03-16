@@ -24,18 +24,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include "is_regular.h"
 
 namespace greek {
 SQLPP_CREATE_NAME_TAG(id);
 SQLPP_CREATE_NAME_TAG(textN);
-} // namespace greek
+}  // namespace greek
 
-int Union(int, char *[]) {
+int Union(int, char*[]) {
   MockDb db;
 
   const auto t = test::TabBar{};

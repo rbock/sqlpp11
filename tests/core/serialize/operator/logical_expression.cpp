@@ -27,7 +27,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto val = sqlpp::value(true);
   const auto expr = sqlpp::value(17) > 15;
 

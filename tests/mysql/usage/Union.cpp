@@ -24,11 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/result_helpers.h>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include <iostream>
 
@@ -38,7 +38,7 @@ const auto library_raii =
 namespace sql = sqlpp::mysql;
 const auto tab = test::TabSample{};
 
-int Union(int, char *[]) {
+int Union(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -49,15 +49,15 @@ int Union(int, char *[]) {
                  .where(true)
                  .union_all(select(all_of(tab)).from(tab).where(true));
 
-    for (const auto &row : db(u)) {
+    for (const auto& row : db(u)) {
       std::cout << row.intN << row.textN << row.boolN << std::endl;
     }
 
-    for (const auto &row :
+    for (const auto& row :
          db(u.union_distinct(select(all_of(tab)).from(tab).where(true)))) {
       std::cout << row.intN << row.textN << row.boolN << std::endl;
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

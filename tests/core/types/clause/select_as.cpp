@@ -41,9 +41,10 @@ SQLPP_CREATE_NAME_TAG(sometimes);
 SQLPP_CREATE_NAME_TAG(something);
 SQLPP_CREATE_NAME_TAG(table);
 SQLPP_CREATE_NAME_TAG(foo);
-} // namespace
+}  // namespace
 
-template <typename Value> void test_select_as(Value v) {
+template <typename Value>
+void test_select_as(Value v) {
   auto v_not_null = sqlpp::value(v).as(always);
   auto v_maybe_null = sqlpp::value(std::make_optional(v)).as(sometimes);
 

@@ -34,12 +34,12 @@ namespace sqlpp {
 #if defined SQLPP_TEST_STATIC_ASSERT
 #include <stdexcept>
 using unit_test_exception = std::runtime_error;
-#define SQLPP_STATIC_ASSERT(condition, message)                                \
-  if (not(condition)) {                                                        \
-    throw sqlpp::unit_test_exception{message};                                 \
+#define SQLPP_STATIC_ASSERT(condition, message) \
+  if (not(condition)) {                         \
+    throw sqlpp::unit_test_exception{message};  \
   }
 #else
-#define SQLPP_STATIC_ASSERT(condition, message)                                \
+#define SQLPP_STATIC_ASSERT(condition, message) \
   static_assert(condition, message);
 #endif
-} // namespace sqlpp
+}  // namespace sqlpp

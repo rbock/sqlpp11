@@ -32,7 +32,7 @@
 
 SQLPP_CREATE_NAME_TAG(quester_player_level);
 
-int ParameterizedVerbatim(int, char *[]) {
+int ParameterizedVerbatim(int, char*[]) {
   // An example thing that needs parameterized verbatim (as it's database
   // specific)
   auto checking_value_in_range = sqlpp::parameterized_verbatim<sqlpp::boolean>(

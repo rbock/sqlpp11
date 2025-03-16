@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -37,14 +37,14 @@
 #include <vector>
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
 
 namespace sql = sqlpp::sqlite3;
-int DynamicSelect(int, char *[]) {
+int DynamicSelect(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;

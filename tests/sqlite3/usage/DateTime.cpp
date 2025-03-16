@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -45,7 +45,7 @@ const auto time_of_day = std::chrono::microseconds{now - today};
 const auto yesterday = today - std::chrono::days{1};
 
 template <typename L, typename R>
-auto require_equal(int line, const L &l, const R &r) -> void {
+auto require_equal(int line, const L& l, const R& r) -> void {
   if (l != r) {
     std::cerr << line << ": ";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
@@ -54,10 +54,10 @@ auto require_equal(int line, const L &l, const R &r) -> void {
     throw std::runtime_error("Unexpected result");
   }
 }
-} // namespace
+}  // namespace
 
 namespace sql = sqlpp::sqlite3;
-int DateTime(int, char *[]) {
+int DateTime(int, char*[]) {
   try {
     sql::connection_config config;
     config.path_to_database = ":memory:";
@@ -70,7 +70,7 @@ int DateTime(int, char *[]) {
     const auto tab = test::TabDateTime{};
     db(insert_into(tab).default_values());
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN == std::nullopt, true);
       require_equal(__LINE__, row.timePointN == std::nullopt, true);
     }
@@ -79,7 +79,7 @@ int DateTime(int, char *[]) {
            .set(tab.dayPointN = today, tab.timePointN = now)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
     }
@@ -88,7 +88,7 @@ int DateTime(int, char *[]) {
            .set(tab.dayPointN = yesterday, tab.timePointN = today)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
       require_equal(__LINE__, row.timePointN.value(), today);
     }
@@ -105,12 +105,12 @@ int DateTime(int, char *[]) {
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
       require_equal(__LINE__, row.timeOfDayN.value(), time_of_day);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   } catch (...) {

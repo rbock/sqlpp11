@@ -29,10 +29,10 @@
 
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/postgresql/reader.h>
 #include <sqlpp23/postgresql/clause/on_conflict_do_nothing.h>
 #include <sqlpp23/postgresql/clause/on_conflict_do_update.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp23/postgresql/reader.h>
 
 namespace sqlpp {
 
@@ -78,7 +78,8 @@ struct on_conflict_t {
   ~on_conflict_t() = default;
 
   // DO NOTHING
-  template <typename Statement> auto do_nothing(this Statement &&statement) {
+  template <typename Statement>
+  auto do_nothing(this Statement&& statement) {
     auto new_clause = on_conflict_do_nothing_t<on_conflict_t>{statement, true};
     return new_statement<on_conflict_t>(std::forward<Statement>(statement),
                                         std::move(new_clause));
@@ -88,7 +89,7 @@ struct on_conflict_t {
   template <typename Statement, typename... Assignments>
     requires(logic::all<sqlpp::is_assignment<
                  remove_dynamic_t<Assignments>>::value...>::value)
-  auto do_update(this Statement &&statement, Assignments... assignments) {
+  auto do_update(this Statement&& statement, Assignments... assignments) {
     postgresql::check_on_conflict_do_update_set_t<
         sizeof...(Columns), remove_dynamic_t<Assignments>...>::verify();
 
@@ -98,23 +99,23 @@ struct on_conflict_t {
                                         std::move(new_clause));
   }
 
-  private:
+ private:
   friend ::sqlpp::reader_t;
   std::tuple<Columns...> _columns;
 };
 
 template <typename... Columns>
-  auto to_sql_string(postgresql::context_t& context, const on_conflict_t<Columns...>& t)
-      -> std::string {
-    const auto targets = tuple_to_sql_string(
-        context, read.columns(t), tuple_operand_name_no_dynamic{", "});
-    if (targets.empty()) {
-      return " ON CONFLICT";
-    }
-    return " ON CONFLICT (" + targets + ")";
+auto to_sql_string(postgresql::context_t& context,
+                   const on_conflict_t<Columns...>& t) -> std::string {
+  const auto targets = tuple_to_sql_string(context, read.columns(t),
+                                           tuple_operand_name_no_dynamic{", "});
+  if (targets.empty()) {
+    return " ON CONFLICT";
   }
+  return " ON CONFLICT (" + targets + ")";
+}
 
-} // namespace postgresql
+}  // namespace postgresql
 
 template <typename... Columns>
 struct nodes_of<postgresql::on_conflict_t<Columns...>> {
@@ -129,20 +130,17 @@ struct consistency_check<Statement, postgresql::on_conflict_t<Columns...>> {
 namespace postgresql {
 struct no_on_conflict_t {
   template <typename Statement, DynamicColumn... Columns>
-  auto on_conflict(this Statement &&statement, Columns... columns) {
+  auto on_conflict(this Statement&& statement, Columns... columns) {
     return new_statement<no_on_conflict_t>(
         std::forward<Statement>(statement),
         on_conflict_t<Columns...>{std::make_tuple(std::move(columns)...)});
   }
-
 };
 
-  inline auto to_sql_string(context_t&,
-                            const no_on_conflict_t&)
-      -> std::string {
-    return "";
-  }
-} // namespace postgresql
+inline auto to_sql_string(context_t&, const no_on_conflict_t&) -> std::string {
+  return "";
+}
+}  // namespace postgresql
 
 template <typename Statement>
 struct consistency_check<Statement, postgresql::no_on_conflict_t> {
@@ -154,9 +152,10 @@ struct is_clause<postgresql::on_conflict_t<Expression>>
     : public std::true_type {};
 
 namespace postgresql {
-template <DynamicColumn... Columns> auto on_conflict(Columns... columns) {
+template <DynamicColumn... Columns>
+auto on_conflict(Columns... columns) {
   return statement_t<no_on_conflict_t>().on_conflict(std::move(columns)...);
 }
-} // namespace postgresql
+}  // namespace postgresql
 
-} // namespace sqlpp
+}  // namespace sqlpp

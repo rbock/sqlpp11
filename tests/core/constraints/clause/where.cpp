@@ -48,7 +48,7 @@ template <typename... Expressions>
 concept cannot_call_where_with =
     not(can_call_where_with_standalone<Expressions...> or
         can_call_where_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

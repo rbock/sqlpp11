@@ -145,17 +145,15 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   template <typename... Fragments>
   statement_t(statement_constructor_arg<Fragments...> arg) : Clauses{arg}... {}
 
-  statement_t(const statement_t &r) = default;
-  statement_t(statement_t &&r) = default;
-  statement_t &operator=(const statement_t &r) = default;
-  statement_t &operator=(statement_t &&r) = default;
+  statement_t(const statement_t& r) = default;
+  statement_t(statement_t&& r) = default;
+  statement_t& operator=(const statement_t& r) = default;
+  statement_t& operator=(statement_t&& r) = default;
   ~statement_t() = default;
-
 };
 
 template <typename... Clauses>
-struct can_be_used_as_table<statement_t<Clauses...>>
-{
+struct can_be_used_as_table<statement_t<Clauses...>> {
   // A select can be used as a pseudo table if
   //   - at least one column is selected
   //   - the select is complete (leaks no table requirements or cte
@@ -182,7 +180,8 @@ template <typename... Clauses>
 struct has_result_row<statement_t<Clauses...>>
     : public has_result_row<result_type_provider_t<Clauses...>> {};
 
-template <typename... Clauses> struct get_result_row<statement_t<Clauses...>> {
+template <typename... Clauses>
+struct get_result_row<statement_t<Clauses...>> {
   using type = result_row_of_t<statement_t<Clauses...>,
                                result_type_provider_t<Clauses...>>;
 };
@@ -196,16 +195,20 @@ struct is_where_required<statement_t<Clauses...>> {
 template <typename... Clauses>
 struct is_result_clause<statement_t<Clauses...>> {
   static constexpr bool value = not std::is_same<
-      noop, typename statement_t<Clauses...>::_result_type_provider>::value;
+      noop,
+      typename statement_t<Clauses...>::_result_type_provider>::value;
 };
 
-template <typename... Clauses> struct value_type_of<statement_t<Clauses...>> {
+template <typename... Clauses>
+struct value_type_of<statement_t<Clauses...>> {
   using type = std::conditional_t<
       statement_consistency_check_t<statement_t<Clauses...>>::value,
-      value_type_of_t<result_type_provider_t<Clauses...>>, no_value_t>;
+      value_type_of_t<result_type_provider_t<Clauses...>>,
+      no_value_t>;
 };
 
-template <typename... Clauses> struct nodes_of<statement_t<Clauses...>> {
+template <typename... Clauses>
+struct nodes_of<statement_t<Clauses...>> {
   // statements explicitly do not expose any nodes as most recursive traits
   // should not traverse into sub queries, e.g.
   //   - contains_aggregates
@@ -219,7 +222,8 @@ struct required_insert_columns_of<statement_t<Clauses...>> {
       detail::make_joined_set_t<required_insert_columns_of_t<Clauses>...>;
 };
 
-template <typename... Clauses> struct parameters_of<statement_t<Clauses...>> {
+template <typename... Clauses>
+struct parameters_of<statement_t<Clauses...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
 };
 
@@ -281,13 +285,15 @@ struct statement_run_check<statement_t<Clauses...>> {
 template <typename OldClause, typename... Clauses, typename NewClause>
 auto new_statement(statement_t<Clauses...> oldStatement, NewClause newClause)
     -> statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value,
-                                      NewClause, Clauses>...> {
+                                      NewClause,
+                                      Clauses>...> {
   return statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value,
                                         NewClause, Clauses>...>{
       statement_constructor_arg(oldStatement, newClause)};
 }
 
-template <typename T> struct core_statement;
+template <typename T>
+struct core_statement;
 template <typename... Clauses>
 struct core_statement<detail::type_vector<Clauses...>> {
   using type = statement_t<Clauses...>;
@@ -297,7 +303,8 @@ template <typename... Clauses>
 using core_statement_t = typename core_statement<
     detail::copy_if_t<detail::type_vector<Clauses...>, is_clause>>::type;
 
-template <typename Statement> struct statement_has_unique_clauses;
+template <typename Statement>
+struct statement_has_unique_clauses;
 
 template <typename... Clauses>
 struct statement_has_unique_clauses<statement_t<Clauses...>>
@@ -326,15 +333,15 @@ constexpr auto operator<<(statement_t<LClauses...> l, Clause r)
 }
 
 template <typename Context, typename... Clauses>
-auto to_sql_string(Context &context, const statement_t<Clauses...> &t)
+auto to_sql_string(Context& context, const statement_t<Clauses...>& t)
     -> std::string {
   auto result = std::string{};
   using swallow = int[];
   (void)swallow{
-      0, (result += to_sql_string(context, static_cast<const Clauses &>(t)),
-          0)...};
+      0,
+      (result += to_sql_string(context, static_cast<const Clauses&>(t)), 0)...};
 
   return result;
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

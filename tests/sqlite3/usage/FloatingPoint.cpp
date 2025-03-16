@@ -41,14 +41,14 @@ namespace sql = sqlpp::sqlite3;
 const auto fp = test::FpSample{};
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
 
 template <typename L, typename R>
-auto require_equal(int line, const L &l, const R &r) -> void {
+auto require_equal(int line, const L& l, const R& r) -> void {
   if (l != r) {
     std::cerr << line << ": ";
     std::cerr << l;
@@ -65,7 +65,7 @@ static auto require(int line, bool condition) -> void {
   }
 }
 
-int FloatingPoint(int, char *[]) {
+int FloatingPoint(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;

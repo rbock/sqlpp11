@@ -32,7 +32,8 @@ template <typename T, typename ValueType>
 using is_select_column_value_type =
     std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
 
-template <typename Value> void test_as_expression(Value v) {
+template <typename Value>
+void test_as_expression(Value v) {
   auto v_not_null = sqlpp::value(v).as(cheese);
   auto v_maybe_null = sqlpp::value(std::make_optional(v)).as(cheese);
   auto v_dynamic_not_null = dynamic(true, sqlpp::value(v).as(cheese));

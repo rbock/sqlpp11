@@ -50,7 +50,8 @@ namespace detail {
 //
 // In order to analyse aggregate expressions, we want to ignore the
 // as_expression aspects, but preserve the dynamic nature.
-template <typename Column> struct remove_as_from_select_column {
+template <typename Column>
+struct remove_as_from_select_column {
   using type = Column;
 };
 template <typename Column, typename NameTag>
@@ -104,16 +105,17 @@ struct select_columns_aggregate_check<false, Statement, Columns...> {
   static constexpr bool no_aggregate =
       logic::all<is_non_aggregate_expression<AC, Columns>::value...>::value;
 
-  using type = std::conditional_t<
-      no_aggregate, consistent_t,
-      static_combined_check_t<static_check_t<
-          all_aggregate, assert_select_columns_all_aggregates_t>>>;
+  using type = std::conditional_t<no_aggregate,
+                                  consistent_t,
+                                  static_combined_check_t<static_check_t<
+                                      all_aggregate,
+                                      assert_select_columns_all_aggregates_t>>>;
 };
 
 template <bool HasGroupBy, typename Statement, typename... Columns>
 using select_columns_aggregate_check_t =
-    typename select_columns_aggregate_check<HasGroupBy, Statement,
-                                            Columns...>::type;
-} // namespace detail
+    typename select_columns_aggregate_check<HasGroupBy, Statement, Columns...>::
+        type;
+}  // namespace detail
 
-} // namespace sqlpp
+}  // namespace sqlpp

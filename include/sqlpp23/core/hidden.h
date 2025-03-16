@@ -33,7 +33,8 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Clause> struct hidden_t {};
+template <typename Clause>
+struct hidden_t {};
 
 template <typename Clause>
 struct is_clause<hidden_t<Clause>> : public std::true_type {};
@@ -44,20 +45,20 @@ struct consistency_check<Statement, hidden_t<Clause>> {
 };
 
 template <typename Context, typename Clause>
-auto to_sql_string(Context &, const hidden_t<Clause> &) -> std::string {
+auto to_sql_string(Context&, const hidden_t<Clause>&) -> std::string {
   return {};
 }
 
 template <typename... Clauses>
-auto hidden(const statement_t<Clauses...> &)
+auto hidden(const statement_t<Clauses...>&)
     -> hidden_t<result_type_provider_t<Clauses...>> {
   return {};
 }
 
 template <typename... Clauses>
-auto with_result_type_of(const statement_t<Clauses...> &)
+auto with_result_type_of(const statement_t<Clauses...>&)
     -> hidden_t<result_type_provider_t<Clauses...>> {
   return {};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

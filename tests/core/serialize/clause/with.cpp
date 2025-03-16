@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
@@ -61,8 +61,9 @@ int main(int, char *[]) {
                                         .from(x_base)
                                         .where(x_base.a < 10));
 
-    SQLPP_COMPARE(with(x), "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL "
-                           "SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
+    SQLPP_COMPARE(with(x),
+                  "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL "
+                  "SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
   }
 
   // WITH two CTEs, no recursive
@@ -90,12 +91,14 @@ int main(int, char *[]) {
     const auto y =
         cte(sqlpp::alias::y).as(select(foo.id).from(foo).where(true));
 
-    SQLPP_COMPARE(with(x, y), "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL "
-                              "SELECT (x.a + 1) AS a FROM x WHERE x.a < 10), y "
-                              "AS (SELECT tab_foo.id FROM tab_foo WHERE 1) ");
-    SQLPP_COMPARE(with(y, x), "WITH RECURSIVE y AS (SELECT tab_foo.id FROM "
-                              "tab_foo WHERE 1), x AS (SELECT 0 AS a UNION ALL "
-                              "SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
+    SQLPP_COMPARE(with(x, y),
+                  "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL "
+                  "SELECT (x.a + 1) AS a FROM x WHERE x.a < 10), y "
+                  "AS (SELECT tab_foo.id FROM tab_foo WHERE 1) ");
+    SQLPP_COMPARE(with(y, x),
+                  "WITH RECURSIVE y AS (SELECT tab_foo.id FROM "
+                  "tab_foo WHERE 1), x AS (SELECT 0 AS a UNION ALL "
+                  "SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
   }
 
   // WITH two CTEs, second depends on first
@@ -104,8 +107,9 @@ int main(int, char *[]) {
         cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
     const auto y = cte(sqlpp::alias::y).as(select(x.id).from(x).where(true));
 
-    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo WHERE "
-                              "1), y AS (SELECT x.id FROM x WHERE 1) ");
+    SQLPP_COMPARE(with(x, y),
+                  "WITH x AS (SELECT tab_foo.id FROM tab_foo WHERE "
+                  "1), y AS (SELECT x.id FROM x WHERE 1) ");
   }
 
   return 0;

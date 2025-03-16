@@ -33,15 +33,15 @@ namespace sqlpp {
 namespace mysql {
 namespace detail {
 struct result_handle {
-  MYSQL_RES *mysql_res;
+  MYSQL_RES* mysql_res;
   bool debug;
 
-  result_handle(MYSQL_RES *res, bool debug_) : mysql_res{res}, debug{debug_} {}
+  result_handle(MYSQL_RES* res, bool debug_) : mysql_res{res}, debug{debug_} {}
 
-  result_handle(const result_handle &) = delete;
-  result_handle(result_handle &&) = default;
-  result_handle &operator=(const result_handle &) = delete;
-  result_handle &operator=(result_handle &&) = default;
+  result_handle(const result_handle&) = delete;
+  result_handle(result_handle&&) = default;
+  result_handle& operator=(const result_handle&) = delete;
+  result_handle& operator=(result_handle&&) = default;
 
   ~result_handle() {
     if (mysql_res)
@@ -50,6 +50,6 @@ struct result_handle {
 
   bool operator!() const { return !mysql_res; }
 };
-} // namespace detail
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace mysql
+}  // namespace sqlpp

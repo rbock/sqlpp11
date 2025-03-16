@@ -57,9 +57,9 @@ struct provided_tables_of<table_as_t<TableSpec, NameTag>> {
 };
 
 template <typename Context, typename TableSpec, typename NameTag>
-auto to_sql_string(Context &context, const table_as_t<TableSpec, NameTag> &)
+auto to_sql_string(Context& context, const table_as_t<TableSpec, NameTag>&)
     -> std::string {
   return name_to_sql_string(context, name_tag_of_t<TableSpec>{}) + " AS " +
          name_to_sql_string(context, NameTag{});
 }
-} // namespace sqlpp
+}  // namespace sqlpp

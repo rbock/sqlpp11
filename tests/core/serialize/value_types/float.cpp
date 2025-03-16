@@ -29,21 +29,22 @@
 #include <sqlpp23/tests/core/tables.h>
 
 namespace {
-template <typename T> std::string string_for_10_0000086() {
+template <typename T>
+std::string string_for_10_0000086() {
   switch (std::numeric_limits<T>::max_digits10) {
-  case 9:
-    return "10.0000086";
-  case 17:
-    return "10.000008599999999";
-  case 21:
-    return "10.0000086000000000001";
-  default:
-    throw std::logic_error("Unknown floating point digit count");
+    case 9:
+      return "10.0000086";
+    case 17:
+      return "10.000008599999999";
+    case 21:
+      return "10.0000086000000000001";
+    default:
+      throw std::logic_error("Unknown floating point digit count");
   }
 }
-} // namespace
+}  // namespace
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   SQLPP_COMPARE(10.0000114f, "10.0000114");
   SQLPP_COMPARE(10.0000114, "10.0000114");
   SQLPP_COMPARE(10.0000114l, "10.0000114");

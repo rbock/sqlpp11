@@ -32,14 +32,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 // To be used as CRTP base for expressions that should offer the as() member
 // function.
-template <typename Expr> class enable_as {
-  constexpr auto derived() const -> const Expr & {
-    return static_cast<const Expr &>(*this);
+template <typename Expr>
+class enable_as {
+  constexpr auto derived() const -> const Expr& {
+    return static_cast<const Expr&>(*this);
   }
 
-public:
+ public:
   template <typename NameTagProvider>
-  constexpr auto as(const NameTagProvider &alias) const
+  constexpr auto as(const NameTagProvider& alias) const
       -> decltype(::sqlpp::as(this->derived(), alias)) {
     return ::sqlpp::as(this->derived(), alias);
   }
@@ -48,4 +49,4 @@ public:
 template <typename T>
 struct has_enabled_as : public std::is_base_of<enable_as<T>, T> {};
 
-} // namespace sqlpp
+}  // namespace sqlpp

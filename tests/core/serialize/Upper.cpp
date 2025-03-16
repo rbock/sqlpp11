@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int Upper(int, char *[]) {
+int Upper(int, char*[]) {
   const auto bar = test::TabBar{};
 
   // Single column.

@@ -31,10 +31,11 @@
 #include <sqlpp23/tests/core/types_helpers.h>
 
 namespace {
-template <typename A, typename B> constexpr bool is_same_type() {
+template <typename A, typename B>
+constexpr bool is_same_type() {
   return std::is_same<A, B>::value;
 }
-} // namespace
+}  // namespace
 
 template <typename Left, typename Right, typename ValueType>
 void test_plus(Left raw_l, Right raw_r, ValueType) {
@@ -243,7 +244,8 @@ void test_modulus(Left raw_l, Right raw_r, ValueType) {
                 "");
 }
 
-template <typename Value> void test_concatenation_expressions(Value v) {
+template <typename Value>
+void test_concatenation_expressions(Value v) {
   using ValueType = sqlpp::text;
   using OptValueType = std::optional<sqlpp::text>;
 

@@ -28,5 +28,6 @@
  */
 
 namespace sqlpp {
-template <typename... Clauses> struct statement_t;
-} // namespace sqlpp
+template <typename... Clauses>
+struct statement_t;
+}  // namespace sqlpp

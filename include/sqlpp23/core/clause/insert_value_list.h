@@ -61,7 +61,8 @@ struct have_all_required_assignments {
 // dynamic elements.
 struct tuple_lhs_assignment_operand_no_dynamic {
   template <typename Context, typename Lhs, typename Op, typename Rhs>
-  auto operator()(Context &context, const assign_expression<Lhs, Op, Rhs> &,
+  auto operator()(Context& context,
+                  const assign_expression<Lhs, Op, Rhs>&,
                   size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
@@ -69,7 +70,8 @@ struct tuple_lhs_assignment_operand_no_dynamic {
   }
 
   template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+  auto operator()(Context& context,
+                  const sqlpp::dynamic_t<T>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -85,7 +87,8 @@ struct tuple_lhs_assignment_operand_no_dynamic {
 // dynamic elements.
 struct tuple_rhs_assignment_operand_no_dynamic {
   template <typename Context, typename Lhs, typename Op, typename Rhs>
-  auto operator()(Context &context, const assign_expression<Lhs, Op, Rhs> &t,
+  auto operator()(Context& context,
+                  const assign_expression<Lhs, Op, Rhs>& t,
                   size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
@@ -93,7 +96,8 @@ struct tuple_rhs_assignment_operand_no_dynamic {
   }
 
   template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+  auto operator()(Context& context,
+                  const sqlpp::dynamic_t<T>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -105,8 +109,7 @@ struct tuple_rhs_assignment_operand_no_dynamic {
   mutable bool need_prefix = false;
 };
 
-}
-
+}  // namespace detail
 
 struct insert_default_values_t {
   template <typename Context>
@@ -134,38 +137,40 @@ template <typename Statement>
 struct consistency_check<Statement, insert_default_values_t> {
   using type =
       std::conditional_t<required_insert_columns_of_t<Statement>::empty(),
-                         consistent_t, assert_all_columns_have_default_value_t>;
+                         consistent_t,
+                         assert_all_columns_have_default_value_t>;
 };
 
-template <typename... Assignments> struct insert_set_t {
+template <typename... Assignments>
+struct insert_set_t {
   insert_set_t(std::tuple<Assignments...> assignments)
       : _assignments(std::move(assignments)) {}
 
-  insert_set_t(const insert_set_t &) = default;
-  insert_set_t(insert_set_t &&) = default;
-  insert_set_t &operator=(const insert_set_t &) = default;
-  insert_set_t &operator=(insert_set_t &&) = default;
+  insert_set_t(const insert_set_t&) = default;
+  insert_set_t(insert_set_t&&) = default;
+  insert_set_t& operator=(const insert_set_t&) = default;
+  insert_set_t& operator=(insert_set_t&&) = default;
   ~insert_set_t() = default;
 
-private:
+ private:
   friend reader_t;
   std::tuple<Assignments...> _assignments;
 };
 
-  template <typename Context, typename... Assignments>
-  auto to_sql_string(Context& context, const insert_set_t<Assignments...>& t)
-      -> std::string {
-    auto result = std::string{" ("};
-    result += tuple_to_sql_string(
-        context, read.assignments(t),
-        detail::tuple_lhs_assignment_operand_no_dynamic{", "});
-    result += ") VALUES(";
-    result += tuple_to_sql_string(
-        context, read.assignments(t),
-        detail::tuple_rhs_assignment_operand_no_dynamic{", "});
-    result += ")";
-    return result;
-  }
+template <typename Context, typename... Assignments>
+auto to_sql_string(Context& context, const insert_set_t<Assignments...>& t)
+    -> std::string {
+  auto result = std::string{" ("};
+  result += tuple_to_sql_string(
+      context, read.assignments(t),
+      detail::tuple_lhs_assignment_operand_no_dynamic{", "});
+  result += ") VALUES(";
+  result += tuple_to_sql_string(
+      context, read.assignments(t),
+      detail::tuple_rhs_assignment_operand_no_dynamic{", "});
+  result += ")";
+  return result;
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_insert_assignments_t,
                             "at least one insert assignment requires a table "
@@ -180,9 +185,10 @@ struct consistency_check<Statement, insert_set_t<Assignments...>> {
       static_check_t<
           Statement::template _no_unknown_tables<insert_set_t<Assignments...>>,
           assert_no_unknown_tables_in_insert_assignments_t>,
-      static_check_t<detail::have_all_required_assignments<
-                         Statement, Assignments...>::value,
-                     assert_all_required_assignments_t>>;
+      static_check_t<
+          detail::have_all_required_assignments<Statement,
+                                                Assignments...>::value,
+          assert_all_required_assignments_t>>;
 };
 
 template <typename... Assignments>
@@ -190,8 +196,10 @@ struct nodes_of<insert_set_t<Assignments...>> {
   using type = detail::type_vector<Assignments...>;
 };
 
-template <typename... Columns> struct column_list_t {
-  column_list_t(std::tuple<make_simple_column_t<Columns>...> columns) : _columns(std::move(columns)) {}
+template <typename... Columns>
+struct column_list_t {
+  column_list_t(std::tuple<make_simple_column_t<Columns>...> columns)
+      : _columns(std::move(columns)) {}
   column_list_t(const column_list_t&) = default;
   column_list_t(column_list_t&&) = default;
   column_list_t& operator=(const column_list_t&) = default;
@@ -229,7 +237,7 @@ template <typename... Columns> struct column_list_t {
                     std::move(assignments)...);
   }
 
-private:
+ private:
   auto add_values_impl(std::false_type, ...) -> void {}
 
   template <typename... Assignments>
@@ -244,29 +252,28 @@ private:
   std::vector<_value_tuple_t> _expressions;
 };
 
-  template <typename Context, typename... Columns>
-  auto to_sql_string(Context &context, const column_list_t<Columns...> &t)
-      -> std::string {
-    auto result = std::string{" ("};
-    result += tuple_to_sql_string(context, read.columns(t),
-                                  tuple_operand_no_dynamic{", "});
-    result += ")";
-    bool first = true;
-    for (const auto &row : read.expressions(t)) {
-      if (first) {
-        result += " VALUES ";
-        first = false;
-      } else {
-        result += ", ";
-      }
-      result += '(';
-      result +=
-          tuple_to_sql_string(context, row, tuple_operand_no_dynamic{", "});
-      result += ')';
+template <typename Context, typename... Columns>
+auto to_sql_string(Context& context, const column_list_t<Columns...>& t)
+    -> std::string {
+  auto result = std::string{" ("};
+  result += tuple_to_sql_string(context, read.columns(t),
+                                tuple_operand_no_dynamic{", "});
+  result += ")";
+  bool first = true;
+  for (const auto& row : read.expressions(t)) {
+    if (first) {
+      result += " VALUES ";
+      first = false;
+    } else {
+      result += ", ";
     }
-
-    return result;
+    result += '(';
+    result += tuple_to_sql_string(context, row, tuple_operand_no_dynamic{", "});
+    result += ')';
   }
+
+  return result;
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
                             "at least one column requires a table which is "
@@ -286,7 +293,8 @@ struct consistency_check<Statement, column_list_t<Columns...>> {
           assert_all_required_columns_t>>;
 };
 
-template <typename... Columns> struct nodes_of<column_list_t<Columns...>> {
+template <typename... Columns>
+struct nodes_of<column_list_t<Columns...>> {
   using type = detail::type_vector<Columns...>;
 };
 
@@ -297,13 +305,13 @@ SQLPP_WRAPPED_STATIC_ASSERT(
 // NO INSERT COLUMNS/VALUES YET
 struct no_insert_value_list_t {
   template <typename Statement>
-  auto default_values(this Statement &&statement) {
+  auto default_values(this Statement&& statement) {
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(statement), insert_default_values_t{});
   }
 
   template <typename Statement, DynamicColumn... Columns>
-  auto columns(this Statement &&statement, Columns... cols) {
+  auto columns(this Statement&& statement, Columns... cols) {
     SQLPP_STATIC_ASSERT(sizeof...(Columns),
                         "at least one column required in columns()");
     SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
@@ -318,7 +326,7 @@ struct no_insert_value_list_t {
   }
 
   template <typename Statement, DynamicAssignment... Assignments>
-  auto set(this Statement &&statement, Assignments... assignments) {
+  auto set(this Statement&& statement, Assignments... assignments) {
     SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0,
                         "at least one assignment expression required in set()");
 
@@ -340,18 +348,18 @@ struct no_insert_value_list_t {
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_insert_value_list_t&)
-      -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_insert_value_list_t&) -> std::string {
+  return "";
+}
 
 template <typename Statement>
 struct consistency_check<Statement, no_insert_value_list_t> {
   using type = assert_insert_values_t;
 };
 
-template <typename... Assignments> auto insert_default_values() {
+template <typename... Assignments>
+auto insert_default_values() {
   return statement_t<no_insert_value_list_t>().default_values();
 }
 
@@ -360,7 +368,8 @@ auto insert_set(Assignments... assignments) {
   return statement_t<no_insert_value_list_t>().set(assignments...);
 }
 
-template <DynamicColumn... Columns> auto insert_columns(Columns... cols) {
+template <DynamicColumn... Columns>
+auto insert_columns(Columns... cols) {
   return statement_t<no_insert_value_list_t>().columns(cols...);
 }
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -64,19 +64,20 @@ struct provided_tables_of<schema_qualified_table_as_t<TableSpec, NameTag>> {
 };
 
 template <typename Context, typename TableSpec, typename NameTag>
-auto to_sql_string(Context &context,
-                   const schema_qualified_table_as_t<TableSpec, NameTag> &t)
+auto to_sql_string(Context& context,
+                   const schema_qualified_table_as_t<TableSpec, NameTag>& t)
     -> std::string {
   return to_sql_string(context, t._schema) + "." +
          name_to_sql_string(context, name_tag_of_t<TableSpec>{}) + " AS " +
          name_to_sql_string(context, NameTag{});
 }
 
-template <typename TableSpec> struct schema_qualified_table_t {
+template <typename TableSpec>
+struct schema_qualified_table_t {
   schema_qualified_table_t(schema_t schema) : _schema(std::move(schema)) {}
 
   template <typename NameTagProvider>
-  auto as(const NameTagProvider & /*unused*/) const
+  auto as(const NameTagProvider& /*unused*/) const
       -> schema_qualified_table_as_t<TableSpec,
                                      name_tag_of_t<NameTagProvider>> {
     return {_schema};
@@ -90,4 +91,4 @@ auto schema_qualified_table(schema_t schema, table_t<TableSpec>)
     -> schema_qualified_table_t<TableSpec> {
   return {schema};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

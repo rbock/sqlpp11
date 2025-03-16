@@ -27,34 +27,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Column> struct simple_column_t {
-
-  simple_column_t(const Column &column) : _column{column} {}
+template <typename Column>
+struct simple_column_t {
+  simple_column_t(const Column& column) : _column{column} {}
   simple_column_t(const simple_column_t&) = default;
   simple_column_t(simple_column_t&&) = default;
   simple_column_t& operator=(const simple_column_t&) = default;
   simple_column_t& operator=(simple_column_t&&) = default;
   ~simple_column_t() = default;
 
-  private:
+ private:
   Column _column;
 };
 
-  template <typename Context, typename Column>
-  auto to_sql_string(Context& context, const simple_column_t<Column>&)
-      -> std::string {
-    return name_to_sql_string(context, name_tag_of_t<Column>{});
-  }
+template <typename Context, typename Column>
+auto to_sql_string(Context& context, const simple_column_t<Column>&)
+    -> std::string {
+  return name_to_sql_string(context, name_tag_of_t<Column>{});
+}
 
-template <typename Column> struct make_simple_column {
+template <typename Column>
+struct make_simple_column {
   using type = simple_column_t<Column>;
 };
 
-template <typename Column> struct make_simple_column<dynamic_t<Column>> {
+template <typename Column>
+struct make_simple_column<dynamic_t<Column>> {
   using type = dynamic_t<simple_column_t<Column>>;
 };
 
@@ -70,4 +72,4 @@ template <typename Column>
 auto simple_column(dynamic_t<Column> c) -> dynamic_t<simple_column_t<Column>> {
   return {c.has_value(), std::move(c._value())};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

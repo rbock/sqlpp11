@@ -31,12 +31,13 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Joinable> struct enable_join {
-  constexpr auto derived() const -> const Joinable & {
-    return static_cast<const Joinable &>(*this);
+template <typename Joinable>
+struct enable_join {
+  constexpr auto derived() const -> const Joinable& {
+    return static_cast<const Joinable&>(*this);
   }
 
-public:
+ public:
   template <typename T>
   auto join(T t) const
       -> decltype(::sqlpp::join(this->derived(), std::move(t))) {
@@ -77,4 +78,4 @@ public:
 template <typename T>
 struct has_enabled_join : public std::is_base_of<enable_join<T>, T> {};
 
-} // namespace sqlpp
+}  // namespace sqlpp

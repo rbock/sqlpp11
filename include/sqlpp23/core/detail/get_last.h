@@ -39,7 +39,9 @@ struct get_last_if<Predicate, Default> {
   using type = Default;
 };
 
-template <template <typename> class Predicate, typename Default, typename T,
+template <template <typename> class Predicate,
+          typename Default,
+          typename T,
           typename... Rest>
 struct get_last_if<Predicate, Default, T, Rest...> {
   using type =
@@ -50,5 +52,5 @@ struct get_last_if<Predicate, Default, T, Rest...> {
 
 template <template <typename> class Predicate, typename Default, typename... T>
 using get_last_if_t = typename get_last_if<Predicate, Default, T...>::type;
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

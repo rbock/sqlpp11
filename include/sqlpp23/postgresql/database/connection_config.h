@@ -68,7 +68,7 @@ struct DLL_PUBLIC connection_config {
   // bool auto_reconnect {true};
   bool debug{false};
 
-  bool operator==(const connection_config &other) {
+  bool operator==(const connection_config& other) {
     return (
         other.host == host && other.hostaddr == hostaddr &&
         other.port == port && other.dbname == dbname && other.user == user &&
@@ -86,7 +86,7 @@ struct DLL_PUBLIC connection_config {
         other.requirepeer == requirepeer && other.krbsrvname == krbsrvname &&
         other.service == service && other.debug == debug);
   }
-  bool operator!=(const connection_config &other) { return !operator==(other); }
+  bool operator!=(const connection_config& other) { return !operator==(other); }
 };
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

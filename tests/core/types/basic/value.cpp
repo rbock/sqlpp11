@@ -30,7 +30,8 @@
 template <typename T, typename ValueType>
 using is_value_type = std::is_same<sqlpp::value_type_of_t<T>, ValueType>;
 
-template <typename Value> void test_value(Value v) {
+template <typename Value>
+void test_value(Value v) {
   using ValueType = sqlpp::value_type_of_t<Value>;
   using OptValueType = std::optional<ValueType>;
 

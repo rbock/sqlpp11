@@ -91,4 +91,6 @@ void test_get_last_if() {
       "");
 }
 
-int main() { void test_get_last_if(); }
+int main() {
+  void test_get_last_if();
+}

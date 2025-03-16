@@ -67,7 +67,7 @@ concept cannot_call_insert_columns_with =
     not(can_call_insert_columns_with_standalone<Expressions...> or
         can_call_insert_columns_with_in_statement<Expressions...>);
 
-} // namespace
+}  // namespace
 
 int main() {
   const auto foo = test::TabFoo{};
@@ -214,8 +214,8 @@ int main() {
   // -------------------------
   {
     auto i = insert_into(bar).columns(bar.id, bar.boolNn);
-    i.add_values(bar.id = sqlpp::default_value, bar.boolNn = true); // OK
-    i.add_values(bar.id = 7, bar.boolNn = true);                    // OK
+    i.add_values(bar.id = sqlpp::default_value, bar.boolNn = true);  // OK
+    i.add_values(bar.id = 7, bar.boolNn = true);                     // OK
 
     SQLPP_CHECK_STATIC_ASSERT(
         i.add_values(bar.boolNn = true),
@@ -240,7 +240,7 @@ int main() {
   {
     auto i = insert_into(bar).columns(dynamic(true, bar.id), bar.boolNn);
     i.add_values(dynamic(true, bar.id = sqlpp::default_value),
-                 bar.boolNn = true); // OK
+                 bar.boolNn = true);  // OK
 
     SQLPP_CHECK_STATIC_ASSERT(
         i.add_values(bar.boolNn = true),

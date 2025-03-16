@@ -33,9 +33,10 @@ using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 template <typename T>
 using is_maybe_bool =
     std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::boolean>>;
-} // namespace
+}  // namespace
 
-template <typename Value> void test_in_expression(Value v) {
+template <typename Value>
+void test_in_expression(Value v) {
   using OptValue = std::optional<Value>;
 
   auto v_not_null = sqlpp::value(v);
@@ -48,9 +49,10 @@ template <typename Value> void test_in_expression(Value v) {
       "");
   static_assert(is_bool<decltype(in(v_not_null, std::vector<Value>{}))>::value,
                 "");
-  static_assert(is_bool<decltype(in(v_not_null, select(v_not_null.as(
-                                                    sqlpp::alias::a))))>::value,
-                "");
+  static_assert(
+      is_bool<decltype(in(v_not_null,
+                          select(v_not_null.as(sqlpp::alias::a))))>::value,
+      "");
 
   // Compare non-nullable with nullable.
   static_assert(

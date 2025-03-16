@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 

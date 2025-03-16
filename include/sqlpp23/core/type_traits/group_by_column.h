@@ -37,6 +37,7 @@ namespace sqlpp {
 // tell the library that you are really certain by wrapping it in
 // `declare_group_by_column`.
 
-template <typename T> struct is_group_by_column : public std::false_type {};
+template <typename T>
+struct is_group_by_column : public std::false_type {};
 
-} // namespace sqlpp
+}  // namespace sqlpp

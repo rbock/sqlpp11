@@ -37,16 +37,18 @@ namespace sqlpp {
 template <typename ValueType, typename Expr>
 struct parameterized_verbatim_t
     : public enable_as<parameterized_verbatim_t<ValueType, Expr>> {
-  parameterized_verbatim_t(const Expr expr, std::string verbatim_lhs,
+  parameterized_verbatim_t(const Expr expr,
+                           std::string verbatim_lhs,
                            std::string verbatim_rhs)
-      : _expr(expr), _verbatim_lhs(std::move(verbatim_lhs)),
+      : _expr(expr),
+        _verbatim_lhs(std::move(verbatim_lhs)),
         _verbatim_rhs(std::move(verbatim_rhs)) {}
 
-  parameterized_verbatim_t(const parameterized_verbatim_t &) = default;
-  parameterized_verbatim_t(parameterized_verbatim_t &&) = default;
-  parameterized_verbatim_t &
-  operator=(const parameterized_verbatim_t &) = default;
-  parameterized_verbatim_t &operator=(parameterized_verbatim_t &&) = default;
+  parameterized_verbatim_t(const parameterized_verbatim_t&) = default;
+  parameterized_verbatim_t(parameterized_verbatim_t&&) = default;
+  parameterized_verbatim_t& operator=(const parameterized_verbatim_t&) =
+      default;
+  parameterized_verbatim_t& operator=(parameterized_verbatim_t&&) = default;
   ~parameterized_verbatim_t() = default;
 
   Expr _expr;
@@ -75,8 +77,8 @@ struct nodes_of<parameterized_verbatim_t<ValueType, Expr>> {
 };
 
 template <typename Context, typename ValueType, typename Expr>
-auto to_sql_string(Context &context,
-                   const parameterized_verbatim_t<ValueType, Expr> &t)
+auto to_sql_string(Context& context,
+                   const parameterized_verbatim_t<ValueType, Expr>& t)
     -> std::string {
   return t._verbatim_lhs + to_sql_string(context, t._expr) + t._verbatim_rhs;
 }
@@ -89,4 +91,4 @@ auto parameterized_verbatim(std::string lhs, Expr expr, std::string rhs)
   return {expr, lhs, rhs};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

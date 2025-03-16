@@ -32,31 +32,31 @@
 namespace sqlpp {
 namespace detail {
 template <typename Clause, typename OldStatement, typename NewClauseData>
-const typename Clause::_data_t &
-pick_arg_impl(const OldStatement & /* old_statement */,
-              const NewClauseData &new_data,
-              const std::true_type & /*unused*/) {
+const typename Clause::_data_t& pick_arg_impl(
+    const OldStatement& /* old_statement */,
+    const NewClauseData& new_data,
+    const std::true_type& /*unused*/) {
   return new_data;
 }
 
 template <typename Clause, typename OldStatement, typename NewClauseData>
-const typename Clause::_data_t &
-pick_arg_impl(const OldStatement &old_statement,
-              const NewClauseData & /* new_data */,
-              const std::false_type & /*unused*/) {
+const typename Clause::_data_t& pick_arg_impl(
+    const OldStatement& old_statement,
+    const NewClauseData& /* new_data */,
+    const std::false_type& /*unused*/) {
   using old_base_t = typename Clause::template _base_t<OldStatement>;
-  return static_cast<const old_base_t &>(old_statement)._data;
+  return static_cast<const old_base_t&>(old_statement)._data;
 }
 
 // Returns a old_statement's new_data either by picking the new_data from the
 // old_statement or using the new new_data
 template <typename Clause, typename OldStatement, typename NewClauseData>
-const typename Clause::_data_t &pick_arg(const OldStatement &old_statement,
-                                         const NewClauseData &new_data) {
+const typename Clause::_data_t& pick_arg(const OldStatement& old_statement,
+                                         const NewClauseData& new_data) {
   return pick_arg_impl<Clause>(
       old_statement, new_data,
       std::is_same<typename Clause::_data_t,
                    typename std::decay<NewClauseData>::type>());
 }
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

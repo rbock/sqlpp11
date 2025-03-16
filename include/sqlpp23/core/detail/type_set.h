@@ -37,44 +37,56 @@
 namespace sqlpp {
 namespace detail {
 // some forward declarations and helpers
-template <typename... T> struct make_type_set;
+template <typename... T>
+struct make_type_set;
 
 template <typename... T>
 using make_type_set_t = typename make_type_set<T...>::type;
 
-template <typename E, typename SET> struct is_element_of;
+template <typename E, typename SET>
+struct is_element_of;
 
-template <typename T> struct _base {};
+template <typename T>
+struct _base {};
 
 // A type set
-template <typename... Elements> struct type_set {
-private:
+template <typename... Elements>
+struct type_set {
+ private:
   struct _impl : _base<Elements>... {};
 
-public:
+ public:
   static constexpr size_t size() { return sizeof...(Elements); }
 
   static constexpr bool empty() { return size() == 0; }
 
-  template <typename T> static constexpr bool count() {
+  template <typename T>
+  static constexpr bool count() {
     return std::is_base_of<_base<T>, _impl>::value;
   }
 
-  template <typename T> static constexpr bool contains() { return count<T>(); }
+  template <typename T>
+  static constexpr bool contains() {
+    return count<T>();
+  }
 
-  template <typename... X> static constexpr bool contains_any(type_set<X...>) {
+  template <typename... X>
+  static constexpr bool contains_any(type_set<X...>) {
     return ::sqlpp::logic::any<contains<X>()...>::value;
   }
 
-  template <typename... X> static constexpr bool contains_all(type_set<X...>) {
+  template <typename... X>
+  static constexpr bool contains_all(type_set<X...>) {
     return ::sqlpp::logic::all<contains<X>()...>::value;
   }
 
-  template <typename... X> static constexpr bool contains_none(type_set<X...>) {
+  template <typename... X>
+  static constexpr bool contains_none(type_set<X...>) {
     return ::sqlpp::logic::none<contains<X>()...>::value;
   }
 
-  template <typename T> struct insert {
+  template <typename T>
+  struct insert {
     using type =
         std::conditional_t<count<T>(), type_set, type_set<T, Elements...>>;
   };
@@ -82,11 +94,13 @@ public:
   template <template <typename A> class Predicate, typename T>
   struct insert_if {
     using type = std::conditional_t<Predicate<T>::value and not count<T>(),
-                                    type_set<Elements..., T>, type_set>;
+                                    type_set<Elements..., T>,
+                                    type_set>;
   };
 };
 
-template <typename E, typename SET> struct is_element_of {
+template <typename E, typename SET>
+struct is_element_of {
   static_assert(wrong_t<is_element_of>::value, "SET has to be a type set");
 };
 
@@ -95,11 +109,13 @@ struct is_element_of<E, type_set<Elements...>> {
   static constexpr bool value = type_set<Elements...>::template count<E>();
 };
 
-template <> struct make_type_set<> {
+template <>
+struct make_type_set<> {
   using type = type_set<>;
 };
 
-template <typename T, typename... Rest> struct make_type_set<T, Rest...> {
+template <typename T, typename... Rest>
+struct make_type_set<T, Rest...> {
   using type = typename make_type_set<Rest...>::type::template insert<T>::type;
 };
 
@@ -113,8 +129,8 @@ struct make_type_set_if<Predicate> {
 
 template <template <typename> class Predicate, typename T, typename... Rest>
 struct make_type_set_if<Predicate, T, Rest...> {
-  using type = typename make_type_set_if<
-      Predicate, Rest...>::type::template insert_if<Predicate, T>::type;
+  using type = typename make_type_set_if<Predicate, Rest...>::type::
+      template insert_if<Predicate, T>::type;
 };
 
 template <template <typename> class Predicate, typename... T>
@@ -136,16 +152,19 @@ template <typename... T>
 using has_duplicates =
     std::integral_constant<bool, make_type_set_t<T...>::size() != sizeof...(T)>;
 
-template <typename... T> struct make_joined_set {
+template <typename... T>
+struct make_joined_set {
   static_assert(wrong_t<make_joined_set>::value,
                 "invalid argument for joined set");
 };
 
-template <> struct make_joined_set<> {
+template <>
+struct make_joined_set<> {
   using type = type_set<>;
 };
 
-template <typename... Es> struct make_joined_set<type_set<Es...>> {
+template <typename... Es>
+struct make_joined_set<type_set<Es...>> {
   using type = type_set<Es...>;
 };
 
@@ -164,7 +183,8 @@ struct make_joined_set<type_set<E...>, T...> {
 template <typename... Sets>
 using make_joined_set_t = typename make_joined_set<Sets...>::type;
 
-template <typename Minuend, typename Subtrahend> struct make_difference_set {
+template <typename Minuend, typename Subtrahend>
+struct make_difference_set {
   static_assert(wrong_t<make_difference_set>::value,
                 "invalid argument for difference set");
 };
@@ -180,7 +200,8 @@ template <typename Minuend, typename Subtrahend>
 using make_difference_set_t =
     typename make_difference_set<Minuend, Subtrahend>::type;
 
-template <typename Lhs, typename Rhs> struct make_intersect_set {
+template <typename Lhs, typename Rhs>
+struct make_intersect_set {
   static_assert(wrong_t<make_intersect_set>::value,
                 "invalid argument for intersect set");
 };
@@ -213,17 +234,20 @@ using transform_set_t = typename transform_set<T, Transformation>::type;
 
 template <typename... T>
 struct are_unique
-    : public std::integral_constant<bool, make_type_set_t<T...>::size() ==
-                                              sizeof...(T)> {};
+    : public std::integral_constant<bool,
+                                    make_type_set_t<T...>::size() ==
+                                        sizeof...(T)> {};
 
 template <typename... T>
 struct are_same
     : public std::integral_constant<bool, make_type_set_t<T...>::size() <= 1> {
 };
 
-template <typename... T> struct are_disjoint;
+template <typename... T>
+struct are_disjoint;
 
-template <> struct are_disjoint<> : public std::true_type {};
+template <>
+struct are_disjoint<> : public std::true_type {};
 
 template <typename... T>
 struct are_disjoint<type_set<T...>> : public std::true_type {};
@@ -235,5 +259,5 @@ struct are_disjoint<type_set<L...>, type_set<R...>, Rest...> {
       are_disjoint<make_type_set_t<L..., R...>, Rest...>::value;
 };
 
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

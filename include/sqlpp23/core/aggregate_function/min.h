@@ -41,10 +41,10 @@ struct min_t : public enable_as<min_t<Flag, Expr>>,
                enable_over<min_t<Flag, Expr>> {
   constexpr min_t(Expr expr) : _expr(std::move(expr)) {}
 
-  min_t(const min_t &) = default;
-  min_t(min_t &&) = default;
-  min_t &operator=(const min_t &) = default;
-  min_t &operator=(min_t &&) = default;
+  min_t(const min_t&) = default;
+  min_t(min_t&&) = default;
+  min_t& operator=(const min_t&) = default;
+  min_t& operator=(min_t&&) = default;
   ~min_t() = default;
 
   Expr _expr;
@@ -53,7 +53,8 @@ struct min_t : public enable_as<min_t<Flag, Expr>>,
 template <typename Flag, typename Expr>
 struct is_aggregate_function<min_t<Flag, Expr>> : public std::true_type {};
 
-template <typename Flag, typename Expr> struct nodes_of<min_t<Flag, Expr>> {
+template <typename Flag, typename Expr>
+struct nodes_of<min_t<Flag, Expr>> {
   using type = sqlpp::detail::type_vector<Expr>;
 };
 
@@ -63,7 +64,7 @@ struct value_type_of<min_t<Flag, Expr>> {
 };
 
 template <typename Context, typename Flag, typename Expr>
-auto to_sql_string(Context &context, const min_t<Flag, Expr> &t)
+auto to_sql_string(Context& context, const min_t<Flag, Expr>& t)
     -> std::string {
   return "MIN(" + to_sql_string(context, Flag()) +
          to_sql_string(context, t._expr) + ")";
@@ -80,9 +81,9 @@ auto min(T t) -> min_t<no_flag_t, T> {
 }
 
 template <typename T, typename = check_min_arg<T>>
-auto min(const distinct_t & /*unused*/, T t) -> min_t<distinct_t, T> {
+auto min(const distinct_t& /*unused*/, T t) -> min_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "min() must not be used on an aggregate function");
   return {std::move(t)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

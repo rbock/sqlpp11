@@ -42,7 +42,7 @@
 
 #ifdef _MSC_VER
 #include <iso646.h>
-#pragma warning(disable : 4800) // int to bool
+#pragma warning(disable : 4800)  // int to bool
 #endif
 namespace sqlpp {
 namespace postgresql {
@@ -51,41 +51,42 @@ struct statement_handle_t;
 
 inline unsigned char unhex(unsigned char c) {
   switch (c) {
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9':
-    return c - '0';
-  case 'a':
-  case 'b':
-  case 'c':
-  case 'd':
-  case 'e':
-  case 'f':
-    return c + 10 - 'a';
-  case 'A':
-  case 'B':
-  case 'C':
-  case 'D':
-  case 'E':
-  case 'F':
-    return c + 10 - 'A';
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      return c - '0';
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+      return c + 10 - 'a';
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+      return c + 10 - 'A';
   }
   throw sqlpp::exception{std::string{"Unexpected hex char: "} +
                          static_cast<char>(c)};
 }
 
-inline size_t hex_assign(std::vector<uint8_t> &value, const uint8_t *blob,
+inline size_t hex_assign(std::vector<uint8_t>& value,
+                         const uint8_t* blob,
                          size_t len) {
-  const auto result_size = len / 2 - 1; // unhex - leading chars
+  const auto result_size = len / 2 - 1;  // unhex - leading chars
   if (value.size() < result_size) {
-    value.resize(result_size); // unhex - leading chars
+    value.resize(result_size);  // unhex - leading chars
   }
   size_t val_index = 0;
   size_t blob_index = 2;
@@ -98,13 +99,13 @@ inline size_t hex_assign(std::vector<uint8_t> &value, const uint8_t *blob,
   }
   return result_size;
 }
-} // namespace detail
+}  // namespace detail
 
 class bind_result_t {
   // Need to buffer blobs (or switch to PQexecParams with binary results)
   std::vector<std::vector<uint8_t>> _var_buffers;
 
-private:
+ private:
   std::shared_ptr<detail::statement_handle_t> _handle;
 
   bool next_impl() {
@@ -135,10 +136,10 @@ private:
     return true;
   }
 
-public:
+ public:
   bind_result_t() = default;
 
-  bind_result_t(const std::shared_ptr<detail::statement_handle_t> &handle)
+  bind_result_t(const std::shared_ptr<detail::statement_handle_t>& handle)
       : _handle(handle) {
     _var_buffers.resize(_handle->result.field_count());
     if (this->_handle && this->_handle->debug()) {
@@ -148,17 +149,18 @@ public:
     }
   }
 
-  bind_result_t(const bind_result_t &) = delete;
-  bind_result_t(bind_result_t &&) = default;
-  bind_result_t &operator=(const bind_result_t &) = delete;
-  bind_result_t &operator=(bind_result_t &&) = default;
+  bind_result_t(const bind_result_t&) = delete;
+  bind_result_t(bind_result_t&&) = default;
+  bind_result_t& operator=(const bind_result_t&) = delete;
+  bind_result_t& operator=(bind_result_t&&) = default;
   ~bind_result_t() = default;
 
-  bool operator==(const bind_result_t &rhs) const {
+  bool operator==(const bind_result_t& rhs) const {
     return (this->_handle == rhs._handle);
   }
 
-  template <typename ResultRow> void next(ResultRow &result_row) {
+  template <typename ResultRow>
+  void next(ResultRow& result_row) {
     if (!this->_handle) {
       result_row._invalidate();
       return;
@@ -176,7 +178,7 @@ public:
     }
   }
 
-  void read_field(size_t _index, bool &value) {
+  void read_field(size_t _index, bool& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading boolean result at index: "
@@ -186,7 +188,7 @@ public:
     value = _handle->result.get_bool_value(_handle->count, index);
   }
 
-  void read_field(size_t _index, double &value) {
+  void read_field(size_t _index, double& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading floating_point result at index: "
@@ -196,7 +198,7 @@ public:
     value = _handle->result.get_double_value(_handle->count, index);
   }
 
-  void read_field(size_t _index, int64_t &value) {
+  void read_field(size_t _index, int64_t& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading integral result at index: "
@@ -206,7 +208,7 @@ public:
     value = _handle->result.get_int64_value(_handle->count, index);
   }
 
-  void read_field(size_t _index, uint64_t &value) {
+  void read_field(size_t _index, uint64_t& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr
@@ -217,7 +219,7 @@ public:
     value = _handle->result.get_uint64_value(_handle->count, index);
   }
 
-  void read_field(size_t _index, std::string_view &value) {
+  void read_field(size_t _index, std::string_view& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading text result at index: " << index
@@ -236,7 +238,7 @@ public:
   // precision 1997-12-17 07:37:16-08 - ISO timestamp with timezone 1992-10-10
   // 01:02:03-06:30 - for some timezones with non-hour offset 1900-01-01 - date
   // only we do not support time-only values !
-  void read_field(size_t _index, ::sqlpp::chrono::day_point &value) {
+  void read_field(size_t _index, ::sqlpp::chrono::day_point& value) {
     const auto index = static_cast<int>(_index);
 
     if (_handle->debug()) {
@@ -259,7 +261,7 @@ public:
   }
 
   // always returns UTC time for timestamp with time zone
-  void read_field(size_t _index, ::sqlpp::chrono::microsecond_point &value) {
+  void read_field(size_t _index, ::sqlpp::chrono::microsecond_point& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading date_time result at index: "
@@ -281,7 +283,7 @@ public:
   }
 
   // always returns UTC time for time with time zone
-  void read_field(size_t _index, ::std::chrono::microseconds &value) {
+  void read_field(size_t _index, ::std::chrono::microseconds& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading time result at index: " << index
@@ -304,7 +306,7 @@ public:
     }
   }
 
-  void read_field(size_t _index, std::span<const uint8_t> &value) {
+  void read_field(size_t _index, std::span<const uint8_t>& value) {
     const auto index = static_cast<int>(_index);
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: reading blob result at index: " << index
@@ -324,7 +326,7 @@ public:
   }
 
   template <typename T>
-  auto read_field(size_t _index, std::optional<T> &value) -> void {
+  auto read_field(size_t _index, std::optional<T>& value) -> void {
     const auto index = static_cast<int>(_index);
     if (_handle->result.is_null(_handle->count, index)) {
       value.reset();
@@ -338,5 +340,5 @@ public:
 
   int size() const { return _handle->result.records_size(); }
 };
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

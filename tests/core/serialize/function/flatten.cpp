@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   auto ctx = MockDb::_context_t{};
 
   SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");

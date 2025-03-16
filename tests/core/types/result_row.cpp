@@ -31,21 +31,23 @@
 #include <sqlpp23/tests/core/types_helpers.h>
 
 namespace {
-template <typename A, typename B> constexpr bool is_same_type() {
+template <typename A, typename B>
+constexpr bool is_same_type() {
   return std::is_same<A, B>::value;
 }
 
 constexpr auto bar = test::TabBar{};
 constexpr auto foo = test::TabFoo{};
 auto db = MockDb{};
-} // namespace
+}  // namespace
 
 SQLPP_CREATE_NAME_TAG(r_not_null);
 SQLPP_CREATE_NAME_TAG(r_maybe_null);
 SQLPP_CREATE_NAME_TAG(r_opt_not_null);
 SQLPP_CREATE_NAME_TAG(r_opt_maybe_null);
 
-template <typename ResultType, typename Value> void test_result_row(Value v) {
+template <typename ResultType, typename Value>
+void test_result_row(Value v) {
   using OptResultType = std::optional<ResultType>;
 
   // Selectable values.
@@ -63,7 +65,7 @@ template <typename ResultType, typename Value> void test_result_row(Value v) {
   static_assert(
       std::is_same<sqlpp::statement_run_check_t<S>, sqlpp::consistent_t>::value,
       "");
-  for (const auto &row :
+  for (const auto& row :
        db(select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null))) {
     static_assert(std::is_same<decltype(row.r_not_null), ResultType>::value,
                   "");
@@ -81,7 +83,7 @@ void test_outer_join() {
   using sqlpp::alias::right;
 
   // cross join
-  for (const auto &row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
                                 .from(foo.cross_join(bar))
                                 .where(true))) {
     static_assert(not sqlpp::is_optional<decltype(row.left)>::value, "");
@@ -89,7 +91,7 @@ void test_outer_join() {
   }
 
   // left outer join
-  for (const auto &row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
                                 .from(foo.left_outer_join(bar).on(true))
                                 .where(true))) {
     static_assert(not sqlpp::is_optional<decltype(row.left)>::value, "");
@@ -98,7 +100,7 @@ void test_outer_join() {
   }
 
   // right outer join
-  for (const auto &row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
                                 .from(foo.right_outer_join(bar).on(true))
                                 .where(true))) {
     static_assert(sqlpp::is_optional<decltype(row.left)>::value,
@@ -107,7 +109,7 @@ void test_outer_join() {
   }
 
   // full outer join
-  for (const auto &row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
                                 .from(foo.full_outer_join(bar).on(true))
                                 .where(true))) {
     static_assert(sqlpp::is_optional<decltype(row.left)>::value,

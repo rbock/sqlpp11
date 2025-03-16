@@ -29,7 +29,6 @@
 #include "sqlpp23/core/type_traits.h"
 
 void test_no_of_result_columns() {
-
   const auto foo = test::TabFoo{};
 
   static_assert(sqlpp::no_of_result_columns<int>::value == 0);
@@ -53,7 +52,8 @@ void test_no_of_result_columns() {
     using X = decltype(select(all_of(foo)));
     static_assert(sqlpp::no_of_result_columns<X>::value > 2);
   }
-
 }
 
-int main() { void test_no_of_result_columns(); }
+int main() {
+  void test_no_of_result_columns();
+}

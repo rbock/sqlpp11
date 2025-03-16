@@ -28,11 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 #include <sqlpp23/postgresql/serializer.h>
+#include <memory>
 #include <string>
 
 namespace sqlpp {
@@ -50,17 +50,17 @@ struct prepared_statement_handle_t;
 }
 
 class prepared_statement_t {
-private:
+ private:
   friend class sqlpp::postgresql::connection_base;
 
   std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
-public:
+ public:
   prepared_statement_t() = default;
 
   // ctor
   prepared_statement_t(
-      std::shared_ptr<detail::prepared_statement_handle_t> &&handle)
+      std::shared_ptr<detail::prepared_statement_handle_t>&& handle)
       : _handle{handle} {
     if (_handle && _handle->debug()) {
       std::cerr << "PostgreSQL debug: constructing prepared_statement, "
@@ -69,17 +69,17 @@ public:
     }
   }
 
-  prepared_statement_t(const prepared_statement_t &) = delete;
-  prepared_statement_t(prepared_statement_t &&) = default;
-  prepared_statement_t &operator=(const prepared_statement_t &) = delete;
-  prepared_statement_t &operator=(prepared_statement_t &&) = default;
+  prepared_statement_t(const prepared_statement_t&) = delete;
+  prepared_statement_t(prepared_statement_t&&) = default;
+  prepared_statement_t& operator=(const prepared_statement_t&) = delete;
+  prepared_statement_t& operator=(prepared_statement_t&&) = default;
   ~prepared_statement_t() = default;
 
-  bool operator==(const prepared_statement_t &rhs) {
+  bool operator==(const prepared_statement_t& rhs) {
     return (this->_handle == rhs._handle);
   }
 
-  void _bind_parameter(size_t index, const bool &value) {
+  void _bind_parameter(size_t index, const bool& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding boolean parameter "
                 << (value ? "true" : "false") << " at index: " << index
@@ -94,7 +94,7 @@ public:
     }
   }
 
-  void _bind_parameter(size_t index, const double &value) {
+  void _bind_parameter(size_t index, const double& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding floating_point parameter "
                 << value << " at index: " << index << std::endl;
@@ -105,7 +105,7 @@ public:
     _handle->param_values[index] = to_sql_string(context, value);
   }
 
-  void _bind_parameter(size_t index, const int64_t &value) {
+  void _bind_parameter(size_t index, const int64_t& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding integral parameter " << value
                 << " at index: " << index << std::endl;
@@ -116,7 +116,7 @@ public:
     _handle->param_values[index] = std::to_string(value);
   }
 
-  void _bind_parameter(size_t index, const std::string &value) {
+  void _bind_parameter(size_t index, const std::string& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding text parameter " << value
                 << " at index: " << index << std::endl;
@@ -127,7 +127,7 @@ public:
     _handle->param_values[index] = value;
   }
 
-  void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point &value) {
+  void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding date parameter at index " << index
                 << std::endl;
@@ -144,7 +144,7 @@ public:
     }
   }
 
-  void _bind_parameter(size_t index, const ::std::chrono::microseconds &value) {
+  void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding time parameter at index " << index
                 << std::endl;
@@ -165,7 +165,7 @@ public:
   }
 
   void _bind_parameter(size_t index,
-                       const ::sqlpp::chrono::microsecond_point &value) {
+                       const ::sqlpp::chrono::microsecond_point& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding date_time parameter at index "
                 << index << std::endl;
@@ -186,7 +186,7 @@ public:
     }
   }
 
-  void _bind_parameter(size_t index, const std::vector<unsigned char> &value) {
+  void _bind_parameter(size_t index, const std::vector<unsigned char>& value) {
     if (_handle->debug()) {
       std::cerr << "PostgreSQL debug: binding blob parameter at index " << index
                 << std::endl;
@@ -195,7 +195,7 @@ public:
     constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     auto param = std::string(value.size() * 2 + 2,
-                             '\0'); // ()-init for correct constructor
+                             '\0');  // ()-init for correct constructor
     param[0] = '\\';
     param[1] = 'x';
     auto i = size_t{1};
@@ -213,7 +213,7 @@ public:
 
   template <typename Parameter>
   void _bind_parameter(size_t index,
-                       const std::optional<Parameter> &parameter) {
+                       const std::optional<Parameter>& parameter) {
     if (parameter.has_value()) {
       _bind_parameter(index, parameter.value());
       return;
@@ -226,5 +226,5 @@ public:
     _handle->null_values[index] = true;
   }
 };
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

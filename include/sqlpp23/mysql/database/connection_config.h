@@ -42,18 +42,18 @@ struct connection_config {
   std::string charset{"utf8"};
   bool debug{false};
   unsigned int connect_timeout_seconds{
-      0}; // 0 = do not override MySQL library default
+      0};  // 0 = do not override MySQL library default
 
-  bool operator==(const connection_config &other) const {
+  bool operator==(const connection_config& other) const {
     return (other.host == host and other.user == user and
             other.password == password and other.database == database and
             other.charset == charset and other.debug == debug and
             other.connect_timeout_seconds == connect_timeout_seconds);
   }
 
-  bool operator!=(const connection_config &other) const {
+  bool operator!=(const connection_config& other) const {
     return !operator==(other);
   }
 };
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

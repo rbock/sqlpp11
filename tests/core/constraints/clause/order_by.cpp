@@ -47,7 +47,7 @@ template <typename... Expressions>
 concept cannot_call_order_by_with =
     not(can_call_order_by_with_standalone<Expressions...> or
         can_call_order_by_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

@@ -32,12 +32,13 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expression> struct where_t {
+template <typename Expression>
+struct where_t {
   where_t(Expression expression) : _expression(std::move(expression)) {}
   where_t(const where_t&) = default;
   where_t(where_t&&) = default;
@@ -45,7 +46,7 @@ template <typename Expression> struct where_t {
   where_t& operator=(where_t&&) = default;
   ~where_t() = default;
 
-  private:
+ private:
   friend reader_t;
   Expression _expression;
 };
@@ -72,7 +73,9 @@ struct is_clause<where_t<Expression>> : public std::true_type {};
 template <typename Statement, typename Expression>
 struct consistency_check<Statement, where_t<Expression>> {
   using type = detail::expression_static_check_t<
-      Statement, Expression, assert_no_unknown_static_tables_in_where_t>;
+      Statement,
+      Expression,
+      assert_no_unknown_static_tables_in_where_t>;
 };
 
 template <typename Statement, typename Expression>
@@ -86,14 +89,15 @@ struct prepare_check<Statement, where_t<Expression>> {
           assert_no_unknown_static_tables_in_where_t>>;
 };
 
-template <typename Expression> struct nodes_of<where_t<Expression>> {
+template <typename Expression>
+struct nodes_of<where_t<Expression>> {
   using type = detail::type_vector<Expression>;
 };
 
 // NO WHERE YET
 struct no_where_t {
   template <typename Statement, DynamicBoolean Expression>
-  auto where(this Statement &&statement, Expression expression) {
+  auto where(this Statement&& statement, Expression expression) {
     SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
                         "where() must not contain aggregate functions");
 
@@ -102,20 +106,22 @@ struct no_where_t {
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_where_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_where_t&) -> std::string {
+  return "";
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_where_called_t, "calling where() required");
 
-template <typename Statement> struct consistency_check<Statement, no_where_t> {
-  using type =
-      typename std::conditional<is_where_required<Statement>::value,
-                                assert_where_called_t, consistent_t>::type;
+template <typename Statement>
+struct consistency_check<Statement, no_where_t> {
+  using type = typename std::conditional<is_where_required<Statement>::value,
+                                         assert_where_called_t,
+                                         consistent_t>::type;
 };
 
-template <DynamicBoolean Expression> auto where(Expression expression) {
+template <DynamicBoolean Expression>
+auto where(Expression expression) {
   return statement_t<no_where_t>().where(std::move(expression));
 }
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -36,7 +36,7 @@
 namespace sqlpp {
 namespace mysql {
 namespace detail {
-inline void connect(MYSQL *mysql, const connection_config &config) {
+inline void connect(MYSQL* mysql, const connection_config& config) {
   if (config.connect_timeout_seconds != 0 &&
       mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT,
                     &config.connect_timeout_seconds)) {
@@ -69,9 +69,9 @@ inline void connect(MYSQL *mysql, const connection_config &config) {
 
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<MYSQL, void(STDCALL *)(MYSQL *)> mysql;
+  std::unique_ptr<MYSQL, void(STDCALL*)(MYSQL*)> mysql;
 
-  connection_handle(const std::shared_ptr<const connection_config> &conf)
+  connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, mysql{mysql_init(nullptr), mysql_close} {
     if (not mysql) {
       throw sqlpp::exception{"MySQL: could not init mysql data structure"};
@@ -80,12 +80,12 @@ struct connection_handle {
     connect(native_handle(), *config);
   }
 
-  connection_handle(const connection_handle &) = delete;
-  connection_handle(connection_handle &&) = default;
-  connection_handle &operator=(const connection_handle &) = delete;
-  connection_handle &operator=(connection_handle &&) = default;
+  connection_handle(const connection_handle&) = delete;
+  connection_handle(connection_handle&&) = default;
+  connection_handle& operator=(const connection_handle&) = delete;
+  connection_handle& operator=(connection_handle&&) = default;
 
-  MYSQL *native_handle() const { return mysql.get(); }
+  MYSQL* native_handle() const { return mysql.get(); }
 
   bool is_connected() const {
     // The connection is established in the constructor and the MySQL client
@@ -96,6 +96,6 @@ struct connection_handle {
 
   bool ping_server() const { return mysql_ping(native_handle()) == 0; }
 };
-} // namespace detail
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace mysql
+}  // namespace sqlpp

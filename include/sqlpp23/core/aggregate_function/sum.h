@@ -41,10 +41,10 @@ struct sum_t : public enable_as<sum_t<Flag, Expr>>,
                enable_over<sum_t<Flag, Expr>> {
   constexpr sum_t(Expr expr) : _expr(std::move(expr)) {}
 
-  sum_t(const sum_t &) = default;
-  sum_t(sum_t &&) = default;
-  sum_t &operator=(const sum_t &) = default;
-  sum_t &operator=(sum_t &&) = default;
+  sum_t(const sum_t&) = default;
+  sum_t(sum_t&&) = default;
+  sum_t& operator=(const sum_t&) = default;
+  sum_t& operator=(sum_t&&) = default;
   ~sum_t() = default;
 
   Expr _expr;
@@ -53,18 +53,21 @@ struct sum_t : public enable_as<sum_t<Flag, Expr>>,
 template <typename Flag, typename Expr>
 struct is_aggregate_function<sum_t<Flag, Expr>> : public std::true_type {};
 
-template <typename Flag, typename Expr> struct nodes_of<sum_t<Flag, Expr>> {
+template <typename Flag, typename Expr>
+struct nodes_of<sum_t<Flag, Expr>> {
   using type = sqlpp::detail::type_vector<Expr>;
 };
 
 template <typename Flag, typename Expr>
 struct value_type_of<sum_t<Flag, Expr>> {
-  using type = sqlpp::force_optional_t<std::conditional_t<
-      is_boolean<Expr>::value, integral, value_type_of_t<Expr>>>;
+  using type =
+      sqlpp::force_optional_t<std::conditional_t<is_boolean<Expr>::value,
+                                                 integral,
+                                                 value_type_of_t<Expr>>>;
 };
 
 template <typename Context, typename Flag, typename Expr>
-auto to_sql_string(Context &context, const sum_t<Flag, Expr> &t)
+auto to_sql_string(Context& context, const sum_t<Flag, Expr>& t)
     -> std::string {
   return "SUM(" + to_sql_string(context, Flag()) +
          to_sql_string(context, t._expr) + ")";
@@ -81,9 +84,9 @@ auto sum(T t) -> sum_t<no_flag_t, T> {
 }
 
 template <typename T, typename = check_sum_arg<T>>
-auto sum(const distinct_t & /*unused*/, T t) -> sum_t<distinct_t, T> {
+auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "sum() must not be used on an aggregate function");
   return {std::move(t)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

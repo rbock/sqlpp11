@@ -48,7 +48,7 @@ namespace dynamic {
 /// for default)
 void init_sqlite(std::string libname);
 
-#define DYNDEFINE(NAME) extern decltype(::NAME) *NAME
+#define DYNDEFINE(NAME) extern decltype(::NAME)* NAME
 
 DYNDEFINE(sqlite3_open_v2);
 DYNDEFINE(sqlite3_open);
@@ -226,9 +226,9 @@ DYNDEFINE(sqlite3_unlock_notify);
 //    DYNDEFINE(sqlite3_vtab_on_conflict);
 //    DYNDEFINE(sqlite3_rtree_geometry_callback);
 //    DYNDEFINE(sqlite3_rtree_query_callback);
-} // namespace dynamic
-} // namespace sqlite3
-} // namespace sqlpp
+}  // namespace dynamic
+}  // namespace sqlite3
+}  // namespace sqlpp
 
 #undef DYNDEFINE
 

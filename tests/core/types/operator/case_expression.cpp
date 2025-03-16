@@ -30,7 +30,8 @@ template <typename T, typename Value>
 using is_same_type =
     std::is_same<sqlpp::value_type_of_t<T>, sqlpp::value_type_of_t<Value>>;
 
-template <typename Value> void test_case_expression(Value v) {
+template <typename Value>
+void test_case_expression(Value v) {
   auto c_not_null = sqlpp::value(true);
   auto c_maybe_null = sqlpp::value(std::make_optional(false));
 

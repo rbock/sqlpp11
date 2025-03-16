@@ -32,12 +32,13 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Database, typename Statement> struct prepared_select_t {
+template <typename Database, typename Statement>
+struct prepared_select_t {
   using _result_row_t = get_result_row_t<Statement>;
   using _parameter_list_t = make_parameter_list_t<Statement>;
   using _prepared_statement_t = typename Database::_prepared_statement_t;
 
-  auto _run(Database &db) const
+  auto _run(Database& db) const
       -> result_t<decltype(db.run_prepared_select(*this)), _result_row_t> {
     return {db.run_prepared_select(*this)};
   }
@@ -52,4 +53,4 @@ template <typename Db, typename Statement>
 struct statement_run_check<prepared_select_t<Db, Statement>> {
   using type = consistent_t;
 };
-} // namespace sqlpp
+}  // namespace sqlpp

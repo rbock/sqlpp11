@@ -31,9 +31,9 @@
 namespace test {
 SQLPP_CREATE_NAME_TAG(cheese);
 SQLPP_CREATE_QUOTED_NAME_TAG(cake);
-} // namespace test
+}  // namespace test
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto cheese = sqlpp::value(17).as(test::cheese);
   const auto cake = sqlpp::value(17).as(test::cake);
 

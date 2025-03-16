@@ -46,10 +46,10 @@ struct column_t : public enable_as<column_t<_Table, ColumnSpec>>,
   using _table = _Table;
 
   column_t() = default;
-  column_t(const column_t &) = default;
-  column_t(column_t &&) = default;
-  column_t &operator=(const column_t &) = default;
-  column_t &operator=(column_t &&) = default;
+  column_t(const column_t&) = default;
+  column_t(column_t&&) = default;
+  column_t& operator=(const column_t&) = default;
+  column_t& operator=(column_t&&) = default;
   ~column_t() = default;
 
   static auto table() -> _table { return _table{}; }
@@ -107,11 +107,11 @@ struct value_type_of<column_t<_Table, ColumnSpec>> {
 };
 
 template <typename Context, typename _Table, typename ColumnSpec>
-auto to_sql_string(Context &context, const column_t<_Table, ColumnSpec> &)
+auto to_sql_string(Context& context, const column_t<_Table, ColumnSpec>&)
     -> std::string {
   using T = column_t<_Table, ColumnSpec>;
 
   return name_to_sql_string(context, name_tag_of_t<_Table>{}) + "." +
          name_to_sql_string(context, name_tag_of_t<T>{});
 }
-} // namespace sqlpp
+}  // namespace sqlpp

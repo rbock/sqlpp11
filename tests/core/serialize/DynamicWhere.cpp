@@ -30,7 +30,7 @@
 
 #include <iostream>
 
-int DynamicWhere(int, char *[]) {
+int DynamicWhere(int, char*[]) {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 

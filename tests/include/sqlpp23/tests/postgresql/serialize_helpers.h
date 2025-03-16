@@ -26,20 +26,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <sqlpp23/postgresql/database/connection.h>
+#include <iostream>
 
-#define SQLPP_COMPARE(expr, expected_string)                                   \
-  {                                                                            \
-    sqlpp::postgresql::context_t printer{};                                    \
-                                                                               \
-    using sqlpp::to_sql_string;                                                \
-    const auto result = to_sql_string(printer, expr);                          \
-                                                                               \
-    if (result != expected_string) {                                           \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'                         \
-                << "Expected: -->|" << expected_string << "|<--\n"             \
-                << "Received: -->|" << result << "|<--\n";                     \
-      return -1;                                                               \
-    }                                                                          \
+#define SQLPP_COMPARE(expr, expected_string)                       \
+  {                                                                \
+    sqlpp::postgresql::context_t printer{};                        \
+                                                                   \
+    using sqlpp::to_sql_string;                                    \
+    const auto result = to_sql_string(printer, expr);              \
+                                                                   \
+    if (result != expected_string) {                               \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
+                << "Expected: -->|" << expected_string << "|<--\n" \
+                << "Received: -->|" << result << "|<--\n";         \
+      return -1;                                                   \
+    }                                                              \
   }

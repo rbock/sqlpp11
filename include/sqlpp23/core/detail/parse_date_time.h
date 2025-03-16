@@ -33,7 +33,7 @@
 
 namespace sqlpp {
 namespace detail {
-inline bool parse_unsigned(int &value, const char *&input, int length) {
+inline bool parse_unsigned(int& value, const char*& input, int length) {
   value = 0;
   auto new_input = input;
   while (length--) {
@@ -47,7 +47,7 @@ inline bool parse_unsigned(int &value, const char *&input, int length) {
   return true;
 }
 
-inline bool parse_character(const char *&input, char ch) {
+inline bool parse_character(const char*& input, char ch) {
   if (*input != ch) {
     return false;
   }
@@ -55,7 +55,7 @@ inline bool parse_character(const char *&input, char ch) {
   return true;
 }
 
-inline bool parse_yyyy_mm_dd(sqlpp::chrono::day_point &dp, const char *&input) {
+inline bool parse_yyyy_mm_dd(sqlpp::chrono::day_point& dp, const char*& input) {
   auto new_input = input;
   int year, month, day;
   if ((parse_unsigned(year, new_input, 4) == false) ||
@@ -70,7 +70,7 @@ inline bool parse_yyyy_mm_dd(sqlpp::chrono::day_point &dp, const char *&input) {
   return true;
 }
 
-inline bool parse_hh_mm_ss(std::chrono::microseconds &us, const char *&input) {
+inline bool parse_hh_mm_ss(std::chrono::microseconds& us, const char*& input) {
   auto new_input = input;
   int hour, minute, second;
   if ((parse_unsigned(hour, new_input, 2) == false) ||
@@ -90,8 +90,8 @@ inline bool parse_hh_mm_ss(std::chrono::microseconds &us, const char *&input) {
   return true;
 }
 
-inline bool parse_ss_fraction(std::chrono::microseconds &us,
-                              const char *&input) {
+inline bool parse_ss_fraction(std::chrono::microseconds& us,
+                              const char*& input) {
   auto new_input = input;
   if (parse_character(new_input, '.') == false) {
     return false;
@@ -114,7 +114,7 @@ inline bool parse_ss_fraction(std::chrono::microseconds &us,
   return true;
 }
 
-inline bool parse_tz(std::chrono::microseconds &offset, const char *&input) {
+inline bool parse_tz(std::chrono::microseconds& offset, const char*& input) {
   auto new_input = input;
   int tz_sign;
   if (parse_character(new_input, '+')) {
@@ -147,8 +147,8 @@ inline bool parse_tz(std::chrono::microseconds &offset, const char *&input) {
   return true;
 }
 
-inline bool parse_hh_mm_ss_us_tz(std::chrono::microseconds &us,
-                                 const char *&input) {
+inline bool parse_hh_mm_ss_us_tz(std::chrono::microseconds& us,
+                                 const char*& input) {
   if (parse_hh_mm_ss(us, input) == false) {
     return false;
   }
@@ -166,8 +166,8 @@ inline bool parse_hh_mm_ss_us_tz(std::chrono::microseconds &us,
 // Parse timestamp formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
 // The microseconds and timezone offset are optional
 //
-inline bool parse_timestamp(sqlpp::chrono::microsecond_point &tp,
-                            const char *date_time_string) {
+inline bool parse_timestamp(sqlpp::chrono::microsecond_point& tp,
+                            const char* date_time_string) {
   sqlpp::chrono::day_point parsed_ymd;
   std::chrono::microseconds parsed_tod;
   if ((parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) ||
@@ -184,7 +184,7 @@ inline bool parse_timestamp(sqlpp::chrono::microsecond_point &tp,
 
 // Parse date string formatted as YYYY-MM-DD
 //
-inline bool parse_date(sqlpp::chrono::day_point &dp, const char *date_string) {
+inline bool parse_date(sqlpp::chrono::day_point& dp, const char* date_string) {
   if (parse_yyyy_mm_dd(dp, date_string) == false) {
     return false;
   }
@@ -197,8 +197,8 @@ inline bool parse_date(sqlpp::chrono::day_point &dp, const char *date_string) {
 // Parse time string formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
 // The time-of-day part is optional
 //
-inline bool parse_date_or_timestamp(sqlpp::chrono::microsecond_point &tp,
-                                    const char *date_time_string) {
+inline bool parse_date_or_timestamp(sqlpp::chrono::microsecond_point& tp,
+                                    const char* date_time_string) {
   sqlpp::chrono::day_point parsed_ymd;
   if (parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) {
     return false;
@@ -222,8 +222,8 @@ inline bool parse_date_or_timestamp(sqlpp::chrono::microsecond_point &tp,
 // Parse time of day string formatted as HH:MM:SS.U+HH:MM:SS
 // The microseconds and timezone offset are optional
 //
-inline bool parse_time_of_day(std::chrono::microseconds &us,
-                              const char *time_string) {
+inline bool parse_time_of_day(std::chrono::microseconds& us,
+                              const char* time_string) {
   if (parse_hh_mm_ss_us_tz(us, time_string) == false) {
     return false;
   }
@@ -232,5 +232,5 @@ inline bool parse_time_of_day(std::chrono::microseconds &us,
   }
   return true;
 }
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

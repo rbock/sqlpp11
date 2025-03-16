@@ -30,7 +30,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-int Execute(int, char *[]) {
+int Execute(int, char*[]) {
   sql::connection db(
       {":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
 
@@ -41,7 +41,7 @@ int Execute(int, char *[]) {
   // string.
   try {
     db.execute(R"(SELECT 1; SELECT 2)");
-  } catch (const sqlpp::exception &e) {
+  } catch (const sqlpp::exception& e) {
     const auto message = std::string(e.what());
     if (message.find("Cannot execute multi-statements") == message.npos) {
       std::cerr << "Unexpected exception for multi-statement: " << message;

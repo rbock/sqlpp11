@@ -40,11 +40,10 @@ namespace sql = sqlpp::postgresql;
 
 SQLPP_CREATE_NAME_TAG(level);
 
-int Transaction(int, char *[]) {
+int Transaction(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
   try {
-
     {
       require_equal(__LINE__, db.is_transaction_active(), false);
       auto current_level = std::string(
@@ -78,7 +77,7 @@ int Transaction(int, char *[]) {
     db.set_default_isolation_level(sqlpp::isolation_level::serializable);
     require_equal(__LINE__, db.get_default_isolation_level(),
                   sqlpp::isolation_level::serializable);
-  } catch (const sqlpp::exception &ex) {
+  } catch (const sqlpp::exception& ex) {
     std::cerr << "Got exception: " << ex.what() << std::endl;
     return 1;
   } catch (...) {

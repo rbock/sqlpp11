@@ -26,46 +26,46 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
+#include <iostream>
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
 
-inline std::ostream &operator<<(std::ostream &stream,
-                                const sqlpp::isolation_level &level) {
+inline std::ostream& operator<<(std::ostream& stream,
+                                const sqlpp::isolation_level& level) {
   switch (level) {
-  case sqlpp::isolation_level::serializable: {
-    stream << "SERIALIZABLE";
-    break;
-  }
-  case sqlpp::isolation_level::repeatable_read: {
-    stream << "REPEATABLE READ";
-    break;
-  }
-  case sqlpp::isolation_level::read_committed: {
-    stream << "READ COMMITTED";
-    break;
-  }
-  case sqlpp::isolation_level::read_uncommitted: {
-    stream << "READ UNCOMMITTED";
-    break;
-  }
-  case sqlpp::isolation_level::undefined: {
-    stream << "BEGIN";
-    break;
-  }
+    case sqlpp::isolation_level::serializable: {
+      stream << "SERIALIZABLE";
+      break;
+    }
+    case sqlpp::isolation_level::repeatable_read: {
+      stream << "REPEATABLE READ";
+      break;
+    }
+    case sqlpp::isolation_level::read_committed: {
+      stream << "READ COMMITTED";
+      break;
+    }
+    case sqlpp::isolation_level::read_uncommitted: {
+      stream << "READ UNCOMMITTED";
+      break;
+    }
+    case sqlpp::isolation_level::undefined: {
+      stream << "BEGIN";
+      break;
+    }
   }
 
   return stream;
 }
 
 template <typename L, typename R>
-auto require_equal(int line, const L &l, const R &r) -> void {
+auto require_equal(int line, const L& l, const R& r) -> void {
   if (l != r) {
     std::cerr << line << ": " << l << " != " << r << std::endl;
     throw std::runtime_error("Unexpected result");

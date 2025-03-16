@@ -41,74 +41,76 @@
 
 namespace sqlpp {
 template <typename Context, typename X = void>
-auto to_sql_string(Context &, ...) -> std::string {
+auto to_sql_string(Context&, ...) -> std::string {
   static_assert(wrong_t<X>::value, "Missing specialization");
   return {};
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const bool &t) -> std::string {
+auto to_sql_string(Context&, const bool& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const int8_t &t) -> std::string {
+auto to_sql_string(Context&, const int8_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const int16_t &t) -> std::string {
+auto to_sql_string(Context&, const int16_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const int32_t &t) -> std::string {
+auto to_sql_string(Context&, const int32_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const int64_t &t) -> std::string {
+auto to_sql_string(Context&, const int64_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const uint8_t &t) -> std::string {
+auto to_sql_string(Context&, const uint8_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const uint16_t &t) -> std::string {
+auto to_sql_string(Context&, const uint16_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const uint32_t &t) -> std::string {
+auto to_sql_string(Context&, const uint32_t& t) -> std::string {
   return std::to_string(t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const uint64_t &t) -> std::string {
+auto to_sql_string(Context&, const uint64_t& t) -> std::string {
   return std::to_string(t);
 }
 
-template <typename Context> auto nan_to_sql_string(Context &) -> std::string {
+template <typename Context>
+auto nan_to_sql_string(Context&) -> std::string {
   throw ::sqlpp::exception(
       "Serialization of NaN is not supported by this connector");
 }
 
-template <typename Context> auto inf_to_sql_string(Context &) -> std::string {
+template <typename Context>
+auto inf_to_sql_string(Context&) -> std::string {
   throw ::sqlpp::exception(
       "Serialization of Infinity is not supported by this connector");
 }
 
 template <typename Context>
-auto neg_inf_to_sql_string(Context &) -> std::string {
+auto neg_inf_to_sql_string(Context&) -> std::string {
   throw ::sqlpp::exception(
       "Serialization of Infinity is not supported by this connector");
 }
 
 template <typename Context, typename T>
-auto float_to_sql_string(Context &context, const T &f) -> std::string {
+auto float_to_sql_string(Context& context, const T& f) -> std::string {
   if (std::isnan(f)) {
     return nan_to_sql_string(context);
   } else if (std::isinf(f)) {
@@ -123,27 +125,27 @@ auto float_to_sql_string(Context &context, const T &f) -> std::string {
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const float &t) -> std::string {
+auto to_sql_string(Context& context, const float& t) -> std::string {
   return float_to_sql_string(context, t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const double &t) -> std::string {
+auto to_sql_string(Context& context, const double& t) -> std::string {
   return float_to_sql_string(context, t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const long double &t) -> std::string {
+auto to_sql_string(Context& context, const long double& t) -> std::string {
   return float_to_sql_string(context, t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const std::string_view &t) -> std::string {
+auto to_sql_string(Context&, const std::string_view& t) -> std::string {
   auto result = std::string{"'"};
   result.reserve(t.size() * 2);
   for (const auto c : t) {
     if (c == '\'')
-      result.push_back(c); // Escaping
+      result.push_back(c);  // Escaping
     result.push_back(c);
   }
   result.push_back('\'');
@@ -151,17 +153,17 @@ auto to_sql_string(Context &, const std::string_view &t) -> std::string {
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const char *t) -> std::string {
+auto to_sql_string(Context& context, const char* t) -> std::string {
   return to_sql_string(context, std::string_view(t));
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const std::string &t) -> std::string {
+auto to_sql_string(Context& context, const std::string& t) -> std::string {
   return to_sql_string(context, std::string_view(t));
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const char &t) -> std::string {
+auto to_sql_string(Context& context, const char& t) -> std::string {
   return to_sql_string(context, std::string_view(&t, 1));
 }
 
@@ -174,8 +176,7 @@ auto to_sql_string(Context &context, const char &t) -> std::string {
 //
 // The PostgreSQL connector therefore specializes this function.
 template <typename Context>
-auto to_sql_string(Context &, const std::span<const uint8_t> &t)
-    -> std::string {
+auto to_sql_string(Context&, const std::span<const uint8_t>& t) -> std::string {
   constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
   auto result = std::string{"x'"};
@@ -191,44 +192,44 @@ auto to_sql_string(Context &, const std::span<const uint8_t> &t)
 }
 
 template <typename Context>
-auto to_sql_string(Context &context, const std::vector<uint8_t> &t)
+auto to_sql_string(Context& context, const std::vector<uint8_t>& t)
     -> std::string {
   return to_sql_string(context, std::span<const uint8_t>(begin(t), end(t)));
 }
 
 template <typename Context, std::size_t N>
-auto to_sql_string(Context &context, const std::array<uint8_t, N> &t)
+auto to_sql_string(Context& context, const std::array<uint8_t, N>& t)
     -> std::string {
   return to_sql_string(context, std::span<const uint8_t>(t.data(), t.size()));
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const ::sqlpp::chrono::day_point &t)
+auto to_sql_string(Context&, const ::sqlpp::chrono::day_point& t)
     -> std::string {
   return std::format("DATE '{0:%Y-%m-%d}'", t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const std::chrono::microseconds &t)
+auto to_sql_string(Context&, const std::chrono::microseconds& t)
     -> std::string {
   return std::format("'{0:%H:%M:%S}'", t);
 }
 
 template <typename Period, typename Context>
 auto to_sql_string(
-    Context &,
-    const std::chrono::time_point<std::chrono::system_clock, Period> &t)
+    Context&,
+    const std::chrono::time_point<std::chrono::system_clock, Period>& t)
     -> std::string {
   return std::format("TIMESTAMP '{0:%Y-%m-%dT%H:%M:%S}'", t);
 }
 
 template <typename Context>
-auto to_sql_string(Context &, const std::nullopt_t &) -> std::string {
+auto to_sql_string(Context&, const std::nullopt_t&) -> std::string {
   return "NULL";
 }
 
 template <typename T, typename Context>
-auto to_sql_string(Context &context, const std::optional<T> &t) -> std::string {
+auto to_sql_string(Context& context, const std::optional<T>& t) -> std::string {
   if (not t.has_value()) {
     return to_sql_string(context, std::nullopt);
   }
@@ -236,7 +237,7 @@ auto to_sql_string(Context &context, const std::optional<T> &t) -> std::string {
 }
 
 template <typename T, typename Context>
-auto operand_to_sql_string(Context &context, const T &t) -> std::string {
+auto operand_to_sql_string(Context& context, const T& t) -> std::string {
   if (requires_parentheses<T>::value) {
     return "(" + to_sql_string(context, t) + ")";
   }
@@ -244,13 +245,13 @@ auto operand_to_sql_string(Context &context, const T &t) -> std::string {
 }
 
 template <typename Context>
-auto quoted_name_to_sql_string(Context &, const std::string_view &name)
+auto quoted_name_to_sql_string(Context&, const std::string_view& name)
     -> std::string {
   return '"' + std::string(name) + '"';
 }
 
 template <typename NameTag, typename Context>
-auto name_to_sql_string(Context &context, const NameTag &) -> std::string {
+auto name_to_sql_string(Context& context, const NameTag&) -> std::string {
   if (NameTag::require_quotes) {
     return quoted_name_to_sql_string(context, NameTag::name);
   } else {
@@ -272,4 +273,4 @@ auto dynamic_clause_to_sql_string(Context& context,
   }
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -24,13 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include "is_regular.h"
 
-int With(int, char *[]) {
+int With(int, char*[]) {
   MockDb db;
   MockDb::_context_t printer = {};
 
@@ -73,7 +73,7 @@ int With(int, char *[]) {
     const auto serializedQuery = to_sql_string(printer, query);
     std::cout << serializedQuery << '\n';
 
-    for (const auto &row : db(query)) {
+    for (const auto& row : db(query)) {
       std::cout << row.id;
     }
   }

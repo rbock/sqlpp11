@@ -35,12 +35,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 // To be used as CRTP base for expressions that should offer the comparison
 // member functions. This also enables sort order member functions
-template <typename Expr> class enable_comparison {
-  constexpr auto derived() const -> const Expr & {
-    return static_cast<const Expr &>(*this);
+template <typename Expr>
+class enable_comparison {
+  constexpr auto derived() const -> const Expr& {
+    return static_cast<const Expr&>(*this);
   }
 
-public:
+ public:
   template <typename... Args>
   constexpr auto in(std::tuple<Args...> args) const
       -> in_expression<Expr, operator_in, std::tuple<Args...>> {
@@ -128,4 +129,4 @@ template <typename T>
 struct has_enabled_comparison
     : public std::is_base_of<enable_comparison<T>, T> {};
 
-} // namespace sqlpp
+}  // namespace sqlpp

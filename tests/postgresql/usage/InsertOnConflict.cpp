@@ -30,13 +30,13 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
+#include <sqlpp23/tests/postgresql/tables.h>
 #include "make_test_connection.h"
 #include "sqlpp23/tests/core/result_helpers.h"
-#include <sqlpp23/tests/postgresql/tables.h>
 
 namespace sql = sqlpp::postgresql;
 
-int InsertOnConflict(int, char *[]) {
+int InsertOnConflict(int, char*[]) {
   test::TabFoo foo = {};
 
   sql::connection db = sql::make_test_connection();
@@ -57,7 +57,7 @@ int InsertOnConflict(int, char *[]) {
          .where(true));
 
   // With where statement
-  for (const auto &row : db(sql::insert_into(foo)
+  for (const auto& row : db(sql::insert_into(foo)
                                 .default_values()
                                 .on_conflict(foo.id)
                                 .do_update(foo.intN = 5,
@@ -68,7 +68,7 @@ int InsertOnConflict(int, char *[]) {
   }
 
   // Returning
-  for (const auto &row : db(sql::insert_into(foo)
+  for (const auto& row : db(sql::insert_into(foo)
                                 .default_values()
                                 .on_conflict(foo.id)
                                 .do_update(foo.intN = 5,

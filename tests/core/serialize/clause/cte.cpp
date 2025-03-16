@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
@@ -57,8 +57,9 @@ int main(int, char *[]) {
                        .as(select(foo.id).from(foo).where(true).union_all(
                            select(bar.id).from(bar).where(true)));
     const auto a = x.as(sqlpp::alias::a);
-    SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo WHERE 1 UNION ALL "
-                     "SELECT tab_bar.id FROM tab_bar WHERE 1)");
+    SQLPP_COMPARE(x,
+                  "x AS (SELECT tab_foo.id FROM tab_foo WHERE 1 UNION ALL "
+                  "SELECT tab_bar.id FROM tab_bar WHERE 1)");
     SQLPP_COMPARE(make_table_ref(x), "x");
     SQLPP_COMPARE(x.id, "x.id");
     SQLPP_COMPARE(a, "x AS a");
@@ -75,8 +76,9 @@ int main(int, char *[]) {
                                         .from(x_base)
                                         .where(x_base.a < 10));
     const auto y = x.as(sqlpp::alias::y);
-    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM "
-                     "x WHERE x.a < 10)");
+    SQLPP_COMPARE(x,
+                  "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM "
+                  "x WHERE x.a < 10)");
     SQLPP_COMPARE(make_table_ref(x), "x");
     SQLPP_COMPARE(x.a, "x.a");
     SQLPP_COMPARE(y, "x AS y");
@@ -112,8 +114,9 @@ int main(int, char *[]) {
                           .from(x_base)
                           .where(x_base.a < 10)));
 
-    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM "
-                     "x WHERE x.a < 10)");
+    SQLPP_COMPARE(x,
+                  "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM "
+                  "x WHERE x.a < 10)");
 
     x = x_base.union_all(
         dynamic(false, select((x_base.a + 1).as(sqlpp::alias::a))
@@ -132,8 +135,9 @@ int main(int, char *[]) {
                           .from(x_base)
                           .where(x_base.a < 10)));
 
-    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a UNION DISTINCT SELECT (x.a + 1) AS a "
-                     "FROM x WHERE x.a < 10)");
+    SQLPP_COMPARE(x,
+                  "x AS (SELECT 0 AS a UNION DISTINCT SELECT (x.a + 1) AS a "
+                  "FROM x WHERE x.a < 10)");
 
     x = x_base.union_distinct(
         dynamic(false, select((x_base.a + 1).as(sqlpp::alias::a))

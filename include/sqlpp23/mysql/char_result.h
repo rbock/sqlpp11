@@ -31,16 +31,16 @@
 #include <span>
 #include <string_view>
 
-#include <ciso646>
-#include <cstdlib>
-#include <iostream>
-#include <memory>
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/mysql/char_result_row.h>
 #include <sqlpp23/mysql/detail/result_handle.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
+#include <ciso646>
+#include <cstdlib>
+#include <iostream>
+#include <memory>
 
 namespace sqlpp {
 namespace mysql {
@@ -48,9 +48,9 @@ class char_result_t {
   std::unique_ptr<detail::result_handle> _handle;
   char_result_row_t _char_result_row;
 
-public:
+ public:
   char_result_t() = default;
-  char_result_t(std::unique_ptr<detail::result_handle> &&handle)
+  char_result_t(std::unique_ptr<detail::result_handle>&& handle)
       : _handle{std::move(handle)} {
     if (_invalid())
       throw sqlpp::exception{
@@ -61,13 +61,13 @@ public:
                 << _handle.get() << std::endl;
   }
 
-  char_result_t(const char_result_t &) = delete;
-  char_result_t(char_result_t &&rhs) = default;
-  char_result_t &operator=(const char_result_t &) = delete;
-  char_result_t &operator=(char_result_t &&) = default;
+  char_result_t(const char_result_t&) = delete;
+  char_result_t(char_result_t&& rhs) = default;
+  char_result_t& operator=(const char_result_t&) = delete;
+  char_result_t& operator=(char_result_t&&) = default;
   ~char_result_t() = default;
 
-  bool operator==(const char_result_t &rhs) const {
+  bool operator==(const char_result_t& rhs) const {
     return _handle == rhs._handle;
   }
 
@@ -75,7 +75,8 @@ public:
     return _handle ? mysql_num_rows(_handle->mysql_res) : size_t{};
   }
 
-  template <typename ResultRow> void next(ResultRow &result_row) {
+  template <typename ResultRow>
+  void next(ResultRow& result_row) {
     if (_invalid()) {
       result_row._invalidate();
       return;
@@ -94,35 +95,35 @@ public:
 
   bool _invalid() const { return !_handle or !*_handle; }
 
-  void read_field(size_t index, bool &value) {
+  void read_field(size_t index, bool& value) {
     value = (_char_result_row.data[index][0] == 't' or
              _char_result_row.data[index][0] == '1');
   }
 
-  void read_field(size_t index, double &value) {
+  void read_field(size_t index, double& value) {
     value = std::strtod(_char_result_row.data[index], nullptr);
   }
 
-  void read_field(size_t index, int64_t &value) {
+  void read_field(size_t index, int64_t& value) {
     value = std::strtoll(_char_result_row.data[index], nullptr, 10);
   }
 
-  void read_field(size_t index, uint64_t &value) {
+  void read_field(size_t index, uint64_t& value) {
     value = std::strtoull(_char_result_row.data[index], nullptr, 10);
   }
 
-  void read_field(size_t index, std::span<const uint8_t> &value) {
+  void read_field(size_t index, std::span<const uint8_t>& value) {
     value = std::span<const uint8_t>(
-        reinterpret_cast<const uint8_t *>(_char_result_row.data[index]),
+        reinterpret_cast<const uint8_t*>(_char_result_row.data[index]),
         _char_result_row.len[index]);
   }
 
-  void read_field(size_t index, std::string_view &value) {
+  void read_field(size_t index, std::string_view& value) {
     value = std::string_view(_char_result_row.data[index],
                              _char_result_row.len[index]);
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::day_point &value) {
+  void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: parsing date result at index: " << index
                 << std::endl;
@@ -138,7 +139,7 @@ public:
     }
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::microsecond_point &value) {
+  void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: parsing date result at index: " << index
                 << std::endl;
@@ -155,7 +156,7 @@ public:
     }
   }
 
-  void read_field(size_t index, ::std::chrono::microseconds &value) {
+  void read_field(size_t index, ::std::chrono::microseconds& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: parsing time of day result at index: " << index
                 << std::endl;
@@ -173,7 +174,7 @@ public:
   }
 
   template <typename T>
-  auto read_field(size_t index, std::optional<T> &value) -> void {
+  auto read_field(size_t index, std::optional<T>& value) -> void {
     const bool is_null = _char_result_row.data[index] == nullptr;
     if (is_null) {
       value.reset();
@@ -185,18 +186,18 @@ public:
     }
   }
 
-private:
+ private:
   bool next_impl() {
     if (_handle->debug)
       std::cerr << "MySQL debug: Accessing next row of handle at "
                 << _handle.get() << std::endl;
 
     _char_result_row.data =
-        const_cast<const char **>(mysql_fetch_row(_handle->mysql_res));
+        const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
     _char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
 
     return _char_result_row.data;
   }
 };
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

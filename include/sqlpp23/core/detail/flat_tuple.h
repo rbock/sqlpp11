@@ -32,7 +32,8 @@
 
 namespace sqlpp {
 namespace detail {
-template <typename T> auto tupelize(T t) -> std::tuple<T> {
+template <typename T>
+auto tupelize(T t) -> std::tuple<T> {
   return std::make_tuple(std::move(t));
 }
 
@@ -41,11 +42,12 @@ auto tupelize(std::tuple<Args...> t) -> std::tuple<Args...> {
   return t;
 }
 
-template <typename... Args> struct flat_tuple {
+template <typename... Args>
+struct flat_tuple {
   using type = decltype(std::tuple_cat(tupelize(std::declval<Args>())...));
 };
 
 template <typename... Args>
 using flat_tuple_t = typename flat_tuple<Args...>::type;
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

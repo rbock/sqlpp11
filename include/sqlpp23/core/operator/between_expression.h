@@ -35,10 +35,10 @@ template <typename L, typename R1, typename R2>
 struct between_expression : public enable_as<between_expression<L, R1, R2>> {
   constexpr between_expression(L l, R1 r1, R2 r2)
       : _l(std::move(l)), _r1(std::move(r1)), _r2(std::move(r2)) {}
-  between_expression(const between_expression &) = default;
-  between_expression(between_expression &&) = default;
-  between_expression &operator=(const between_expression &) = default;
-  between_expression &operator=(between_expression &&) = default;
+  between_expression(const between_expression&) = default;
+  between_expression(between_expression&&) = default;
+  between_expression& operator=(const between_expression&) = default;
+  between_expression& operator=(between_expression&&) = default;
   ~between_expression() = default;
 
   L _l;
@@ -57,7 +57,8 @@ struct value_type_of<between_expression<L, R1, R2>>
           sqlpp::is_optional<value_type_of_t<L>>::value or
               sqlpp::is_optional<value_type_of_t<R1>>::value or
               sqlpp::is_optional<value_type_of_t<R2>>::value,
-          std::optional<boolean>, boolean> {};
+          std::optional<boolean>,
+          boolean> {};
 
 template <typename L, typename R1, typename R2>
 struct nodes_of<between_expression<L, R1, R2>> {
@@ -69,7 +70,7 @@ struct requires_parentheses<between_expression<L, R1, R2>>
     : public std::true_type {};
 
 template <typename Context, typename L, typename R1, typename R2>
-auto to_sql_string(Context &context, const between_expression<L, R1, R2> &t)
+auto to_sql_string(Context& context, const between_expression<L, R1, R2>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
   auto ret_val = operand_to_sql_string(context, t._l) + " BETWEEN ";
@@ -77,10 +78,12 @@ auto to_sql_string(Context &context, const between_expression<L, R1, R2> &t)
   return ret_val + operand_to_sql_string(context, t._r2);
 }
 
-template <typename L, typename R1, typename R2,
+template <typename L,
+          typename R1,
+          typename R2,
           typename = check_between_args<L, R1, R2>>
 constexpr auto between(L l, R1 r1, R2 r2) -> between_expression<L, R1, R2> {
   return {std::move(l), std::move(r1), std::move(r2)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

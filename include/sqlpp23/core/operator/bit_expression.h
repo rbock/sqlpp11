@@ -36,10 +36,10 @@ namespace sqlpp {
 template <typename L, typename Operator, typename R>
 struct bit_expression : public enable_as<bit_expression<L, Operator, R>> {
   constexpr bit_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
-  bit_expression(const bit_expression &) = default;
-  bit_expression(bit_expression &&) = default;
-  bit_expression &operator=(const bit_expression &) = default;
-  bit_expression &operator=(bit_expression &&) = default;
+  bit_expression(const bit_expression&) = default;
+  bit_expression(bit_expression&&) = default;
+  bit_expression& operator=(const bit_expression&) = default;
+  bit_expression& operator=(bit_expression&&) = default;
   ~bit_expression() = default;
 
   L _l;
@@ -51,7 +51,8 @@ struct value_type_of<bit_expression<L, Operator, R>> {
   using type =
       std::conditional_t<sqlpp::is_optional<value_type_of_t<L>>::value or
                              sqlpp::is_optional<value_type_of_t<R>>::value,
-                         std::optional<integral>, integral>;
+                         std::optional<integral>,
+                         integral>;
 };
 
 template <typename L, typename Operator, typename R>
@@ -73,7 +74,7 @@ struct requires_parentheses<bit_expression<L, Operator, R>>
     : public std::true_type {};
 
 template <typename Context, typename L, typename Operator, typename R>
-auto to_sql_string(Context &context, const bit_expression<L, Operator, R> &t)
+auto to_sql_string(Context& context, const bit_expression<L, Operator, R>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
   auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
@@ -120,7 +121,8 @@ struct bit_shift_left {
   static constexpr auto symbol = " << ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_bit_shift_expression_args<L, R>>
 constexpr auto operator<<(L l, R r) -> bit_expression<L, bit_shift_left, R> {
   return {std::move(l), std::move(r)};
@@ -130,10 +132,11 @@ struct bit_shift_right {
   static constexpr auto symbol = " >> ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_bit_shift_expression_args<L, R>>
 constexpr auto operator>>(L l, R r) -> bit_expression<L, bit_shift_right, R> {
   return {std::move(l), std::move(r)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

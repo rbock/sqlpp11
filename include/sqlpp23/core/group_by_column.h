@@ -40,10 +40,10 @@ namespace sqlpp {
 template <typename Expr>
 struct group_by_column : public enable_as<group_by_column<Expr>> {
   group_by_column(Expr expr) : _expr(std::move(expr)) {}
-  group_by_column(const group_by_column &) = default;
-  group_by_column(group_by_column &&) = default;
-  group_by_column &operator=(const group_by_column &) = default;
-  group_by_column &operator=(group_by_column &&) = default;
+  group_by_column(const group_by_column&) = default;
+  group_by_column(group_by_column&&) = default;
+  group_by_column& operator=(const group_by_column&) = default;
+  group_by_column& operator=(group_by_column&&) = default;
   ~group_by_column() = default;
 
   Expr _expr;
@@ -53,11 +53,13 @@ template <typename KnownAggregateColumns, typename Expr>
 struct is_aggregate_expression<KnownAggregateColumns, group_by_column<Expr>>
     : public std::true_type {};
 
-template <typename Expr> struct raw_group_by_column {
+template <typename Expr>
+struct raw_group_by_column {
   using type = Expr;
 };
 
-template <typename Expr> struct raw_group_by_column<group_by_column<Expr>> {
+template <typename Expr>
+struct raw_group_by_column<group_by_column<Expr>> {
   using type = Expr;
 };
 
@@ -75,7 +77,7 @@ template <typename Expr>
 struct value_type_of<group_by_column<Expr>> : public value_type_of<Expr> {};
 
 template <typename Context, typename Expr>
-auto to_sql_string(Context &context, const group_by_column<Expr> &t)
+auto to_sql_string(Context& context, const group_by_column<Expr>& t)
     -> std::string {
   return to_sql_string(context, t._expr);
 }
@@ -90,4 +92,4 @@ auto declare_group_by_column(Expr expr) -> group_by_column<Expr> {
   return {std::move(expr)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

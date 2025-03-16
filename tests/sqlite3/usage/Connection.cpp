@@ -29,7 +29,7 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 
-int Connection(int, char *[]) {
+int Connection(int, char*[]) {
   namespace sql = sqlpp::sqlite3;
   namespace test = sqlpp::test;
 

@@ -35,9 +35,10 @@ using is_integral = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>;
 template <typename T>
 using is_maybe_integral =
     std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::integral>>;
-} // namespace
+}  // namespace
 
-template <typename Value> void test_bit_expression(Value v) {
+template <typename Value>
+void test_bit_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 

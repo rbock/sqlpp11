@@ -39,10 +39,10 @@ struct comparison_expression
     : public enable_as<comparison_expression<L, Operator, R>> {
   constexpr comparison_expression(L l, R r)
       : _l(std::move(l)), _r(std::move(r)) {}
-  comparison_expression(const comparison_expression &) = default;
-  comparison_expression(comparison_expression &&) = default;
-  comparison_expression &operator=(const comparison_expression &) = default;
-  comparison_expression &operator=(comparison_expression &&) = default;
+  comparison_expression(const comparison_expression&) = default;
+  comparison_expression(comparison_expression&&) = default;
+  comparison_expression& operator=(const comparison_expression&) = default;
+  comparison_expression& operator=(comparison_expression&&) = default;
   ~comparison_expression() = default;
 
   L _l;
@@ -58,7 +58,8 @@ struct value_type_of<comparison_expression<L, Operator, R>>
     : std::conditional<
           sqlpp::is_optional<value_type_of_t<L>>::value or
               sqlpp::is_optional<value_type_of_t<remove_any_t<R>>>::value,
-          std::optional<boolean>, boolean> {};
+          std::optional<boolean>,
+          boolean> {};
 
 struct op_is_null;
 struct op_is_not_null;
@@ -95,8 +96,8 @@ struct requires_parentheses<comparison_expression<L, Operator, R>>
     : public std::true_type {};
 
 template <typename Context, typename L, typename Operator, typename R>
-auto to_sql_string(Context &context,
-                   const comparison_expression<L, Operator, R> &t)
+auto to_sql_string(Context& context,
+                   const comparison_expression<L, Operator, R>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
   auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
@@ -110,7 +111,8 @@ struct less {
 // We are using remove_any_t in the basic comparison operators to allow
 // comparison with ANY-expressions. Note: any_t does not have a specialization
 // for value_type_of to disallow it from being used in other contexts.
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>
 constexpr auto operator<(L l, R r) -> comparison_expression<L, less, R> {
   return {std::move(l), std::move(r)};
@@ -120,7 +122,8 @@ struct less_equal {
   static constexpr auto symbol = " <= ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>
 constexpr auto operator<=(L l, R r) -> comparison_expression<L, less_equal, R> {
   return {std::move(l), std::move(r)};
@@ -130,7 +133,8 @@ struct equal_to {
   static constexpr auto symbol = " = ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>
 constexpr auto operator==(L l, R r) -> comparison_expression<L, equal_to, R> {
   return {std::move(l), std::move(r)};
@@ -140,7 +144,8 @@ struct not_equal_to {
   static constexpr auto symbol = " <> ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>
 constexpr auto operator!=(L l, R r)
     -> comparison_expression<L, not_equal_to, R> {
@@ -151,7 +156,8 @@ struct greater_equal {
   static constexpr auto symbol = " >= ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>
 constexpr auto operator>=(L l, R r)
     -> comparison_expression<L, greater_equal, R> {
@@ -162,7 +168,8 @@ struct greater {
   static constexpr auto symbol = " > ";
 };
 
-template <typename L, typename R,
+template <typename L,
+          typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>
 constexpr auto operator>(L l, R r) -> comparison_expression<L, greater, R> {
   return {std::move(l), std::move(r)};
@@ -189,7 +196,7 @@ constexpr auto is_not_null(L l)
 }
 
 struct op_is_distinct_from {
-  static constexpr auto symbol = " IS DISTINCT FROM "; // sql standard
+  static constexpr auto symbol = " IS DISTINCT FROM ";  // sql standard
   // mysql has NULL-safe equal `<=>` which is_null equivalent to `IS NOT
   // DISTINCT FROM` sqlite3 has `IS NOT`
 };
@@ -201,7 +208,7 @@ constexpr auto is_distinct_from(L l, R r)
 }
 
 struct op_is_not_distinct_from {
-  static constexpr auto symbol = " IS NOT DISTINCT FROM "; // sql standard
+  static constexpr auto symbol = " IS NOT DISTINCT FROM ";  // sql standard
   // mysql has NULL-safe equal `<=>`
   // sqlite3 has `IS`
 };
@@ -225,4 +232,4 @@ constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R> {
   return {std::move(l), std::move(r)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -38,7 +38,7 @@
 #include <set>
 
 namespace sql = sqlpp::sqlite3;
-int AutoIncrement(int, char *[]) {
+int AutoIncrement(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -53,7 +53,7 @@ int AutoIncrement(int, char *[]) {
   db(insert_into(tab).default_values());
 
   std::set<int64_t> results;
-  for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
     results.insert(row.id);
   };
   const auto expected = std::set<int64_t>{1, 2, 3};

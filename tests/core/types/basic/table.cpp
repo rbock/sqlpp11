@@ -45,4 +45,6 @@ void test_table() {
                 "");
 }
 
-int main() { void test_table(); }
+int main() {
+  void test_table();
+}

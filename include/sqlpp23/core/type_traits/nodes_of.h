@@ -31,9 +31,11 @@
 
 namespace sqlpp {
 
-template <typename T> struct nodes_of {
+template <typename T>
+struct nodes_of {
   using type = detail::type_vector<>;
 };
-template <typename T> using nodes_of_t = typename nodes_of<T>::type;
+template <typename T>
+using nodes_of_t = typename nodes_of<T>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

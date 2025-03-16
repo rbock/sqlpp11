@@ -28,5 +28,6 @@
  */
 
 namespace sqlpp {
-template <typename... FieldSpecs> struct result_row_t;
-} // namespace sqlpp
+template <typename... FieldSpecs>
+struct result_row_t;
+}  // namespace sqlpp

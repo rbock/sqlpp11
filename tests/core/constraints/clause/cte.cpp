@@ -36,18 +36,18 @@ concept can_call_cte_as_with = requires(Lhs lhs, Rhs rhs) { lhs.as(rhs); };
 
 // Returns true if `declval<Lhs>().UNION(declval<Rhs>)` is a valid function
 // call.
-#define MAKE_CAN_CALL_CTE_UNION_WITH(UNION)                                    \
-  template <typename Lhs, typename Rhs>                                        \
-  concept can_call_cte_##UNION##_with =                                        \
+#define MAKE_CAN_CALL_CTE_UNION_WITH(UNION) \
+  template <typename Lhs, typename Rhs>     \
+  concept can_call_cte_##UNION##_with =     \
       requires(Lhs lhs, Rhs rhs) { lhs.UNION(rhs); };
 
 MAKE_CAN_CALL_CTE_UNION_WITH(union_all);
 MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
 
-#define CAN_CALL_ALL_CTE_UNIONS_WITH(LHS, RHS)                                 \
-  static_assert(can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>,     \
-                "");                                                           \
-  static_assert(                                                               \
+#define CAN_CALL_ALL_CTE_UNIONS_WITH(LHS, RHS)                             \
+  static_assert(can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>, \
+                "");                                                       \
+  static_assert(                                                           \
       can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
 
 #define CANNOT_CALL_ANY_UNION_WITH(LHS, RHS)                                   \
@@ -56,11 +56,11 @@ MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
   static_assert(                                                               \
       not can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
 
-#define CHECK_CTE_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE)                      \
-  SQLPP_CHECK_STATIC_ASSERT(LHS.union_all(RHS), MESSAGE);                      \
+#define CHECK_CTE_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE) \
+  SQLPP_CHECK_STATIC_ASSERT(LHS.union_all(RHS), MESSAGE); \
   SQLPP_CHECK_STATIC_ASSERT(LHS.union_distinct(RHS), MESSAGE);
 
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

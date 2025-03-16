@@ -36,13 +36,14 @@ namespace sqlpp {
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct join_t : enable_join<join_t<Lhs, JoinType, Rhs, Condition>> {
   join_t(Lhs lhs, Rhs rhs, Condition condition)
-      : _lhs(std::move(lhs)), _rhs(std::move(rhs)),
+      : _lhs(std::move(lhs)),
+        _rhs(std::move(rhs)),
         _condition(std::move(condition)) {}
 
-  join_t(const join_t &) = default;
-  join_t(join_t &&) = default;
-  join_t &operator=(const join_t &) = default;
-  join_t &operator=(join_t &&) = default;
+  join_t(const join_t&) = default;
+  join_t(join_t&&) = default;
+  join_t& operator=(const join_t&) = default;
+  join_t& operator=(join_t&&) = default;
   ~join_t() = default;
 
   Lhs _lhs;
@@ -73,11 +74,13 @@ struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
       std::conditional_t<
           detail::type_vector<right_outer_join_t,
                               full_outer_join_t>::contains<JoinType>::value,
-          provided_tables_of_t<Lhs>, provided_optional_tables_of_t<Lhs>>,
+          provided_tables_of_t<Lhs>,
+          provided_optional_tables_of_t<Lhs>>,
       std::conditional_t<
           detail::type_vector<left_outer_join_t,
                               full_outer_join_t>::contains<JoinType>::value,
-          provided_tables_of_t<Rhs>, provided_optional_tables_of_t<Rhs>>>;
+          provided_tables_of_t<Rhs>,
+          provided_optional_tables_of_t<Rhs>>>;
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -94,10 +97,13 @@ template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct is_table<join_t<Lhs, JoinType, Rhs, Condition>> : public std::true_type {
 };
 
-template <typename Context, typename Lhs, typename JoinType, typename Rhs,
+template <typename Context,
+          typename Lhs,
+          typename JoinType,
+          typename Rhs,
           typename Condition>
-auto to_sql_string(Context &context,
-                   const join_t<Lhs, JoinType, Rhs, Condition> &t)
+auto to_sql_string(Context& context,
+                   const join_t<Lhs, JoinType, Rhs, Condition>& t)
     -> std::string {
   static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
 
@@ -107,10 +113,13 @@ auto to_sql_string(Context &context,
   return ret_val + to_sql_string(context, t._condition);
 }
 
-template <typename Context, typename Lhs, typename JoinType, typename Rhs,
+template <typename Context,
+          typename Lhs,
+          typename JoinType,
+          typename Rhs,
           typename Condition>
-auto to_sql_string(Context &context,
-                   const join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition> &t)
+auto to_sql_string(Context& context,
+                   const join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition>& t)
     -> std::string {
   static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
   if (t._rhs.has_value()) {
@@ -123,8 +132,8 @@ auto to_sql_string(Context &context,
 }
 
 template <typename Context, typename Lhs, typename Rhs>
-auto to_sql_string(Context &context,
-                   const join_t<Lhs, cross_join_t, Rhs, unconditional_t> &t)
+auto to_sql_string(Context& context,
+                   const join_t<Lhs, cross_join_t, Rhs, unconditional_t>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
   auto ret_val = to_sql_string(context, t._lhs) + cross_join_t::_name;
@@ -133,8 +142,8 @@ auto to_sql_string(Context &context,
 
 template <typename Context, typename Lhs, typename Rhs>
 auto to_sql_string(
-    Context &context,
-    const join_t<Lhs, cross_join_t, dynamic_t<Rhs>, unconditional_t> &t)
+    Context& context,
+    const join_t<Lhs, cross_join_t, dynamic_t<Rhs>, unconditional_t>& t)
     -> std::string {
   if (t._rhs.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
@@ -189,7 +198,8 @@ using deep_check_join_on_condition = static_combined_check_t<
 template <typename Lhs, typename Rhs, typename Expr>
 using check_on_args = std::enable_if_t<sqlpp::is_boolean<Expr>::value>;
 
-template <typename Lhs, typename JoinType, typename Rhs> struct pre_join_t {
+template <typename Lhs, typename JoinType, typename Rhs>
+struct pre_join_t {
   template <typename Expr, typename = check_on_args<Lhs, Rhs, Expr>>
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
     deep_check_join_on_condition<Lhs, Rhs, Expr>::verify();
@@ -242,10 +252,12 @@ auto full_outer_join(Lhs lhs, Rhs rhs)
 }
 
 template <StaticTable Lhs, DynamicTable Rhs>
-auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>, cross_join_t,
-                                            table_ref_t<Rhs>, unconditional_t> {
+auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>,
+                                            cross_join_t,
+                                            table_ref_t<Rhs>,
+                                            unconditional_t> {
   deep_check_join_args<Lhs, Rhs>::verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs)), {}};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

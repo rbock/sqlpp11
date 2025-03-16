@@ -29,7 +29,7 @@
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int Interpret(int, char *[]) {
+int Interpret(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t ctx = {};
 
@@ -145,7 +145,7 @@ int Interpret(int, char *[]) {
 
   to_sql_string(ctx, select(all_of(t)).from(t).where(true));
 
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     to_sql_string(ctx, t.id == row.id);
     to_sql_string(ctx, t.textN == row.textN.value());
     to_sql_string(ctx, t.boolNn == row.boolNn);

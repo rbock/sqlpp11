@@ -37,14 +37,14 @@
 namespace sqlpp {
 struct tuple_operand {
   template <typename Context, typename T>
-  auto operator()(Context &context, const T &t, size_t index) const
+  auto operator()(Context& context, const T& t, size_t index) const
       -> std::string {
     const auto prefix = index ? std::string{separator} : std::string{};
     return prefix + operand_to_sql_string(context, t);
   }
 
   template <typename Context, typename T>
-  auto operator()(Context &context, const dynamic_t<T> &t, size_t index) const
+  auto operator()(Context& context, const dynamic_t<T>& t, size_t index) const
       -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -58,14 +58,15 @@ struct tuple_operand {
 // Used to serialize tuple that should ignore dynamic elements.
 struct tuple_operand_no_dynamic {
   template <typename Context, typename T>
-  auto operator()(Context &context, const T &t, size_t) const -> std::string {
+  auto operator()(Context& context, const T& t, size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
     return prefix + operand_to_sql_string(context, t);
   }
 
   template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+  auto operator()(Context& context,
+                  const sqlpp::dynamic_t<T>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -81,15 +82,15 @@ struct tuple_operand_no_dynamic {
 // In particular, it serializes unselected dynamic columns as "NULL AS <name>".
 struct tuple_operand_select_column {
   template <typename Context, typename T>
-  auto operator()(Context &context, const T &t, size_t index) const
+  auto operator()(Context& context, const T& t, size_t index) const
       -> std::string {
     const auto prefix = index ? std::string{separator} : std::string{};
     return prefix + operand_to_sql_string(context, t);
   }
 
   template <typename Context, typename T, typename NameTag>
-  auto operator()(Context &context,
-                  const sqlpp::dynamic_t<as_expression<T, NameTag>> &t,
+  auto operator()(Context& context,
+                  const sqlpp::dynamic_t<as_expression<T, NameTag>>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -99,7 +100,8 @@ struct tuple_operand_select_column {
   }
 
   template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+  auto operator()(Context& context,
+                  const sqlpp::dynamic_t<T>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -116,14 +118,15 @@ struct tuple_operand_select_column {
 // Used to names (ignoring dynamic)
 struct tuple_operand_name_no_dynamic {
   template <typename Context, typename T>
-  auto operator()(Context &context, const T &, size_t) const -> std::string {
+  auto operator()(Context& context, const T&, size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
     return prefix + name_to_sql_string(context, name_tag_of_t<T>{});
   }
 
   template <typename Context, typename T>
-  auto operator()(Context &context, const sqlpp::dynamic_t<T> &t,
+  auto operator()(Context& context,
+                  const sqlpp::dynamic_t<T>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
@@ -137,7 +140,7 @@ struct tuple_operand_name_no_dynamic {
 
 struct tuple_clause {
   template <typename Context, typename T>
-  auto operator()(Context &context, const T &t, size_t index) const
+  auto operator()(Context& context, const T& t, size_t index) const
       -> std::string {
     const auto prefix = index ? std::string{separator} : std::string{};
     return prefix + to_sql_string(context, t);
@@ -147,9 +150,10 @@ struct tuple_clause {
 };
 
 template <typename Context, typename Tuple, typename Strategy, size_t... Is>
-auto tuple_to_sql_string_impl(Context &context, const Tuple &t,
-                              const Strategy &strategy,
-                              const std::index_sequence<Is...> &
+auto tuple_to_sql_string_impl(Context& context,
+                              const Tuple& t,
+                              const Strategy& strategy,
+                              const std::index_sequence<Is...>&
                               /*unused*/) -> std::string {
   // Note: A braced-init-list does guarantee the order of evaluation according
   // to 12.6.1 [class.explicit.init] paragraph 2 and 8.5.4 [dcl.init.list]
@@ -160,15 +164,16 @@ auto tuple_to_sql_string_impl(Context &context, const Tuple &t,
   // otherwise an empty swallow struct could be used.
   auto result = std::string{};
   using swallow = int[];
-  (void)swallow{0, // workaround against -Wpedantic GCC warning "zero-size array
-                   // 'int [0]'"
+  (void)swallow{0,  // workaround against -Wpedantic GCC warning "zero-size
+                    // array 'int [0]'"
                 (result += strategy(context, std::get<Is>(t), Is), 0)...};
   return result;
 }
 
 template <typename Context, typename Tuple, typename Strategy>
-auto tuple_to_sql_string(Context &context, const Tuple &t,
-                         const Strategy &strategy) -> std::string {
+auto tuple_to_sql_string(Context& context,
+                         const Tuple& t,
+                         const Strategy& strategy) -> std::string {
   return tuple_to_sql_string_impl(
       context, t, strategy,
       std::make_index_sequence<std::tuple_size<Tuple>::value>{});
@@ -189,4 +194,4 @@ auto dynamic_tuple_clause_to_sql_string(Context& context,
   return std::format(" {} {}", name, expressions);
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

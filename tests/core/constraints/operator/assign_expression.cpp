@@ -37,10 +37,11 @@ struct can_call_assign_with : public std::false_type {};
 
 template <typename Lhs, typename Rhs>
 struct can_call_assign_with<
-    Lhs, Rhs,
+    Lhs,
+    Rhs,
     std::void_t<decltype(assign(std::declval<Lhs>(), std::declval<Rhs>()))>>
     : public std::true_type {};
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

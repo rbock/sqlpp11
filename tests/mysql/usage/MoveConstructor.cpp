@@ -24,17 +24,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include <cassert>
 #include <iostream>
 #include <vector>
 
 namespace sql = sqlpp::mysql;
-int MoveConstructor(int, char *[]) {
+int MoveConstructor(int, char*[]) {
   sql::global_library_init();
   auto config = sql::make_test_config();
   try {
@@ -57,7 +57,7 @@ int MoveConstructor(int, char *[]) {
 
     db.commit_transaction();
     assert(db.is_transaction_active() == false);
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

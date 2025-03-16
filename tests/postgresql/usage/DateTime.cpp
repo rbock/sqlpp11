@@ -32,8 +32,8 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
-#include "make_test_connection.h"
 #include <sqlpp23/tests/postgresql/tables.h>
+#include "make_test_connection.h"
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::microseconds>(
@@ -43,7 +43,7 @@ const auto yesterday = today - std::chrono::days{1};
 const auto current = now - today;
 
 template <typename L, typename R>
-auto require_equal(int line, const L &l, const R &r) -> void {
+auto require_equal(int line, const L& l, const R& r) -> void {
   if (l != r) {
     std::cerr << line << ": ";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
@@ -52,9 +52,9 @@ auto require_equal(int line, const L &l, const R &r) -> void {
     throw std::runtime_error("Unexpected result");
   }
 }
-} // namespace
+}  // namespace
 
-int DateTime(int, char *[]) {
+int DateTime(int, char*[]) {
   namespace sql = sqlpp::postgresql;
 
   sql::connection db = sql::make_test_connection();
@@ -64,7 +64,7 @@ int DateTime(int, char *[]) {
   test::TabDateTime tab = {};
   try {
     db(insert_into(tab).default_values());
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.has_value(), false);
       require_equal(__LINE__, row.timeOfDayNTz.has_value(), false);
       require_equal(__LINE__, row.timePointNTz.has_value(), false);
@@ -75,7 +75,7 @@ int DateTime(int, char *[]) {
                 tab.timePointNTz = now)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);
       require_equal(__LINE__, row.timePointNTz.value(), now);
@@ -85,7 +85,7 @@ int DateTime(int, char *[]) {
            .set(tab.dayPointN = yesterday, tab.timePointNTz = today)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);
       require_equal(__LINE__, row.timePointNTz.value(), today);
@@ -103,12 +103,12 @@ int DateTime(int, char *[]) {
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);
       require_equal(__LINE__, row.timePointNTz.value(), now);
     }
-  } catch (const sql::failure &e) {
+  } catch (const sql::failure& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

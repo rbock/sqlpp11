@@ -48,4 +48,6 @@ void test_into() {
   }
 }
 
-int main() { void test_into(); }
+int main() {
+  void test_into();
+}

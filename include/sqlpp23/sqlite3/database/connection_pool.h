@@ -33,5 +33,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 namespace sqlite3 {
 using connection_pool = sqlpp::connection_pool<connection_base>;
-} // namespace sqlite3
-} // namespace sqlpp
+}  // namespace sqlite3
+}  // namespace sqlpp

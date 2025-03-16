@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sql = ::sqlpp::postgresql;
 
-int ConnectionPool(int, char *[]) {
+int ConnectionPool(int, char*[]) {
   try {
     sqlpp::test::test_connection_pool<sql::connection_pool>(
         sql::make_test_config(),
@@ -43,7 +43,7 @@ int ConnectionPool(int, char *[]) {
         "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
         ")",
         PQisthreadsafe());
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

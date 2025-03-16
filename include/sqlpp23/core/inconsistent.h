@@ -31,7 +31,8 @@
 
 namespace sqlpp {
 #if defined(__clang__) || defined(_MSC_VER)
-template <typename Check> using inconsistent = Check;
+template <typename Check>
+using inconsistent = Check;
 #else
 // This version circumvents an ambiguity problem with gcc
 // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77449
@@ -40,4 +41,4 @@ using inconsistent =
     typename std::enable_if<not std::is_same<consistent_t, Check>::value,
                             Check>::type;
 #endif
-} // namespace sqlpp
+}  // namespace sqlpp

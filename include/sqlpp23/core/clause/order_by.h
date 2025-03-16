@@ -33,9 +33,9 @@
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -48,16 +48,17 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "at least one order-by expression statically requires a table which is "
     "only known dynamically in the statement");
 
-template <typename... Expressions> struct order_by_t {
+template <typename... Expressions>
+struct order_by_t {
   order_by_t(Expressions... expressions) : _expressions(expressions...) {}
 
-  order_by_t(const order_by_t &) = default;
-  order_by_t(order_by_t &&) = default;
-  order_by_t &operator=(const order_by_t &) = default;
-  order_by_t &operator=(order_by_t &&) = default;
+  order_by_t(const order_by_t&) = default;
+  order_by_t(order_by_t&&) = default;
+  order_by_t& operator=(const order_by_t&) = default;
+  order_by_t& operator=(order_by_t&&) = default;
   ~order_by_t() = default;
 
-  private:
+ private:
   friend reader_t;
   std::tuple<Expressions...> _expressions;
 };
@@ -86,41 +87,49 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "in group_by");
 
 namespace detail {
-template <typename ProvidedAggregates, typename ProvidedStaticAggregates,
+template <typename ProvidedAggregates,
+          typename ProvidedStaticAggregates,
           typename... Expressions>
 struct check_order_by_aggregates;
 
-template <typename ProvidedAggregates, typename ProvidedStaticAggregates,
+template <typename ProvidedAggregates,
+          typename ProvidedStaticAggregates,
           typename... Expressions>
-using check_order_by_aggregates_t = typename check_order_by_aggregates<
-    ProvidedAggregates, ProvidedStaticAggregates, Expressions...>::type;
+using check_order_by_aggregates_t =
+    typename check_order_by_aggregates<ProvidedAggregates,
+                                       ProvidedStaticAggregates,
+                                       Expressions...>::type;
 
 // In case of provided aggregates all of the order by expressions have to be
 // aggregates.
-template <typename ProvidedAggregates, typename ProvidedStaticAggregates,
+template <typename ProvidedAggregates,
+          typename ProvidedStaticAggregates,
           typename... Expressions>
 struct check_order_by_aggregates {
   using type = static_combined_check_t<
-      static_check_t<logic::all<is_aggregate_expression<
-                         ProvidedAggregates, Expressions>::value...>::value,
-                     assert_correct_order_by_aggregates_with_group_by_t>,
+      static_check_t<
+          logic::all<is_aggregate_expression<ProvidedAggregates,
+                                             Expressions>::value...>::value,
+          assert_correct_order_by_aggregates_with_group_by_t>,
       static_check_t<
           logic::all<static_part_is_aggregate_expression<
-              ProvidedStaticAggregates, Expressions>::value...>::value,
+              ProvidedStaticAggregates,
+              Expressions>::value...>::value,
           assert_correct_static_order_by_aggregates_with_group_by_t>>;
 };
 
 // In case of no provided aggregates all of the order by expressions have to be
 // non-aggregates.
 template <typename... Expressions>
-struct check_order_by_aggregates<detail::type_set<>, detail::type_set<>,
+struct check_order_by_aggregates<detail::type_set<>,
+                                 detail::type_set<>,
                                  Expressions...> {
-  using type =
-      static_check_t<logic::all<is_non_aggregate_expression<
-                         detail::type_set<>, Expressions>::value...>::value,
-                     assert_correct_order_by_aggregates_t>;
+  using type = static_check_t<
+      logic::all<is_non_aggregate_expression<detail::type_set<>,
+                                             Expressions>::value...>::value,
+      assert_correct_order_by_aggregates_t>;
 };
-} // namespace detail
+}  // namespace detail
 
 template <typename Statement, typename... Expressions>
 struct consistency_check<Statement, order_by_t<Expressions...>> {
@@ -130,7 +139,8 @@ struct consistency_check<Statement, order_by_t<Expressions...>> {
   using type = static_combined_check_t<
       detail::check_order_by_aggregates_t<PA, PSA, Expressions...>,
       detail::expression_static_check_t<
-          Statement, Expressions,
+          Statement,
+          Expressions,
           assert_no_unknown_static_tables_in_order_by_t>...>;
 };
 
@@ -145,14 +155,15 @@ struct prepare_check<Statement, order_by_t<Expressions...>> {
                      assert_no_unknown_static_tables_in_order_by_t>>;
 };
 
-template <typename... Expressions> struct nodes_of<order_by_t<Expressions...>> {
+template <typename... Expressions>
+struct nodes_of<order_by_t<Expressions...>> {
   using type = detail::type_vector<Expressions...>;
 };
 
 // NO ORDER BY YET
 struct no_order_by_t {
   template <typename Statement, DynamicSortOrder... Expressions>
-  auto order_by(this Statement &&statement, Expressions... expressions) {
+  auto order_by(this Statement&& statement, Expressions... expressions) {
     SQLPP_STATIC_ASSERT(sizeof...(Expressions),
                         "at least one sort-order expression (e.g. "
                         "column.asc()) required in order_by()");
@@ -165,13 +176,12 @@ struct no_order_by_t {
         std::forward<Statement>(statement),
         order_by_t<Expressions...>{std::move(expressions)...});
   }
-
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_order_by_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_order_by_t&) -> std::string {
+  return "";
+}
 
 template <typename Statement>
 struct consistency_check<Statement, no_order_by_t> {
@@ -183,4 +193,4 @@ auto order_by(Expressions... expressions) {
   return statement_t<no_order_by_t>().order_by(std::move(expressions)...);
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

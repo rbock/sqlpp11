@@ -30,18 +30,22 @@
 #include <sqlpp23/core/detail/get_last.h>
 
 namespace sqlpp {
-template <typename Clause> struct hidden_t;
+template <typename Clause>
+struct hidden_t;
 
-template <typename T> struct unhide {
+template <typename T>
+struct unhide {
   using type = T;
 };
-template <typename Clause> struct unhide<hidden_t<Clause>> {
+template <typename Clause>
+struct unhide<hidden_t<Clause>> {
   using type = Clause;
 };
-template <typename Clause> using unhide_t = typename unhide<Clause>::type;
+template <typename Clause>
+using unhide_t = typename unhide<Clause>::type;
 
 template <typename... Clauses>
 using result_type_provider_t =
     detail::get_last_if_t<is_result_clause, noop, unhide_t<Clauses>...>;
 
-} // namespace sqlpp
+}  // namespace sqlpp

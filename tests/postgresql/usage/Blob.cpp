@@ -32,8 +32,8 @@
 #include <iostream>
 #include <random>
 
-#include "make_test_connection.h"
 #include <sqlpp23/tests/postgresql/tables.h>
+#include "make_test_connection.h"
 
 namespace sql = sqlpp::postgresql;
 const auto blob = test::BlobSample{};
@@ -42,10 +42,11 @@ const auto blob = test::BlobSample{};
 constexpr size_t blob_size = 1000 * 1000ul;
 constexpr size_t blob_small_size = 999;
 
-void verify_blob(sql::connection &db, const std::vector<uint8_t> &expected,
+void verify_blob(sql::connection& db,
+                 const std::vector<uint8_t>& expected,
                  uint64_t id) {
   auto result = db(select(blob.data).from(blob).where(blob.id == id));
-  const auto &result_row = result.front();
+  const auto& result_row = result.front();
   if (!result_row.data)
     throw std::runtime_error("blob data is unpexpectedly NULL for id " +
                              std::to_string(id));
@@ -69,7 +70,7 @@ void verify_blob(sql::connection &db, const std::vector<uint8_t> &expected,
   }
 }
 
-int Blob(int, char *[]) {
+int Blob(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
   test::createBlobSample(db);
@@ -100,7 +101,7 @@ int Blob(int, char *[]) {
   verify_blob(db, data, prep_id);
   {
     auto result = db(select(blob.data).from(blob).where(blob.id == null_id));
-    const auto &result_row = result.front();
+    const auto& result_row = result.front();
     std::cerr << "Null blob is_null:\t" << std::boolalpha
               << (result_row.data == std::nullopt) << std::endl;
     if (result_row.data.has_value()) {

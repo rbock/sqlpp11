@@ -36,29 +36,30 @@
 namespace sqlpp {
 // Join types.
 struct cross_join_t {
-  static constexpr const char *_name = " CROSS JOIN ";
+  static constexpr const char* _name = " CROSS JOIN ";
 };
 
 struct inner_join_t {
-  static constexpr const char *_name = " INNER JOIN ";
+  static constexpr const char* _name = " INNER JOIN ";
 };
 
 struct left_outer_join_t {
-  static constexpr const char *_name = " LEFT OUTER JOIN ";
+  static constexpr const char* _name = " LEFT OUTER JOIN ";
 };
 
 struct right_outer_join_t {
-  static constexpr const char *_name = " RIGHT OUTER JOIN ";
+  static constexpr const char* _name = " RIGHT OUTER JOIN ";
 };
 
 struct full_outer_join_t {
-  static constexpr const char *_name = " FULL OUTER JOIN ";
+  static constexpr const char* _name = " FULL OUTER JOIN ";
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct join_t;
 
-template <typename Lhs, typename JoinType, typename Rhs> struct pre_join_t;
+template <typename Lhs, typename JoinType, typename Rhs>
+struct pre_join_t;
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_join_lhs_no_dependencies_t,
                             "table dependencies detected in left side of join");
@@ -74,12 +75,12 @@ using deep_check_join_args = static_combined_check_t<
                    assert_join_lhs_no_dependencies_t>,
     static_check_t<required_tables_of_t<Rhs>::empty(),
                    assert_join_rhs_no_dependencies_t>,
-    static_check_t<
-        sqlpp::detail::transform_set_t<provided_tables_of_t<Lhs>,
-                                       make_char_sequence>::
-            contains_none(sqlpp::detail::transform_set_t<
-                          provided_tables_of_t<Rhs>, make_char_sequence>{}),
-        assert_join_no_name_duplicates_t>>;
+    static_check_t<sqlpp::detail::transform_set_t<provided_tables_of_t<Lhs>,
+                                                  make_char_sequence>::
+                       contains_none(sqlpp::detail::transform_set_t<
+                                     provided_tables_of_t<Rhs>,
+                                     make_char_sequence>{}),
+                   assert_join_no_name_duplicates_t>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
 auto join(Lhs lhs, Rhs rhs)
@@ -102,7 +103,9 @@ auto full_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, full_outer_join_t, table_ref_t<Rhs>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
-auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>, cross_join_t,
-                                            table_ref_t<Rhs>, unconditional_t>;
+auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>,
+                                            cross_join_t,
+                                            table_ref_t<Rhs>,
+                                            unconditional_t>;
 
-} // namespace sqlpp
+}  // namespace sqlpp

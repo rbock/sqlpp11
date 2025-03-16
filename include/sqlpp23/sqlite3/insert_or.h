@@ -41,21 +41,22 @@ namespace sqlite3 {
 struct insert_or_replace_name_t {};
 struct insert_or_ignore_name_t {};
 
-template <typename InsertOrAlternative> struct insert_or_t {};
+template <typename InsertOrAlternative>
+struct insert_or_t {};
 
 struct insert_or_result_methods_t {
   template <typename Statement, typename Db>
-  auto _run(this Statement &&statement, Db &db) {
+  auto _run(this Statement&& statement, Db& db) {
     return db.insert(std::forward<Statement>(statement));
   }
 
   template <typename Statement, typename Db>
-  auto _prepare(this Statement &&statement, Db &db)
+  auto _prepare(this Statement&& statement, Db& db)
       -> prepared_insert_t<Db, std::decay_t<Statement>> {
     return {{}, db.prepare_insert(std::forward<Statement>(statement))};
   }
 };
-} // namespace sqlite3
+}  // namespace sqlite3
 
 template <typename Statement, typename InsertOrAlternative>
 struct consistency_check<Statement, sqlite3::insert_or_t<InsertOrAlternative>> {
@@ -74,7 +75,8 @@ struct result_methods_of<sqlite3::insert_or_t<InsertOrAlternative>> {
 namespace sqlite3 {
 template <typename InsertOrAlternative>
 using blank_insert_or_t = statement_t<insert_or_t<InsertOrAlternative>,
-                                      no_into_t, no_insert_value_list_t>;
+                                      no_into_t,
+                                      no_insert_value_list_t>;
 
 using blank_insert_or_replace_t = blank_insert_or_t<insert_or_replace_name_t>;
 
@@ -100,18 +102,18 @@ constexpr auto insert_or_ignore_into(_Table table)
   return {blank_insert_or_ignore_t().into(table)};
 }
 
-inline auto
-to_sql_string(sqlite3::context_t &,
-              const sqlite3::insert_or_t<sqlite3::insert_or_replace_name_t> &)
+inline auto to_sql_string(
+    sqlite3::context_t&,
+    const sqlite3::insert_or_t<sqlite3::insert_or_replace_name_t>&)
     -> std::string {
   return "INSERT OR REPLACE ";
 }
 
-inline auto
-to_sql_string(sqlite3::context_t &,
-              const sqlite3::insert_or_t<sqlite3::insert_or_ignore_name_t> &)
+inline auto to_sql_string(
+    sqlite3::context_t&,
+    const sqlite3::insert_or_t<sqlite3::insert_or_ignore_name_t>&)
     -> std::string {
   return "INSERT OR IGNORE ";
 }
-} // namespace sqlite3
-} // namespace sqlpp
+}  // namespace sqlite3
+}  // namespace sqlpp

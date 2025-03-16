@@ -30,13 +30,13 @@
 
 namespace A {
 SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_QUOTED_NAME_TAG(cake); // Quoted
-} // namespace A
+SQLPP_CREATE_QUOTED_NAME_TAG(cake);  // Quoted
+}  // namespace A
 
 namespace B {
 SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake); // Unquoted
-} // namespace B
+SQLPP_CREATE_NAME_TAG(cake);  // Unquoted
+}  // namespace B
 
 int main() {
   using ACheese = sqlpp::make_char_sequence_t<decltype(A::cheese)>;

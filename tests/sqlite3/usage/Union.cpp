@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -39,13 +39,13 @@ namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
 
-int Union(int, char *[]) {
+int Union(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -59,11 +59,11 @@ int Union(int, char *[]) {
                .where(true)
                .union_all(select(all_of(tab)).from(tab).where(true));
 
-  for (const auto &row : db(u)) {
+  for (const auto& row : db(u)) {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }
 
-  for (const auto &row :
+  for (const auto& row :
        db(u.union_distinct(select(all_of(tab)).from(tab).where(true)))) {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }

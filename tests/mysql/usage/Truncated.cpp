@@ -24,12 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mysql/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
+#include <cassert>
 #include "Tables.h"
 #include "make_test_connection.h"
 #include "sqlpp23/tests/core/result_helpers.h"
-#include <cassert>
-#include <sqlpp23/mysql/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
 
 #include <iostream>
 #include <vector>
@@ -40,7 +40,7 @@ const auto library_raii =
 namespace sql = sqlpp::mysql;
 const auto tab = test::TabSample{};
 
-int Truncated(int, char *[]) {
+int Truncated(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -50,7 +50,7 @@ int Truncated(int, char *[]) {
     db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheesecake"));
 
     {
-      for (const auto &row :
+      for (const auto& row :
            db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true)))) {
         std::cerr << ">>> row.intN: " << row.intN
                   << ", row.textN: " << row.textN
@@ -61,7 +61,7 @@ int Truncated(int, char *[]) {
     {
       auto result = db(db.prepare(
           sqlpp::select(all_of(tab)).from(tab).where(tab.id == 1).limit(1u)));
-      auto &row = result.front();
+      auto& row = result.front();
 
       std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN
                 << ", row.boolN: " << row.boolN << std::endl;
@@ -71,13 +71,13 @@ int Truncated(int, char *[]) {
     {
       auto result = db(db.prepare(
           sqlpp::select(all_of(tab)).from(tab).where(tab.id == 2).limit(1u)));
-      auto &row = result.front();
+      auto& row = result.front();
 
       std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN
                 << ", row.boolN: " << row.boolN << std::endl;
       assert(row.textN == "cheesecake");
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

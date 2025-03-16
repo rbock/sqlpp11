@@ -27,12 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ciso646> // Required for some compilers to use aliases for boolean operators
+#include <ciso646>  // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
 
 namespace sqlpp {
 namespace logic {
-template <bool... B> struct logic_helper;
+template <bool... B>
+struct logic_helper;
 
 // see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
 
@@ -41,15 +42,15 @@ struct all
     : public std::is_same<logic_helper<B...>, logic_helper<(B or true)...>> {};
 
 template <bool... B>
-struct any
-    : public std::integral_constant<
-          bool, not std::is_same<logic_helper<B...>,
-                                 logic_helper<(B and false)...>>::value> {};
+struct any : public std::integral_constant<
+                 bool,
+                 not std::is_same<logic_helper<B...>,
+                                  logic_helper<(B and false)...>>::value> {};
 
 template <bool... B>
 struct none
     : public std::is_same<logic_helper<B...>, logic_helper<(B and false)...>> {
 };
 
-} // namespace logic
-} // namespace sqlpp
+}  // namespace logic
+}  // namespace sqlpp

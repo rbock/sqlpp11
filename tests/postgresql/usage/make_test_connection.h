@@ -48,8 +48,8 @@ make_test_config() {
 }
 
 // Starts a connection and sets the time zone to UTC
-inline ::sqlpp::postgresql::connection
-make_test_connection(const std::string &tz = "UTC") {
+inline ::sqlpp::postgresql::connection make_test_connection(
+    const std::string& tz = "UTC") {
   namespace sql = sqlpp::postgresql;
 
   auto config = make_test_config();
@@ -57,7 +57,7 @@ make_test_connection(const std::string &tz = "UTC") {
   sql::connection db;
   try {
     db.connectUsing(config);
-  } catch (const sqlpp::exception &) {
+  } catch (const sqlpp::exception&) {
     std::cerr << "For testing, you'll need to create a database called '"
               << config->dbname << "', accessible by user '" << config->user
               << "' without a password." << std::endl;
@@ -68,5 +68,5 @@ make_test_connection(const std::string &tz = "UTC") {
 
   return db;
 }
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

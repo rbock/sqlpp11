@@ -58,11 +58,12 @@ struct expression_static_check {
 };
 
 template <typename Statement, typename... Nodes, typename Assert>
-struct expression_static_check<Statement, detail::type_vector<Nodes...>,
+struct expression_static_check<Statement,
+                               detail::type_vector<Nodes...>,
                                Assert> {
   using type = static_combined_check_t<
       expression_static_check_t<Statement, Nodes, Assert>...>;
 };
-} // namespace detail
+}  // namespace detail
 
-} // namespace sqlpp
+}  // namespace sqlpp

@@ -48,7 +48,7 @@ struct can_call_returning_columns_with
     : public can_call_returning_columns_with_impl<
           sqlpp::detail::type_vector<Expressions...>> {};
 
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

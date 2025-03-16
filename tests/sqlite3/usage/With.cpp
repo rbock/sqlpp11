@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include <cassert>
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <cassert>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -40,13 +40,13 @@ namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
 
-int With(int, char *[]) {
+int With(int, char*[]) {
 #if SQLITE_VERSION_NUMBER >= 3008003
   sql::connection_config config;
   config.path_to_database = ":memory:";
@@ -58,11 +58,11 @@ int With(int, char *[]) {
 
   auto a = sqlpp::cte(sqlpp::alias::a)
                .as(select(all_of(tab)).from(tab).where(tab.alpha > 3));
-  for (const auto &row : db(with(a)(select(a.alpha).from(a)).where(true))) {
+  for (const auto& row : db(with(a)(select(a.alpha).from(a)).where(true))) {
     std::cout << row.alpha << std::endl;
   }
 
-  for (const auto &row : db(with(a.union_all(
+  for (const auto& row : db(with(a.union_all(
            select(all_of(a)).from(a).where(true)))(select(all_of(a)).from(a))
                                 .where(true))) {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;

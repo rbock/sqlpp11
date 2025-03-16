@@ -29,7 +29,7 @@
 
 SQLPP_CREATE_NAME_TAG(v);
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
   SQLPP_COMPARE(any(select(val.as(v))), "ANY (SELECT 17 AS v)");

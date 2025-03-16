@@ -32,11 +32,12 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Db, typename Update> struct prepared_update_t {
+template <typename Db, typename Update>
+struct prepared_update_t {
   using _parameter_list_t = make_parameter_list_t<Update>;
   using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-  auto _run(Db &db) const -> size_t { return db.run_prepared_insert(*this); }
+  auto _run(Db& db) const -> size_t { return db.run_prepared_insert(*this); }
 
   void _bind_params() const { params._bind(_prepared_statement); }
 
@@ -47,4 +48,4 @@ template <typename Db, typename Update>
 struct statement_run_check<prepared_update_t<Db, Update>> {
   using type = consistent_t;
 };
-} // namespace sqlpp
+}  // namespace sqlpp

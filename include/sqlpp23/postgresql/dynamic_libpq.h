@@ -45,20 +45,20 @@ struct PGresult_data;
 
 typedef struct {
   PQnoticeReceiver noticeRec; /* notice message receiver */
-  void *noticeRecArg;
+  void* noticeRecArg;
   PQnoticeProcessor noticeProc; /* notice message processor */
-  void *noticeProcArg;
+  void* noticeProcArg;
 } PGNoticeHooks;
 
 struct pg_result {
   int ntups;
   int numAttributes;
-  PGresAttDesc *attDescs;
-  PGresAttValue **tuples; /* each PGresTuple is an array of
+  PGresAttDesc* attDescs;
+  PGresAttValue** tuples; /* each PGresTuple is an array of
                            * PGresAttValue's */
   int tupArrSize;         /* allocated size of tuples array */
   int numParameters;
-  PGresParamDesc *paramDescs;
+  PGresParamDesc* paramDescs;
   ExecStatusType resultStatus;
   char cmdStatus[CMDSTATUS_LEN]; /* cmd status from the query */
   int binary;                    /* binary tuple values if binary == 1,
@@ -69,7 +69,7 @@ struct pg_result {
    * on the PGresult don't have to reference the PGconn.
    */
   PGNoticeHooks noticeHooks;
-  PGEvent *events;
+  PGEvent* events;
   int nEvents;
   int client_encoding; /* encoding id */
 
@@ -78,8 +78,8 @@ struct pg_result {
    * "overall" error message returned by PQresultErrorMessage.  If we have
    * per-field info then it is stored in a linked list.
    */
-  char *errMsg;              /* error message, or NULL if no error */
-  PGMessageField *errFields; /* message broken into fields */
+  char* errMsg;              /* error message, or NULL if no error */
+  PGMessageField* errFields; /* message broken into fields */
 
   /* All NULL attributes in the query result point to this null string */
   char null_field[1];
@@ -89,7 +89,7 @@ struct pg_result {
    * not null, point into allocated blocks.  But tuples points to a
    * separately malloc'd block, so that we can realloc it.
    */
-  PGresult_data *curBlock; /* most recently allocated block */
+  PGresult_data* curBlock; /* most recently allocated block */
   int curOffset;           /* start offset of free space in block */
   int spaceLeft;           /* number of free bytes remaining in block */
 };
@@ -105,7 +105,7 @@ namespace sqlpp {
 namespace postgresql {
 namespace dynamic {
 
-#define DYNDEFINE(NAME) extern decltype(::NAME) *NAME
+#define DYNDEFINE(NAME) extern decltype(::NAME)* NAME
 
 DYNDEFINE(PQescapeStringConn);
 DYNDEFINE(PQescapeString);
@@ -143,6 +143,6 @@ DYNDEFINE(PQerrorMessage);
 /// empty for default)
 void init_pg(std::string libname);
 
-} // namespace dynamic
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace dynamic
+}  // namespace postgresql
+}  // namespace sqlpp

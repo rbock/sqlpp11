@@ -32,21 +32,22 @@
 #include <sqlpp23/core/database/prepared_insert.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/no_data.h>
-#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename _Table> struct single_table_t {
+template <typename _Table>
+struct single_table_t {
   single_table_t(_Table table) : _table(table) {}
 
-  single_table_t(const single_table_t &) = default;
-  single_table_t(single_table_t &&) = default;
-  single_table_t &operator=(const single_table_t &) = default;
-  single_table_t &operator=(single_table_t &&) = default;
+  single_table_t(const single_table_t&) = default;
+  single_table_t(single_table_t&&) = default;
+  single_table_t& operator=(const single_table_t&) = default;
+  single_table_t& operator=(single_table_t&&) = default;
   ~single_table_t() = default;
 
-  private:
+ private:
   friend reader_t;
   _Table _table;
 };
@@ -65,7 +66,8 @@ struct consistency_check<Statement, single_table_t<_Table>> {
   using type = consistent_t;
 };
 
-template <typename _Table> struct nodes_of<single_table_t<_Table>> {
+template <typename _Table>
+struct nodes_of<single_table_t<_Table>> {
   using type = detail::type_vector<_Table>;
 };
 
@@ -76,16 +78,16 @@ struct provided_tables_of<single_table_t<_Table>>
 // NO TABLE YET
 struct no_single_table_t {
   template <typename Statement, StaticRawTable _Table>
-  auto single_table(this Statement &&statement, _Table table) {
+  auto single_table(this Statement&& statement, _Table table) {
     return new_statement<no_single_table_t>(std::forward<Statement>(statement),
                                             single_table_t<_Table>{table});
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_single_table_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_single_table_t&) -> std::string {
+  return "";
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_single_table_provided_t,
                             "this statement requires a table");
@@ -94,7 +96,8 @@ struct consistency_check<Statement, no_single_table_t> {
   using type = assert_single_table_provided_t;
 };
 
-template <StaticRawTable T> auto single_table(T t) {
+template <StaticRawTable T>
+auto single_table(T t) {
   return statement_t<no_single_table_t>().single_table(std::move(t));
 }
-} // namespace sqlpp
+}  // namespace sqlpp

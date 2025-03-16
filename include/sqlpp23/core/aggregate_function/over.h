@@ -37,10 +37,10 @@ struct over_t : public enable_as<over_t<Expr>>,
                 public enable_comparison<over_t<Expr>> {
   over_t(Expr expr) : _expr(expr) {}
 
-  over_t(const over_t &) = default;
-  over_t(over_t &&) = default;
-  over_t &operator=(const over_t &) = default;
-  over_t &operator=(over_t &&) = default;
+  over_t(const over_t&) = default;
+  over_t(over_t&&) = default;
+  over_t& operator=(const over_t&) = default;
+  over_t& operator=(over_t&&) = default;
   ~over_t() = default;
 
   Expr _expr;
@@ -56,7 +56,7 @@ template <typename Expr>
 using check_over_args = std::enable_if_t<is_aggregate_function<Expr>::value>;
 
 template <typename Context, typename Expr>
-auto to_sql_string(Context &context, const over_t<Expr> &t) -> std::string {
+auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string {
   return operand_to_sql_string(context, t._expr) + " OVER()";
 }
 
@@ -65,4 +65,4 @@ auto over(Expr t) -> over_t<Expr> {
   return {std::move(t)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

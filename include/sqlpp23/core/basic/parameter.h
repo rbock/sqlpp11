@@ -40,10 +40,10 @@ struct parameter_t : public enable_as<parameter_t<ValueType, NameTag>>,
       typename NameTag::template _member_t<parameter_value_t<ValueType>>;
   parameter_t() = default;
 
-  parameter_t(const parameter_t &) = default;
-  parameter_t(parameter_t &&) = default;
-  parameter_t &operator=(const parameter_t &) = default;
-  parameter_t &operator=(parameter_t &&) = default;
+  parameter_t(const parameter_t&) = default;
+  parameter_t(parameter_t&&) = default;
+  parameter_t& operator=(const parameter_t&) = default;
+  parameter_t& operator=(parameter_t&&) = default;
   ~parameter_t() = default;
 };
 
@@ -58,13 +58,13 @@ struct value_type_of<parameter_t<ValueType, NameTag>> {
 };
 
 template <typename Context, typename ValueType, typename NameTag>
-auto to_sql_string(Context &, const parameter_t<ValueType, NameTag> &)
+auto to_sql_string(Context&, const parameter_t<ValueType, NameTag>&)
     -> std::string {
   return "?";
 }
 
 template <typename NamedExpr>
-auto parameter(const NamedExpr & /*unused*/)
+auto parameter(const NamedExpr& /*unused*/)
     -> parameter_t<value_type_of_t<NamedExpr>, name_tag_of_t<NamedExpr>> {
   static_assert(has_value_type<NamedExpr>::value, "not a named expression");
   static_assert(has_name_tag<NamedExpr>::value, "not a named expression");
@@ -72,7 +72,7 @@ auto parameter(const NamedExpr & /*unused*/)
 }
 
 template <typename ValueType, typename NameTagProvider>
-auto parameter(const ValueType & /*unused*/, const NameTagProvider & /*unused*/)
+auto parameter(const ValueType& /*unused*/, const NameTagProvider& /*unused*/)
     -> parameter_t<value_type_of_t<ValueType>, name_tag_of_t<NameTagProvider>> {
   static_assert(has_value_type<ValueType>::value,
                 "first argument is not a value type");
@@ -80,4 +80,4 @@ auto parameter(const ValueType & /*unused*/, const NameTagProvider & /*unused*/)
                 "second argument does not have a name");
   return {};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

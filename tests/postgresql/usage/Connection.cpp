@@ -31,7 +31,7 @@
 #include <sqlpp23/postgresql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 
-int Connection(int, char *[]) {
+int Connection(int, char*[]) {
   namespace sql = sqlpp::postgresql;
   namespace test = sqlpp::test;
 

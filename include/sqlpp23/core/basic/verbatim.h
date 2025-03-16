@@ -37,10 +37,10 @@ namespace sqlpp {
 template <typename ValueType>
 struct verbatim_t : public enable_as<verbatim_t<ValueType>> {
   verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim)) {}
-  verbatim_t(const verbatim_t &) = default;
-  verbatim_t(verbatim_t &&) = default;
-  verbatim_t &operator=(const verbatim_t &) = default;
-  verbatim_t &operator=(verbatim_t &&) = default;
+  verbatim_t(const verbatim_t&) = default;
+  verbatim_t(verbatim_t&&) = default;
+  verbatim_t& operator=(const verbatim_t&) = default;
+  verbatim_t& operator=(verbatim_t&&) = default;
   ~verbatim_t() = default;
 
   std::string _verbatim;
@@ -53,14 +53,15 @@ template <typename Statement, typename ValueType>
 struct consistency_check<Statement, verbatim_t<ValueType>> {
   using type = consistent_t;
 };
-template <typename ValueType> struct value_type_of<verbatim_t<ValueType>> {
+template <typename ValueType>
+struct value_type_of<verbatim_t<ValueType>> {
   // Since we do not know what's going on inside the verbatim, we assume it can
   // be null.
   using type = sqlpp::force_optional_t<ValueType>;
 };
 
 template <typename Context, typename ValueType>
-auto to_sql_string(Context &, const verbatim_t<ValueType> &t) -> std::string {
+auto to_sql_string(Context&, const verbatim_t<ValueType>& t) -> std::string {
   return t._verbatim;
 }
 
@@ -72,4 +73,4 @@ auto verbatim(StringType s) -> verbatim_t<ValueType> {
 inline auto verbatim(std::string s) -> verbatim_t<no_value_t> {
   return {std::move(s)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

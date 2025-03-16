@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/query/statement_handler.h>
@@ -40,6 +39,7 @@
 #include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/detail/connection_handle.h>
 #include <sqlpp23/mysql/prepared_statement.h>
+#include <iostream>
 #include <string>
 
 namespace sqlpp {
@@ -61,8 +61,8 @@ inline void thread_init() {
   thread_local mysql_thread_initializer thread_initializer;
 }
 
-inline void execute_statement(std::unique_ptr<connection_handle> &handle,
-                              const std::string &statement) {
+inline void execute_statement(std::unique_ptr<connection_handle>& handle,
+                              const std::string& statement) {
   thread_init();
 
   if (handle->config->debug)
@@ -76,7 +76,7 @@ inline void execute_statement(std::unique_ptr<connection_handle> &handle,
 }
 
 inline void execute_prepared_statement(
-    detail::prepared_statement_handle_t &prepared_statement) {
+    detail::prepared_statement_handle_t& prepared_statement) {
   thread_init();
 
   if (prepared_statement.debug)
@@ -96,10 +96,11 @@ inline void execute_prepared_statement(
   }
 }
 
-inline std::shared_ptr<detail::prepared_statement_handle_t>
-prepare_statement(std::unique_ptr<connection_handle> &handle,
-                  const std::string &statement, size_t no_of_parameters,
-                  size_t no_of_columns) {
+inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(
+    std::unique_ptr<connection_handle>& handle,
+    const std::string& statement,
+    size_t no_of_parameters,
+    size_t no_of_columns) {
   thread_init();
 
   if (handle->config->debug)
@@ -123,11 +124,12 @@ prepare_statement(std::unique_ptr<connection_handle> &handle,
   return prepared_statement;
 }
 
-} // namespace detail
+}  // namespace detail
 
 struct scoped_library_initializer_t {
-  scoped_library_initializer_t(int argc = 0, char **argv = nullptr,
-                               char **groups = nullptr) {
+  scoped_library_initializer_t(int argc = 0,
+                               char** argv = nullptr,
+                               char** groups = nullptr) {
     mysql_library_init(argc, argv, groups);
   }
 
@@ -135,8 +137,9 @@ struct scoped_library_initializer_t {
 };
 
 // This will also cleanup when the program shuts down
-inline void global_library_init(int argc = 0, char **argv = nullptr,
-                                char **groups = nullptr) {
+inline void global_library_init(int argc = 0,
+                                char** argv = nullptr,
+                                char** groups = nullptr) {
   static const auto global_init_and_end =
       scoped_library_initializer_t(argc, argv, groups);
 }
@@ -144,11 +147,11 @@ inline void global_library_init(int argc = 0, char **argv = nullptr,
 struct context_t {};
 
 class connection_base : public sqlpp::connection {
-private:
+ private:
   bool _transaction_active{false};
 
   // direct execution
-  char_result_t select_impl(const std::string &statement) {
+  char_result_t select_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     std::unique_ptr<detail::result_handle> result_handle(
         new detail::result_handle(mysql_store_result(_handle->native_handle()),
@@ -162,52 +165,52 @@ private:
     return {std::move(result_handle)};
   }
 
-  uint64_t insert_impl(const std::string &statement) {
+  uint64_t insert_impl(const std::string& statement) {
     execute_statement(_handle, statement);
 
     return mysql_insert_id(_handle->native_handle());
   }
 
-  uint64_t update_impl(const std::string &statement) {
+  uint64_t update_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     return mysql_affected_rows(_handle->native_handle());
   }
 
-  uint64_t remove_impl(const std::string &statement) {
+  uint64_t remove_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     return mysql_affected_rows(_handle->native_handle());
   }
 
   // prepared execution
-  prepared_statement_t prepare_impl(const std::string &statement,
+  prepared_statement_t prepare_impl(const std::string& statement,
                                     size_t no_of_parameters,
                                     size_t no_of_columns) {
     return prepare_statement(_handle, statement, no_of_parameters,
                              no_of_columns);
   }
 
-  bind_result_t
-  run_prepared_select_impl(prepared_statement_t &prepared_statement) {
+  bind_result_t run_prepared_select_impl(
+      prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return prepared_statement._handle;
   }
 
-  uint64_t run_prepared_insert_impl(prepared_statement_t &prepared_statement) {
+  uint64_t run_prepared_insert_impl(prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
   }
 
-  uint64_t run_prepared_update_impl(prepared_statement_t &prepared_statement) {
+  uint64_t run_prepared_update_impl(prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
   }
 
-  uint64_t run_prepared_delete(prepared_statement_t &prepared_statement) {
+  uint64_t run_prepared_delete(prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
   }
 
-public:
+ public:
   using _connection_base_t = connection_base;
   using _config_t = connection_config;
   using _config_ptr_t = std::shared_ptr<const _config_t>;
@@ -225,82 +228,94 @@ public:
     return _handle->ping_server();
   }
 
-  const std::shared_ptr<const connection_config> &get_config() {
+  const std::shared_ptr<const connection_config>& get_config() {
     return _handle->config;
   }
 
-  template <typename Select> char_result_t select(const Select &s) {
+  template <typename Select>
+  char_result_t select(const Select& s) {
     context_t context;
     const auto query = to_sql_string(context, s);
     return select_impl(query);
   }
 
-  template <typename Select> _prepared_statement_t prepare_select(Select &s) {
+  template <typename Select>
+  _prepared_statement_t prepare_select(Select& s) {
     context_t context;
     const auto query = to_sql_string(context, s);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Select>>::size(),
-                        sqlpp::no_of_result_columns<std::decay_t<Select>>::value);
+    return prepare_impl(
+        query, parameters_of_t<std::decay_t<Select>>::size(),
+        sqlpp::no_of_result_columns<std::decay_t<Select>>::value);
   }
 
   template <typename PreparedSelect>
-  bind_result_t run_prepared_select(const PreparedSelect &s) {
+  bind_result_t run_prepared_select(const PreparedSelect& s) {
     s._bind_params();
     return run_prepared_select_impl(s._prepared_statement);
   }
 
   //! insert returns the last auto_incremented id (or zero, if there is none)
-  template <typename Insert> size_t insert(const Insert &i) {
+  template <typename Insert>
+  size_t insert(const Insert& i) {
     context_t context;
     const auto query = to_sql_string(context, i);
     return insert_impl(query);
   }
 
-  template <typename Insert> _prepared_statement_t prepare_insert(Insert &i) {
+  template <typename Insert>
+  _prepared_statement_t prepare_insert(Insert& i) {
     context_t context;
     const auto query = to_sql_string(context, i);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size(), 0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size(),
+                        0);
   }
 
   template <typename PreparedInsert>
-  size_t run_prepared_insert(const PreparedInsert &i) {
+  size_t run_prepared_insert(const PreparedInsert& i) {
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
   }
 
   //! update returns the number of affected rows
-  template <typename Update> size_t update(const Update &u) {
+  template <typename Update>
+  size_t update(const Update& u) {
     context_t context;
     const auto query = to_sql_string(context, u);
     return update_impl(query);
   }
 
-  template <typename Update> _prepared_statement_t prepare_update(Update &u) {
+  template <typename Update>
+  _prepared_statement_t prepare_update(Update& u) {
     context_t context;
     const auto query = to_sql_string(context, u);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size(), 0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size(),
+                        0);
   }
 
   template <typename PreparedUpdate>
-  size_t run_prepared_update(const PreparedUpdate &u) {
+  size_t run_prepared_update(const PreparedUpdate& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
 
   //! remove returns the number of removed rows
-  template <typename Remove> size_t remove(const Remove &r) {
+  template <typename Remove>
+  size_t remove(const Remove& r) {
     context_t context;
     const auto query = to_sql_string(context, r);
     return remove_impl(query);
   }
 
-  template <typename Remove> _prepared_statement_t prepare_remove(Remove &r) {
+  template <typename Remove>
+  _prepared_statement_t prepare_remove(Remove& r) {
     context_t context;
     const auto query = to_sql_string(context, r);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Remove>>::size(), 0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Remove>>::size(),
+                        0);
   }
 
   template <typename PreparedRemove>
-  size_t run_prepared_delete(const PreparedRemove &r) {
+  size_t run_prepared_delete(const PreparedRemove& r) {
     r._bind_params();
     return run_prepared_delete(r._prepared_statement);
   }
@@ -313,7 +328,7 @@ public:
   //!  * If you are passing a statement with results, like a SELECT, you will
   //!  need to fetch results before issuing
   //!    the next statement on the same connection.
-  void execute(const std::string &statement) {
+  void execute(const std::string& statement) {
     execute_statement(_handle, statement);
   }
 
@@ -368,29 +383,29 @@ public:
 
   //! report a rollback failure (will be called by transactions in case of a
   //! rollback failure in the destructor)
-  void report_rollback_failure(const std::string &message) noexcept {
+  void report_rollback_failure(const std::string& message) noexcept {
     std::cerr << "MySQL message:" << message << std::endl;
   }
 
   //! check if transaction is active
   bool is_transaction_active() { return _transaction_active; }
 
-  MYSQL *native_handle() { return _handle->native_handle(); }
+  MYSQL* native_handle() { return _handle->native_handle(); }
 
   // Kept for compatibility with old code
-  MYSQL *get_handle() { return native_handle(); }
+  MYSQL* get_handle() { return native_handle(); }
 
-protected:
+ protected:
   _handle_ptr_t _handle;
 
   // Constructors
   connection_base() = default;
-  connection_base(_handle_ptr_t &&handle) : _handle{std::move(handle)} {}
+  connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
 };
 
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp
 
 #include <sqlpp23/mysql/serializer.h>

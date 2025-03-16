@@ -27,9 +27,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 namespace sqlpp {
-template <typename Expression, typename NameTag> struct as_expression;
+template <typename Expression, typename NameTag>
+struct as_expression;
 
-template <typename T> struct remove_as {
+template <typename T>
+struct remove_as {
   using type = T;
 };
 
@@ -38,6 +40,7 @@ struct remove_as<as_expression<Expression, NameTag>> {
   using type = Expression;
 };
 
-template <typename T> using remove_as_t = typename remove_as<T>::type;
+template <typename T>
+using remove_as_t = typename remove_as<T>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

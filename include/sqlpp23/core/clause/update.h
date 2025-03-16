@@ -37,15 +37,15 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-struct update_t {
-};
+struct update_t {};
 
-  template <typename Context>
-  auto to_sql_string(Context&, const update_t&) -> std::string {
-    return "UPDATE ";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const update_t&) -> std::string {
+  return "UPDATE ";
+}
 
-template <> struct is_clause<update_t> : public std::true_type {};
+template <>
+struct is_clause<update_t> : public std::true_type {};
 
 struct update_result_methods_t {
  private:
@@ -53,27 +53,30 @@ struct update_result_methods_t {
 
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement &&statement, Db &db) {
+  auto _run(this Statement&& statement, Db& db) {
     return db.update(std::forward<Statement>(statement));
   }
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement &&statement, Db &db)
+  auto _prepare(this Statement&& statement, Db& db)
       -> prepared_update_t<Db, std::decay_t<Statement>> {
     return {{}, db.prepare_update(std::forward<Statement>(statement))};
   }
 };
 
-template <> struct result_methods_of<update_t> {
+template <>
+struct result_methods_of<update_t> {
   using type = update_result_methods_t;
 };
 
-template <typename Statement> struct consistency_check<Statement, update_t> {
+template <typename Statement>
+struct consistency_check<Statement, update_t> {
   using type = consistent_t;
 };
 
-template <> struct is_result_clause<update_t> : public std::true_type {};
+template <>
+struct is_result_clause<update_t> : public std::true_type {};
 
 using blank_update_t =
     statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t>;
@@ -84,4 +87,4 @@ constexpr auto update(_Table table)
   return {blank_update_t().single_table(table)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

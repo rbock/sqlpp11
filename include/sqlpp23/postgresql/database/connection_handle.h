@@ -51,10 +51,10 @@ using namespace dynamic;
 namespace detail {
 struct DLL_LOCAL connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<PGconn, void (*)(PGconn *)> postgres;
+  std::unique_ptr<PGconn, void (*)(PGconn*)> postgres;
   std::set<std::string> prepared_statement_names;
 
-  connection_handle(const std::shared_ptr<const connection_config> &conf)
+  connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, postgres{nullptr, PQfinish} {
 #ifdef SQLPP_DYNAMIC_LOADING
     init_pg("");
@@ -117,23 +117,23 @@ struct DLL_LOCAL connection_handle {
                       std::to_string(config->keepalives_count));
     }
     switch (config->sslmode) {
-    case connection_config::sslmode_t::disable:
-      conninfo.append(" sslmode=disable");
-      break;
-    case connection_config::sslmode_t::allow:
-      conninfo.append(" sslmode=allow");
-      break;
-    case connection_config::sslmode_t::require:
-      conninfo.append(" sslmode=require");
-      break;
-    case connection_config::sslmode_t::verify_ca:
-      conninfo.append(" sslmode=verify-ca");
-      break;
-    case connection_config::sslmode_t::verify_full:
-      conninfo.append(" sslmode=verify-full");
-      break;
-    case connection_config::sslmode_t::prefer:
-      break;
+      case connection_config::sslmode_t::disable:
+        conninfo.append(" sslmode=disable");
+        break;
+      case connection_config::sslmode_t::allow:
+        conninfo.append(" sslmode=allow");
+        break;
+      case connection_config::sslmode_t::require:
+        conninfo.append(" sslmode=require");
+        break;
+      case connection_config::sslmode_t::verify_ca:
+        conninfo.append(" sslmode=verify-ca");
+        break;
+      case connection_config::sslmode_t::verify_full:
+        conninfo.append(" sslmode=verify-full");
+        break;
+      case connection_config::sslmode_t::prefer:
+        break;
     }
     if (!config->sslcompression) {
       conninfo.append(" sslcompression=0");
@@ -168,8 +168,8 @@ struct DLL_LOCAL connection_handle {
     }
   }
 
-  connection_handle(const connection_handle &) = delete;
-  connection_handle(connection_handle &&) = default;
+  connection_handle(const connection_handle&) = delete;
+  connection_handle(connection_handle&&) = default;
 
   ~connection_handle() {
     // Debug
@@ -179,17 +179,17 @@ struct DLL_LOCAL connection_handle {
     }
   }
 
-  connection_handle &operator=(const connection_handle &) = delete;
-  connection_handle &operator=(connection_handle &&) = default;
+  connection_handle& operator=(const connection_handle&) = delete;
+  connection_handle& operator=(connection_handle&&) = default;
 
-  void deallocate_prepared_statement(const std::string &name) {
+  void deallocate_prepared_statement(const std::string& name) {
     std::string cmd = "DEALLOCATE \"" + name + "\"";
-    PGresult *result = PQexec(native_handle(), cmd.c_str());
+    PGresult* result = PQexec(native_handle(), cmd.c_str());
     PQclear(result);
     prepared_statement_names.erase(name);
   }
 
-  PGconn *native_handle() const { return postgres.get(); }
+  PGconn* native_handle() const { return postgres.get(); }
 
   bool is_connected() const {
     auto nh = native_handle();
@@ -207,6 +207,6 @@ struct DLL_LOCAL connection_handle {
     return exec_ok;
   }
 };
-} // namespace detail
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace postgresql
+}  // namespace sqlpp

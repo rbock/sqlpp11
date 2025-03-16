@@ -54,7 +54,7 @@ inline ::sqlpp::mysql::connection make_test_connection() {
   sql::connection db;
   try {
     db.connectUsing(config);
-  } catch (const sqlpp::exception &) {
+  } catch (const sqlpp::exception&) {
     std::cerr << "For testing, you'll need to create a database called '"
               << config->database << "', accessible by user '" << config->user
               << "' without a password." << std::endl;
@@ -62,5 +62,5 @@ inline ::sqlpp::mysql::connection make_test_connection() {
   }
   return db;
 }
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

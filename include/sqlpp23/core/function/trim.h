@@ -33,13 +33,14 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expr> struct trim_t : public enable_as<trim_t<Expr>> {
+template <typename Expr>
+struct trim_t : public enable_as<trim_t<Expr>> {
   trim_t(const Expr expr) : _expr(expr) {}
 
-  trim_t(const trim_t &) = default;
-  trim_t(trim_t &&) = default;
-  trim_t &operator=(const trim_t &) = default;
-  trim_t &operator=(trim_t &&) = default;
+  trim_t(const trim_t&) = default;
+  trim_t(trim_t&&) = default;
+  trim_t& operator=(const trim_t&) = default;
+  trim_t& operator=(trim_t&&) = default;
   ~trim_t() = default;
 
   Expr _expr;
@@ -48,12 +49,13 @@ template <typename Expr> struct trim_t : public enable_as<trim_t<Expr>> {
 template <typename Expr>
 struct value_type_of<trim_t<Expr>> : public value_type_of<Expr> {};
 
-template <typename Expr> struct nodes_of<trim_t<Expr>> {
+template <typename Expr>
+struct nodes_of<trim_t<Expr>> {
   using type = detail::type_vector<Expr>;
 };
 
 template <typename Context, typename Expr>
-auto to_sql_string(Context &context, const trim_t<Expr> &t) -> std::string {
+auto to_sql_string(Context& context, const trim_t<Expr>& t) -> std::string {
   return "TRIM(" + to_sql_string(context, t._expr) + ")";
 }
 
@@ -65,4 +67,4 @@ auto trim(T t) -> trim_t<T> {
   return {std::move(t)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

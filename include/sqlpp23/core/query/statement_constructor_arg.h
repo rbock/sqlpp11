@@ -40,4 +40,4 @@ struct statement_constructor_arg : Fragments... {
   constexpr statement_constructor_arg(Fragments... fragments)
       : Fragments{fragments}... {}
 };
-} // namespace sqlpp
+}  // namespace sqlpp

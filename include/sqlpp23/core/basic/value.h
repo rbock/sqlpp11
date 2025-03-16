@@ -36,20 +36,22 @@ template <typename T>
 struct value_t : public enable_as<value_t<T>>,
                  public enable_comparison<value_t<T>> {
   value_t(T t) : _value(std::move(t)) {}
-  value_t(const value_t &) = default;
-  value_t(value_t &&) = default;
-  value_t &operator=(const value_t &) = default;
-  value_t &operator=(value_t &&) = default;
+  value_t(const value_t&) = default;
+  value_t(value_t&&) = default;
+  value_t& operator=(const value_t&) = default;
+  value_t& operator=(value_t&&) = default;
   ~value_t() = default;
 
   T _value;
 };
 
-template <typename T> struct value_type_of<value_t<T>> {
+template <typename T>
+struct value_type_of<value_t<T>> {
   using type = value_type_of_t<T>;
 };
 
-template <typename T> struct nodes_of<value_t<T>> {
+template <typename T>
+struct nodes_of<value_t<T>> {
   // Required in case of value(select(...)).
   using type = detail::type_vector<T>;
 };
@@ -58,7 +60,7 @@ template <typename T>
 struct requires_parentheses<value_t<T>> : public requires_parentheses<T> {};
 
 template <typename Context, typename T>
-auto to_sql_string(Context &context, const value_t<T> &t) -> std::string {
+auto to_sql_string(Context& context, const value_t<T>& t) -> std::string {
   return to_sql_string(context, t._value);
 }
 
@@ -72,4 +74,4 @@ auto value(T t) -> value_t<T> {
   return {std::move(t)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

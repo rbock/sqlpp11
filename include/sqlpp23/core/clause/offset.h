@@ -30,8 +30,8 @@
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 SQLPP_WRAPPED_STATIC_ASSERT(
@@ -44,7 +44,8 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "at least one expression in offset() statically requires a table which is "
     "only known dynamically in the statement");
 
-template <typename Expression> struct offset_t {
+template <typename Expression>
+struct offset_t {
   offset_t(Expression expression) : _expression(expression) {}
   offset_t(const offset_t&) = default;
   offset_t(offset_t&&) = default;
@@ -52,7 +53,7 @@ template <typename Expression> struct offset_t {
   offset_t& operator=(offset_t&&) = default;
   ~offset_t() = default;
 
-  private:
+ private:
   friend reader_t;
   Expression _expression;
 };
@@ -69,7 +70,9 @@ struct is_clause<offset_t<Expression>> : public std::true_type {};
 template <typename Statement, typename Expression>
 struct consistency_check<Statement, offset_t<Expression>> {
   using type = detail::expression_static_check_t<
-      Statement, Expression, assert_no_unknown_static_tables_in_offset_t>;
+      Statement,
+      Expression,
+      assert_no_unknown_static_tables_in_offset_t>;
 };
 
 template <typename Statement, typename Expression>
@@ -85,18 +88,19 @@ struct no_offset_t {
   template <typename Statement, typename Arg>
     requires(is_integral<remove_dynamic_t<Arg>>::value or
              is_unsigned_integral<remove_dynamic_t<Arg>>::value)
-  auto offset(this Statement &&statement, Arg arg) {
+  auto offset(this Statement&& statement, Arg arg) {
     return new_statement<no_offset_t>(std::forward<Statement>(statement),
                                       offset_t<Arg>{std::move(arg)});
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_offset_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_offset_t&) -> std::string {
+  return "";
+}
 
-template <typename Statement> struct consistency_check<Statement, no_offset_t> {
+template <typename Statement>
+struct consistency_check<Statement, no_offset_t> {
   using type = consistent_t;
 };
 
@@ -107,4 +111,4 @@ auto offset(T t) {
   return statement_t<no_offset_t>().offset(std::move(t));
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

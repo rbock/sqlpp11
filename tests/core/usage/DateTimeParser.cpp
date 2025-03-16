@@ -31,10 +31,14 @@
 #include <vector>
 
 namespace {
-std::chrono::microseconds build_tod(int hour = 0, int minute = 0,
-                                    int second = 0, int us = 0,
-                                    bool tz_plus = true, int tz_hour = 0,
-                                    int tz_minute = 0, int tz_second = 0) {
+std::chrono::microseconds build_tod(int hour = 0,
+                                    int minute = 0,
+                                    int second = 0,
+                                    int us = 0,
+                                    bool tz_plus = true,
+                                    int tz_hour = 0,
+                                    int tz_minute = 0,
+                                    int tz_second = 0) {
   std::chrono::microseconds result{0};
   // We add time components one by one to the resulting microsecond_point in
   // order to avoid going through temporary time_point values with small bitsize
@@ -53,17 +57,24 @@ std::chrono::microseconds build_tod(int hour = 0, int minute = 0,
   return result;
 }
 
-sqlpp::chrono::microsecond_point
-build_timestamp(int year, int month, int day, int hour = 0, int minute = 0,
-                int second = 0, int us = 0, bool tz_plus = true,
-                int tz_hour = 0, int tz_minute = 0, int tz_second = 0) {
+sqlpp::chrono::microsecond_point build_timestamp(int year,
+                                                 int month,
+                                                 int day,
+                                                 int hour = 0,
+                                                 int minute = 0,
+                                                 int second = 0,
+                                                 int us = 0,
+                                                 bool tz_plus = true,
+                                                 int tz_hour = 0,
+                                                 int tz_minute = 0,
+                                                 int tz_second = 0) {
   return std::chrono::sys_days{std::chrono::year{year} / month / day} +
          build_tod(hour, minute, second, us, tz_plus, tz_hour, tz_minute,
                    tz_second);
 }
 
 template <typename L, typename R>
-void require_equal(int line, const L &l, const R &r) {
+void require_equal(int line, const L& l, const R& r) {
   if (l != r) {
     std::cerr << line << ": ";
     sqlpp::to_sql_string(std::cerr, l);
@@ -78,7 +89,7 @@ void test_valid_dates() {
   using namespace sqlpp::chrono;
   using namespace std::chrono;
 
-  for (const auto &date_pair : std::vector<std::pair<const char *, day_point>>{
+  for (const auto& date_pair : std::vector<std::pair<const char*, day_point>>{
            // Minimum and maximum dates
            {"0001-01-01", year{1} / 1 / 1},
            {"9999-12-31", year{9999} / 12 / 31},
@@ -131,7 +142,7 @@ void test_valid_dates() {
 void test_invalid_dates() {
   using namespace sqlpp::chrono;
 
-  for (const auto &date_str : std::vector<const char *>{
+  for (const auto& date_str : std::vector<const char*>{
            // Invalid year
            "", "1", "12", "123", "1234", "A",
            // Invalid month
@@ -159,8 +170,7 @@ void test_invalid_dates() {
 void test_valid_time_of_day() {
   using namespace std::chrono;
 
-  for (const auto &tod_pair :
-       std::vector<std::pair<const char *, microseconds>>{
+  for (const auto& tod_pair : std::vector<std::pair<const char*, microseconds>>{
            // Minimum value
            {"00:00:00", build_tod()},
            // Maximum hours
@@ -199,7 +209,7 @@ void test_valid_time_of_day() {
 void test_invalid_time_of_day() {
   using namespace std::chrono;
 
-  for (const auto &tod_str : std::vector<const char *>{
+  for (const auto& tod_str : std::vector<const char*>{
            // Generic string
            "A", "BC", "!()",
            // Invalid hour
@@ -233,8 +243,8 @@ void test_valid_timestamp() {
   using namespace sqlpp::chrono;
   using namespace std::chrono;
 
-  for (const auto &timestamp_pair :
-       std::vector<std::pair<const char *, microsecond_point>>{
+  for (const auto& timestamp_pair :
+       std::vector<std::pair<const char*, microsecond_point>>{
            // Minimum and maximum timestamps
            {"0001-01-01 00:00:00", build_timestamp(1, 1, 1)},
            {"9999-12-31 23:59:59.999999",
@@ -256,19 +266,19 @@ void test_valid_timestamp() {
 void test_invalid_timestamp() {
   using namespace sqlpp::chrono;
 
-  for (const auto &timestamp_str :
-       std::vector<const char *>{// Generic string
-                                 "", "B", ")-#\\",
-                                 // Invalid date
-                                 "197%-03-17 10:32:09",
-                                 // Invalid time of day
-                                 "2020-02-18 22:2:28"
-                                 // Invalid time zone
-                                 "1924-02-28 18:35:36+1"
-                                 // Leading space
-                                 " 2030-17-01 15:20:30",
-                                 // Trailing space
-                                 "2030-17-01 15:20:30 "}) {
+  for (const auto& timestamp_str :
+       std::vector<const char*>{// Generic string
+                                "", "B", ")-#\\",
+                                // Invalid date
+                                "197%-03-17 10:32:09",
+                                // Invalid time of day
+                                "2020-02-18 22:2:28"
+                                // Invalid time zone
+                                "1924-02-28 18:35:36+1"
+                                // Leading space
+                                " 2030-17-01 15:20:30",
+                                // Trailing space
+                                "2030-17-01 15:20:30 "}) {
     microsecond_point tp;
     if (sqlpp::detail::parse_timestamp(tp, timestamp_str)) {
       std::cerr << "Parsed successfully an invalid timestamp string "
@@ -284,8 +294,8 @@ void test_valid_date_or_timestamp() {
   using namespace sqlpp::chrono;
   using namespace std::chrono;
 
-  for (const auto &timestamp_pair :
-       std::vector<std::pair<const char *, microsecond_point>>{
+  for (const auto& timestamp_pair :
+       std::vector<std::pair<const char*, microsecond_point>>{
            // Valid date
            {"1998-02-03", build_timestamp(1998, 2, 3)},
            // Valid timestamp
@@ -306,19 +316,19 @@ void test_valid_date_or_timestamp() {
 void test_invalid_date_or_timestamp() {
   using namespace sqlpp::chrono;
 
-  for (const auto &timestamp_str :
-       std::vector<const char *>{// Generic string
-                                 "", "C", "/=",
-                                 // Invalid dates
-                                 "A123-01-02", "1980-E-04", "1981-09-",
-                                 // Invalid timestamps
-                                 "2023-12-31 1:02:03", "2024-03-04 05::06",
-                                 // Invalid time zone
-                                 "1930-03-18 17:30:31+01:",
-                                 // Leading space
-                                 " 1930-03-18 17:30:31+01",
-                                 // Trailing space
-                                 "1930-03-18 17:30:31+01 "}) {
+  for (const auto& timestamp_str :
+       std::vector<const char*>{// Generic string
+                                "", "C", "/=",
+                                // Invalid dates
+                                "A123-01-02", "1980-E-04", "1981-09-",
+                                // Invalid timestamps
+                                "2023-12-31 1:02:03", "2024-03-04 05::06",
+                                // Invalid time zone
+                                "1930-03-18 17:30:31+01:",
+                                // Leading space
+                                " 1930-03-18 17:30:31+01",
+                                // Trailing space
+                                "1930-03-18 17:30:31+01 "}) {
     microsecond_point tp;
     if (sqlpp::detail::parse_date_or_timestamp(tp, timestamp_str)) {
       std::cerr << "Parsed successfully an invalid date or timestamp string "
@@ -329,9 +339,9 @@ void test_invalid_date_or_timestamp() {
     }
   }
 }
-} // namespace
+}  // namespace
 
-int DateTimeParser(int, char *[]) {
+int DateTimeParser(int, char*[]) {
   test_valid_dates();
   test_invalid_dates();
   test_valid_time_of_day();

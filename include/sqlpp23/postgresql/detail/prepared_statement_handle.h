@@ -50,7 +50,7 @@ using namespace dynamic;
 #endif
 namespace detail {
 struct DLL_PUBLIC statement_handle_t {
-  connection_handle &connection;
+  connection_handle& connection;
   Result result;
   bool valid = false;
   int count = 0;
@@ -58,13 +58,13 @@ struct DLL_PUBLIC statement_handle_t {
   int fields = 0;
 
   // ctor
-  statement_handle_t(connection_handle &_connection)
+  statement_handle_t(connection_handle& _connection)
       : connection(_connection) {}
 
-  statement_handle_t(const statement_handle_t &) = delete;
-  statement_handle_t(statement_handle_t &&) = delete;
-  statement_handle_t &operator=(const statement_handle_t &) = delete;
-  statement_handle_t &operator=(statement_handle_t &&) = delete;
+  statement_handle_t(const statement_handle_t&) = delete;
+  statement_handle_t(statement_handle_t&&) = delete;
+  statement_handle_t& operator=(const statement_handle_t&) = delete;
+  statement_handle_t& operator=(statement_handle_t&&) = delete;
 
   virtual ~statement_handle_t() { clear_result(); }
 
@@ -80,32 +80,32 @@ struct DLL_PUBLIC statement_handle_t {
 };
 
 struct prepared_statement_handle_t : public statement_handle_t {
-private:
+ private:
   std::string _name{"xxxxxx"};
 
-public:
+ public:
   // Store prepared statement arguments
   std::vector<bool> null_values;
   std::vector<std::string> param_values;
 
   // ctor
-  prepared_statement_handle_t(connection_handle &_connection,
-                              const std::string &stmt,
-                              const size_t &param_count)
+  prepared_statement_handle_t(connection_handle& _connection,
+                              const std::string& stmt,
+                              const size_t& param_count)
       : statement_handle_t{_connection},
-        null_values(param_count), // ()-init for correct constructor
-        param_values(param_count) // ()-init for correct constructor
+        null_values(param_count),  // ()-init for correct constructor
+        param_values(param_count)  // ()-init for correct constructor
   {
     generate_name();
     prepare(std::move(stmt));
   }
 
-  prepared_statement_handle_t(const prepared_statement_handle_t &) = delete;
-  prepared_statement_handle_t(prepared_statement_handle_t &&) = delete;
-  prepared_statement_handle_t &
-  operator=(const prepared_statement_handle_t &) = delete;
-  prepared_statement_handle_t &
-  operator=(prepared_statement_handle_t &&) = delete;
+  prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
+  prepared_statement_handle_t(prepared_statement_handle_t&&) = delete;
+  prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) =
+      delete;
+  prepared_statement_handle_t& operator=(prepared_statement_handle_t&&) =
+      delete;
 
   virtual ~prepared_statement_handle_t() {
     if (valid && !_name.empty()) {
@@ -116,11 +116,11 @@ public:
   void execute() {
     const size_t size = param_values.size();
 
-    std::vector<const char *> values;
+    std::vector<const char*> values;
     for (size_t i = 0u; i < size; i++)
       values.push_back(null_values[i]
                            ? nullptr
-                           : const_cast<char *>(param_values[i].c_str()));
+                           : const_cast<char*>(param_values[i].c_str()));
 
     // Execute prepared statement with the parameters.
     clear_result();
@@ -137,14 +137,15 @@ public:
 
   std::string name() const { return _name; }
 
-private:
+ private:
   void generate_name() {
     // Generate a random name for the prepared statement
     while (connection.prepared_statement_names.find(_name) !=
            connection.prepared_statement_names.end()) {
       std::generate_n(_name.begin(), 6, []() {
-        constexpr static auto charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                        "abcdefghijklmnopqrstuvwxyz";
+        constexpr static auto charset =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
         constexpr size_t max = (sizeof(charset) - 1);
         std::random_device rd;
         return charset[rd() % max];
@@ -153,13 +154,13 @@ private:
     connection.prepared_statement_names.insert(_name);
   }
 
-  void prepare(const std::string &stmt) {
+  void prepare(const std::string& stmt) {
     // Create the prepared statement
     result = PQprepare(connection.native_handle(), _name.c_str(), stmt.c_str(),
                        /*nParams*/ 0, /*paramTypes*/ nullptr);
     valid = true;
   }
 };
-} // namespace detail
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace postgresql
+}  // namespace sqlpp

@@ -68,4 +68,6 @@ void test_is_as_expression() {
       "");
 }
 
-int main() { void test_is_as_expression(); }
+int main() {
+  void test_is_as_expression();
+}

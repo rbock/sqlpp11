@@ -30,11 +30,12 @@
 #include <type_traits>
 
 namespace sqlpp {
-template <typename T> struct is_regular {
+template <typename T>
+struct is_regular {
   static constexpr bool value =
-      std::is_move_assignable<T>::value // containers and strings are not
-                                        // noexcept_assignable
+      std::is_move_assignable<T>::value  // containers and strings are not
+                                         // noexcept_assignable
       and std::is_copy_constructible<T>::value and
       std::is_copy_assignable<T>::value;
 };
-} // namespace sqlpp
+}  // namespace sqlpp

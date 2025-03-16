@@ -45,14 +45,15 @@ template <typename... Expressions>
 concept cannot_call_from_with =
     not(can_call_from_with_standalone<Expressions...> or
         can_call_from_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  from(foo);                 // this is OK since cross_joins are condition-free.
-  from(foo.cross_join(bar)); // this is OK since cross_joins are condition-free.
+  from(foo);  // this is OK since cross_joins are condition-free.
+  from(
+      foo.cross_join(bar));  // this is OK since cross_joins are condition-free.
 
   // from() arg must not be a non-table
   static_assert(can_call_from_with<decltype(foo)>, "");

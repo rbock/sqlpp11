@@ -32,7 +32,8 @@
 #include <utility>
 
 namespace sqlpp {
-template <typename> struct iterator_category {
+template <typename>
+struct iterator_category {
   using type = std::input_iterator_tag;
 };
 
@@ -45,18 +46,21 @@ struct result_has_size<DbResult,
                        std::void_t<decltype(std::declval<DbResult>().size())>>
     : std::true_type {};
 
-template <class DbResult, class = void> struct result_size_type {
+template <class DbResult, class = void>
+struct result_size_type {
   using type = void;
 };
 
 template <class DbResult>
 struct result_size_type<
-    DbResult, std::void_t<decltype(std::declval<DbResult>().size())>> {
+    DbResult,
+    std::void_t<decltype(std::declval<DbResult>().size())>> {
   using type = decltype(std::declval<DbResult>().size());
 };
-} // namespace detail
+}  // namespace detail
 
-template <typename DbResult, typename ResultRow> class result_t {
+template <typename DbResult, typename ResultRow>
+class result_t {
   using db_result_t = DbResult;
   using result_row_t = ResultRow;
 
@@ -65,25 +69,25 @@ template <typename DbResult, typename ResultRow> class result_t {
   db_result_t _end;
   result_row_t _end_row;
 
-public:
+ public:
   result_t() = default;
 
-  result_t(db_result_t &&result) : _result(std::move(result)), _result_row() {
+  result_t(db_result_t&& result) : _result(std::move(result)), _result_row() {
     _result.next(_result_row);
   }
 
-  result_t(const result_t &) = delete;
-  result_t(result_t &&) = default;
-  result_t &operator=(const result_t &) = delete;
-  result_t &operator=(result_t &&) = default;
+  result_t(const result_t&) = delete;
+  result_t(result_t&&) = default;
+  result_t& operator=(const result_t&) = delete;
+  result_t& operator=(result_t&&) = default;
 
   // Iterator
   class iterator {
-  public:
+   public:
     using iterator_category = typename iterator_category<DbResult>::type;
     using value_type = result_row_t;
-    using pointer = const result_row_t *;
-    using reference = const result_row_t &;
+    using pointer = const result_row_t*;
+    using reference = const result_row_t&;
     using difference_type = std::ptrdiff_t;
 
     iterator(std::reference_wrapper<db_result_t> result,
@@ -94,13 +98,13 @@ public:
 
     pointer operator->() const { return &_result_row.get(); }
 
-    bool operator==(const iterator &rhs) const {
+    bool operator==(const iterator& rhs) const {
       return _result_row.get() == rhs._result_row.get();
     }
 
-    bool operator!=(const iterator &rhs) const { return not(operator==(rhs)); }
+    bool operator!=(const iterator& rhs) const { return not(operator==(rhs)); }
 
-    iterator &operator++() {
+    iterator& operator++() {
       _result.get().next(_result_row.get());
       return *this;
     }
@@ -121,7 +125,7 @@ public:
 
   iterator end() { return iterator(std::ref(_end), std::ref(_end_row)); }
 
-  const result_row_t &front() const { return _result_row; }
+  const result_row_t& front() const { return _result_row; }
 
   bool empty() const { return _result_row == _end_row; }
 
@@ -134,4 +138,4 @@ public:
     return _result.size();
   }
 };
-} // namespace sqlpp
+}  // namespace sqlpp

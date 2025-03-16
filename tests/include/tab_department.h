@@ -34,4 +34,4 @@ struct TabDepartment_ : public ::sqlpp::name_tag_base {
 };
 using TabDepartment = ::sqlpp::table_t<TabDepartment_>;
 
-} // namespace model
+}  // namespace model

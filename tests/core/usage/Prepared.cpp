@@ -24,13 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include "is_regular.h"
 
-int Prepared(int, char *[]) {
+int Prepared(int, char*[]) {
   MockDb db = {};
   // test::TabFoo f;
   const auto t = test::TabBar{};
@@ -47,7 +47,7 @@ int Prepared(int, char *[]) {
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
-    std::ignore = p; // silence warnings about `p` being unused.
+    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // single parameter
@@ -56,7 +56,7 @@ int Prepared(int, char *[]) {
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.textN = "cheesecake";
-    std::ignore = p; // silence warnings about `p` being unused.
+    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // single parameter in expression
@@ -65,7 +65,7 @@ int Prepared(int, char *[]) {
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
-    std::ignore = p; // silence warnings about `p` being unused.
+    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // single parameter in larger expression
@@ -76,7 +76,7 @@ int Prepared(int, char *[]) {
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
-    std::ignore = p; // silence warnings about `p` being unused.
+    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // three parameters in expression
@@ -153,7 +153,7 @@ int Prepared(int, char *[]) {
   // Can we prepare a query without parameters?
   {
     auto ps = db.prepare(select(all_of(t)).from(t).where((t.textN.like("%"))));
-    for (const auto &row : db(ps)) {
+    for (const auto& row : db(ps)) {
       std::cerr << row.id << std::endl;
     }
   }

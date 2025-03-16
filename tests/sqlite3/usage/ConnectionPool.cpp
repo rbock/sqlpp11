@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sql = ::sqlpp::sqlite3;
 
-int ConnectionPool(int, char *[]) {
+int ConnectionPool(int, char*[]) {
   try {
     auto config = std::make_shared<sql::connection_config>();
     config->path_to_database = "file:testpool?mode=memory&cache=shared";
@@ -47,7 +47,7 @@ int ConnectionPool(int, char *[]) {
         "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
         ")",
         sqlite3_threadsafe());
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

@@ -38,10 +38,10 @@ struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<NameTag>> {
   verbatim_table_as_t(std::string representation)
       : _representation(std::move(representation)) {}
 
-  verbatim_table_as_t(const verbatim_table_as_t &rhs) = default;
-  verbatim_table_as_t(verbatim_table_as_t &&rhs) = default;
-  verbatim_table_as_t &operator=(const verbatim_table_as_t &rhs) = default;
-  verbatim_table_as_t &operator=(verbatim_table_as_t &&rhs) = default;
+  verbatim_table_as_t(const verbatim_table_as_t& rhs) = default;
+  verbatim_table_as_t(verbatim_table_as_t&& rhs) = default;
+  verbatim_table_as_t& operator=(const verbatim_table_as_t& rhs) = default;
+  verbatim_table_as_t& operator=(verbatim_table_as_t&& rhs) = default;
   ~verbatim_table_as_t() = default;
 
   std::string _representation;
@@ -50,7 +50,8 @@ struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<NameTag>> {
 template <typename NameTag>
 struct is_table<verbatim_table_as_t<NameTag>> : std::true_type {};
 
-template <typename NameTag> struct name_tag_of<verbatim_table_as_t<NameTag>> {
+template <typename NameTag>
+struct name_tag_of<verbatim_table_as_t<NameTag>> {
   using type = NameTag;
 };
 
@@ -60,7 +61,7 @@ struct provided_tables_of<verbatim_table_as_t<NameTag>> {
 };
 
 template <typename Context, typename NameTag>
-auto to_sql_string(Context &context, const verbatim_table_as_t<NameTag> &t)
+auto to_sql_string(Context& context, const verbatim_table_as_t<NameTag>& t)
     -> std::string {
   return t._representation + " AS " + name_to_sql_string(context, NameTag{});
 }
@@ -69,14 +70,14 @@ struct verbatim_table_t : public enable_join<verbatim_table_t> {
   verbatim_table_t(std::string representation)
       : _representation(std::move(representation)) {}
 
-  verbatim_table_t(const verbatim_table_t &rhs) = default;
-  verbatim_table_t(verbatim_table_t &&rhs) = default;
-  verbatim_table_t &operator=(const verbatim_table_t &rhs) = default;
-  verbatim_table_t &operator=(verbatim_table_t &&rhs) = default;
+  verbatim_table_t(const verbatim_table_t& rhs) = default;
+  verbatim_table_t(verbatim_table_t&& rhs) = default;
+  verbatim_table_t& operator=(const verbatim_table_t& rhs) = default;
+  verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
   ~verbatim_table_t() = default;
 
   template <typename NameTagProvider>
-  auto as(const NameTagProvider & /*unused*/) const
+  auto as(const NameTagProvider& /*unused*/) const
       -> verbatim_table_as_t<name_tag_of_t<NameTagProvider>> {
     return {_representation};
   }
@@ -84,14 +85,15 @@ struct verbatim_table_t : public enable_join<verbatim_table_t> {
   std::string _representation;
 };
 
-template <> struct is_table<verbatim_table_t> : std::true_type {};
+template <>
+struct is_table<verbatim_table_t> : std::true_type {};
 
 template <typename Context>
-auto to_sql_string(Context &, const verbatim_table_t &t) -> std::string {
+auto to_sql_string(Context&, const verbatim_table_t& t) -> std::string {
   return t._representation;
 }
 
 inline verbatim_table_t verbatim_table(std::string name) {
   return {std::move(name)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

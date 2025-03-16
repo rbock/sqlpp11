@@ -27,7 +27,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::insert_default_values(), " () VALUES()");
 
   return 0;

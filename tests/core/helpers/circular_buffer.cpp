@@ -31,7 +31,7 @@
 namespace sqlpp {
 namespace {
 template <typename Result, typename Expected>
-void assert_equal(int lineNo, const Result &result, const Expected &expected) {
+void assert_equal(int lineNo, const Result& result, const Expected& expected) {
   if (result != expected) {
     std::cerr << __FILE__ << " " << lineNo << '\n'
               << "Expected: -->|" << expected << "|<--\n"
@@ -41,8 +41,9 @@ void assert_equal(int lineNo, const Result &result, const Expected &expected) {
 }
 
 template <typename Result, typename Expected>
-void assert_not_equal(int lineNo, const Result &result,
-                      const Expected &expected) {
+void assert_not_equal(int lineNo,
+                      const Result& result,
+                      const Expected& expected) {
   if (result == expected) {
     std::cerr << __FILE__ << " " << lineNo << '\n'
               << "Expected: -->|" << expected << "|<--\n"
@@ -51,11 +52,13 @@ void assert_not_equal(int lineNo, const Result &result,
   }
 }
 
-template <typename Result> inline void assert_true(int lineNo, Result result) {
+template <typename Result>
+inline void assert_true(int lineNo, Result result) {
   assert_equal(lineNo, result, true);
 }
 
-template <typename Result> inline void assert_false(int lineNo, Result result) {
+template <typename Result>
+inline void assert_false(int lineNo, Result result) {
   assert_equal(lineNo, result, false);
 }
 
@@ -63,7 +66,7 @@ template <typename Callable>
 void assert_runtime_error(int lineNo, Callable callable) {
   try {
     callable();
-  } catch (const std::runtime_error &ex) {
+  } catch (const std::runtime_error& ex) {
     return;
   } catch (...) {
     std::cerr << __FILE__ << " " << lineNo << '\n'
@@ -290,10 +293,10 @@ void test_reduce_capacity_to_size() {
   }
 }
 
-} // namespace
-} // namespace sqlpp
+}  // namespace
+}  // namespace sqlpp
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   sqlpp::test_no_capacity();
   sqlpp::test_empty();
   sqlpp::test_push_back();

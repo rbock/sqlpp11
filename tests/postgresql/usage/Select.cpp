@@ -31,17 +31,17 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
+#include <sqlpp23/tests/postgresql/tables.h>
 #include "make_test_connection.h"
 #include "sqlpp23/tests/core/result_helpers.h"
-#include <sqlpp23/tests/postgresql/tables.h>
 
 namespace sql = sqlpp::postgresql;
 test::TabFoo tab = {};
 
-void testSelectAll(sql::connection &db, int expectedRowCount) {
+void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
-  for (const auto &row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << std::endl;
@@ -52,7 +52,7 @@ void testSelectAll(sql::connection &db, int expectedRowCount) {
   auto preparedSelectAll =
       db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
   i = 0;
-  for (const auto &row : db(preparedSelectAll)) {
+  for (const auto& row : db(preparedSelectAll)) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << std::endl;
@@ -66,7 +66,7 @@ namespace {
 SQLPP_CREATE_NAME_TAG(something);
 }
 
-int Select(int, char *[]) {
+int Select(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
   test::createTabFoo(db);
@@ -149,7 +149,7 @@ int Select(int, char *[]) {
                     .as(something))
              .from(tab)
              .where(true));
-  if (const auto &row = *result2.begin()) {
+  if (const auto& row = *result2.begin()) {
     auto a = row.id;
     auto m = row.something;
     std::cerr << "-----------------------------" << a << ", " << m << std::endl;

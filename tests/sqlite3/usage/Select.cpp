@@ -25,10 +25,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include <cassert>
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <cassert>
+#include "Tables.h"
 
 #include <iostream>
 #include <vector>
@@ -37,16 +37,16 @@ namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
 
-void testSelectAll(sql::connection &db, size_t expectedRowCount) {
+void testSelectAll(sql::connection& db, size_t expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   size_t i = 0;
-  for (const auto &row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha
               << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
@@ -58,7 +58,7 @@ void testSelectAll(sql::connection &db, size_t expectedRowCount) {
   auto preparedSelectAll =
       db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
   i = 0;
-  for (const auto &row : db(preparedSelectAll)) {
+  for (const auto& row : db(preparedSelectAll)) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha
               << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
@@ -70,26 +70,26 @@ void testSelectAll(sql::connection &db, size_t expectedRowCount) {
 }
 
 namespace string_util {
-std::string ltrim(std::string str, const std::string &chars = "\t\n\v\f\r ") {
+std::string ltrim(std::string str, const std::string& chars = "\t\n\v\f\r ") {
   str.erase(0, str.find_first_not_of(chars));
   return str;
 }
 
-std::string rtrim(std::string str, const std::string &chars = "\t\n\v\f\r ") {
+std::string rtrim(std::string str, const std::string& chars = "\t\n\v\f\r ") {
   str.erase(str.find_last_not_of(chars) + 1);
   return str;
 }
 
-std::string trim(std::string str, const std::string &chars = "\t\n\v\f\r ") {
+std::string trim(std::string str, const std::string& chars = "\t\n\v\f\r ") {
   return ltrim(rtrim(str, chars), chars);
 }
-} // namespace string_util
+}  // namespace string_util
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 }
 
-int Select(int, char *[]) {
+int Select(int, char*[]) {
   sql::connection db(
       {":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
   test::createTabSample(db);
@@ -151,7 +151,7 @@ int Select(int, char *[]) {
 
   std::cerr << "--------------------------------------" << std::endl;
   auto tx = start_transaction(db);
-  for (const auto &row :
+  for (const auto& row :
        db(select(
               all_of(tab),
               value(select(max(tab.alpha).as(something)).from(tab).where(true))
@@ -162,7 +162,7 @@ int Select(int, char *[]) {
     const auto a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
-  for (const auto &row :
+  for (const auto& row :
        db(select(tab.alpha, tab.beta, tab.gamma, trim(tab.beta).as(something))
               .from(tab)
               .where(true))) {
@@ -176,7 +176,7 @@ int Select(int, char *[]) {
     // end
   };
 
-  for (const auto &row :
+  for (const auto& row :
        db(select(
               all_of(tab),
               value(select(trim(tab.beta).as(something)).from(tab).where(true))

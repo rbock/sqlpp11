@@ -58,9 +58,10 @@ using namespace dynamic;
 #endif
 
 namespace detail {
-inline std::unique_ptr<detail::prepared_statement_handle_t>
-prepare_statement(std::unique_ptr<connection_handle> &handle,
-                  const std::string &stmt, const size_t &param_count) {
+inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
+    std::unique_ptr<connection_handle>& handle,
+    const std::string& stmt,
+    const size_t& param_count) {
   if (handle->config->debug) {
     std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
   }
@@ -70,19 +71,19 @@ prepare_statement(std::unique_ptr<connection_handle> &handle,
 }
 
 inline void execute_prepared_statement(
-    std::unique_ptr<connection_handle> &handle,
-    std::shared_ptr<detail::prepared_statement_handle_t> &prepared) {
+    std::unique_ptr<connection_handle>& handle,
+    std::shared_ptr<detail::prepared_statement_handle_t>& prepared) {
   if (handle->config->debug) {
     std::cerr << "PostgreSQL debug: executing: " << prepared->name()
               << std::endl;
   }
   prepared->execute();
 }
-} // namespace detail
+}  // namespace detail
 
 // Base connection class
 class connection_base : public sqlpp::connection {
-private:
+ private:
   bool _transaction_active{false};
 
   void validate_connection_handle() const {
@@ -92,58 +93,58 @@ private:
   }
 
   // direct execution
-  bind_result_t select_impl(const std::string &stmt) { return execute(stmt); }
+  bind_result_t select_impl(const std::string& stmt) { return execute(stmt); }
 
-  size_t insert_impl(const std::string &stmt) {
+  size_t insert_impl(const std::string& stmt) {
     return static_cast<size_t>(execute(stmt)->result.affected_rows());
   }
 
-  size_t update_impl(const std::string &stmt) {
+  size_t update_impl(const std::string& stmt) {
     return static_cast<size_t>(execute(stmt)->result.affected_rows());
   }
 
-  size_t remove_impl(const std::string &stmt) {
+  size_t remove_impl(const std::string& stmt) {
     return static_cast<size_t>(execute(stmt)->result.affected_rows());
   }
 
   // prepared execution
-  prepared_statement_t prepare_impl(const std::string &stmt,
-                                    const size_t &param_count) {
+  prepared_statement_t prepare_impl(const std::string& stmt,
+                                    const size_t& param_count) {
     validate_connection_handle();
     return {prepare_statement(_handle, stmt, param_count)};
   }
 
-  bind_result_t run_prepared_select_impl(prepared_statement_t &prep) {
+  bind_result_t run_prepared_select_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     execute_prepared_statement(_handle, prep._handle);
     return {prep._handle};
   }
 
-  size_t run_prepared_execute_impl(prepared_statement_t &prep) {
+  size_t run_prepared_execute_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     execute_prepared_statement(_handle, prep._handle);
     return static_cast<size_t>(prep._handle->result.affected_rows());
   }
 
-  size_t run_prepared_insert_impl(prepared_statement_t &prep) {
+  size_t run_prepared_insert_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     execute_prepared_statement(_handle, prep._handle);
     return static_cast<size_t>(prep._handle->result.affected_rows());
   }
 
-  size_t run_prepared_update_impl(prepared_statement_t &prep) {
+  size_t run_prepared_update_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     execute_prepared_statement(_handle, prep._handle);
     return static_cast<size_t>(prep._handle->result.affected_rows());
   }
 
-  size_t run_prepared_remove_impl(prepared_statement_t &prep) {
+  size_t run_prepared_remove_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     execute_prepared_statement(_handle, prep._handle);
     return static_cast<size_t>(prep._handle->result.affected_rows());
   }
 
-public:
+ public:
   using _connection_base_t = connection_base;
   using _config_t = connection_config;
   using _config_ptr_t = std::shared_ptr<const _config_t>;
@@ -157,70 +158,78 @@ public:
   };
 
   // Select stmt (returns a result)
-  template <typename Select> bind_result_t select(const Select &s) {
+  template <typename Select>
+  bind_result_t select(const Select& s) {
     context_t context;
     return select_impl(to_sql_string(context, s));
   }
 
   // Prepared select
-  template <typename Select> _prepared_statement_t prepare_select(Select &s) {
+  template <typename Select>
+  _prepared_statement_t prepare_select(Select& s) {
     context_t context;
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedSelect>
-  bind_result_t run_prepared_select(const PreparedSelect &s) {
+  bind_result_t run_prepared_select(const PreparedSelect& s) {
     s._bind_params();
     return run_prepared_select_impl(s._prepared_statement);
   }
 
   // Insert
-  template <typename Insert> size_t insert(const Insert &s) {
+  template <typename Insert>
+  size_t insert(const Insert& s) {
     context_t context;
     return insert_impl(to_sql_string(context, s));
   }
 
-  template <typename Insert> prepared_statement_t prepare_insert(Insert &s) {
+  template <typename Insert>
+  prepared_statement_t prepare_insert(Insert& s) {
     context_t context;
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedInsert>
-  size_t run_prepared_insert(const PreparedInsert &i) {
+  size_t run_prepared_insert(const PreparedInsert& i) {
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
   }
 
   // Update
-  template <typename Update> size_t update(const Update &s) {
+  template <typename Update>
+  size_t update(const Update& s) {
     context_t context;
     return update_impl(to_sql_string(context, s));
   }
 
-  template <typename Update> prepared_statement_t prepare_update(Update &s) {
+  template <typename Update>
+  prepared_statement_t prepare_update(Update& s) {
     context_t context;
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedUpdate>
-  size_t run_prepared_update(const PreparedUpdate &u) {
+  size_t run_prepared_update(const PreparedUpdate& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
 
   // Remove
-  template <typename Remove> size_t remove(const Remove &s) {
+  template <typename Remove>
+  size_t remove(const Remove& s) {
     context_t context;
     return remove_impl(to_sql_string(context, s));
   }
 
-  template <typename Remove> prepared_statement_t prepare_remove(Remove &s) {
+  template <typename Remove>
+  prepared_statement_t prepare_remove(Remove& s) {
     context_t context;
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedRemove>
-  size_t run_prepared_remove(const PreparedRemove &r) {
+  size_t run_prepared_remove(const PreparedRemove& r) {
     r._bind_params();
     return run_prepared_remove_impl(r._prepared_statement);
   }
@@ -228,7 +237,7 @@ public:
   //! Execute a single statement (like creating a table).
   //! Note that technically, this supports executing multiple statements today,
   //! but this is likely to change to align with other connectors.
-  std::shared_ptr<detail::statement_handle_t> execute(const std::string &stmt) {
+  std::shared_ptr<detail::statement_handle_t> execute(const std::string& stmt) {
     validate_connection_handle();
     if (_handle->config->debug) {
       std::cerr << "PostgreSQL debug: executing: " << stmt << std::endl;
@@ -241,23 +250,23 @@ public:
     return result;
   }
 
-  template <
-      typename Execute,
-      typename Enable = typename std::enable_if<
-          not std::is_convertible<Execute, std::string>::value, void>::type>
-  std::shared_ptr<detail::statement_handle_t> execute(const Execute &s) {
+  template <typename Execute,
+            typename Enable = typename std::enable_if<
+                not std::is_convertible<Execute, std::string>::value,
+                void>::type>
+  std::shared_ptr<detail::statement_handle_t> execute(const Execute& s) {
     context_t context;
     return execute(to_sql_string(context, s));
   }
 
   template <typename Execute>
-  _prepared_statement_t prepare_execute(Execute &s) {
+  _prepared_statement_t prepare_execute(Execute& s) {
     context_t context;
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedExecute>
-  size_t run_prepared_execute(const PreparedExecute &x) {
+  size_t run_prepared_execute(const PreparedExecute& x) {
     x._prepared_statement._reset();
     x._bind_params();
     return run_prepared_execute_impl(x._prepared_statement);
@@ -279,21 +288,21 @@ public:
   void set_default_isolation_level(isolation_level level) {
     std::string level_str = "read uncommmitted";
     switch (level) {
-    /// @todo what about undefined ?
-    case isolation_level::read_committed:
-      level_str = "read committed";
-      break;
-    case isolation_level::read_uncommitted:
-      level_str = "read uncommitted";
-      break;
-    case isolation_level::repeatable_read:
-      level_str = "repeatable read";
-      break;
-    case isolation_level::serializable:
-      level_str = "serializable";
-      break;
-    default:
-      throw sqlpp::exception{"Invalid isolation level"};
+      /// @todo what about undefined ?
+      case isolation_level::read_committed:
+        level_str = "read committed";
+        break;
+      case isolation_level::read_uncommitted:
+        level_str = "read uncommitted";
+        break;
+      case isolation_level::repeatable_read:
+        level_str = "repeatable read";
+        break;
+      case isolation_level::serializable:
+        level_str = "serializable";
+        break;
+      default:
+        throw sqlpp::exception{"Invalid isolation level"};
     }
     std::string cmd =
         "SET default_transaction_isolation to '" + level_str + "'";
@@ -323,19 +332,19 @@ public:
   }
 
   //! create savepoint
-  void savepoint(const std::string &name) {
+  void savepoint(const std::string& name) {
     /// NOTE prevent from sql injection?
     execute("SAVEPOINT " + name);
   }
 
   //! ROLLBACK TO SAVEPOINT
-  void rollback_to_savepoint(const std::string &name) {
+  void rollback_to_savepoint(const std::string& name) {
     /// NOTE prevent from sql injection?
     execute("ROLLBACK TO SAVEPOINT " + name);
   }
 
   //! release_savepoint
-  void release_savepoint(const std::string &name) {
+  void release_savepoint(const std::string& name) {
     /// NOTE prevent from sql injection?
     execute("RELEASE SAVEPOINT " + name);
   }
@@ -346,26 +355,26 @@ public:
       throw sqlpp::exception{"PostgreSQL error: transaction already open"};
     }
     switch (level) {
-    case isolation_level::serializable: {
-      execute("BEGIN ISOLATION LEVEL SERIALIZABLE");
-      break;
-    }
-    case isolation_level::repeatable_read: {
-      execute("BEGIN ISOLATION LEVEL REPEATABLE READ");
-      break;
-    }
-    case isolation_level::read_committed: {
-      execute("BEGIN ISOLATION LEVEL READ COMMITTED");
-      break;
-    }
-    case isolation_level::read_uncommitted: {
-      execute("BEGIN ISOLATION LEVEL READ UNCOMMITTED");
-      break;
-    }
-    case isolation_level::undefined: {
-      execute("BEGIN");
-      break;
-    }
+      case isolation_level::serializable: {
+        execute("BEGIN ISOLATION LEVEL SERIALIZABLE");
+        break;
+      }
+      case isolation_level::repeatable_read: {
+        execute("BEGIN ISOLATION LEVEL REPEATABLE READ");
+        break;
+      }
+      case isolation_level::read_committed: {
+        execute("BEGIN ISOLATION LEVEL READ COMMITTED");
+        break;
+      }
+      case isolation_level::read_uncommitted: {
+        execute("BEGIN ISOLATION LEVEL READ UNCOMMITTED");
+        break;
+      }
+      case isolation_level::undefined: {
+        execute("BEGIN");
+        break;
+      }
     }
     _transaction_active = true;
   }
@@ -396,7 +405,7 @@ public:
   }
 
   //! report rollback failure
-  void report_rollback_failure(const std::string &message) noexcept {
+  void report_rollback_failure(const std::string& message) noexcept {
     std::cerr << "PostgreSQL error: " << message << std::endl;
   }
 
@@ -404,10 +413,10 @@ public:
   bool is_transaction_active() { return _transaction_active; }
 
   //! get the last inserted id for a certain table
-  uint64_t last_insert_id(const std::string &table,
-                          const std::string &fieldname) {
+  uint64_t last_insert_id(const std::string& table,
+                          const std::string& fieldname) {
     std::string sql = "SELECT currval('" + table + "_" + fieldname + "_seq')";
-    PGresult *res = PQexec(native_handle(), sql.c_str());
+    PGresult* res = PQexec(native_handle(), sql.c_str());
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
       std::string err{PQresultErrorMessage(res)};
       PQclear(res);
@@ -420,19 +429,19 @@ public:
     return std::stoul(in);
   }
 
-  ::PGconn *native_handle() const { return _handle->native_handle(); }
+  ::PGconn* native_handle() const { return _handle->native_handle(); }
 
-protected:
+ protected:
   _handle_ptr_t _handle;
 
   // Constructors
   connection_base() = default;
-  connection_base(_handle_ptr_t &&handle) : _handle{std::move(handle)} {}
+  connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
 };
 
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp
 
 #include <sqlpp23/postgresql/serializer.h>

@@ -31,9 +31,10 @@ namespace test {
 SQLPP_CREATE_NAME_TAG(basic);
 SQLPP_CREATE_NAME_TAG(referencing);
 SQLPP_CREATE_NAME_TAG(recursive);
-} // namespace test
+}  // namespace test
 
-template <typename SelectWith> struct extract_with;
+template <typename SelectWith>
+struct extract_with;
 
 template <typename... Ctes>
 struct extract_with<sqlpp::statement_t<sqlpp::with_t<Ctes...>>> {
@@ -288,4 +289,6 @@ void test_with() {
   }
 }
 
-int main() { void test_with(); }
+int main() {
+  void test_with();
+}

@@ -11,7 +11,8 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace test {
-template <typename Db> void createTabSample(Db &db) {
+template <typename Db>
+void createTabSample(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_sample)+++");
   db.execute(R"+++(CREATE TABLE tab_sample (
   id INTEGER PRIMARY KEY,
@@ -49,7 +50,8 @@ struct TabSample_ : public ::sqlpp::name_tag_base {
 };
 using TabSample = ::sqlpp::table_t<TabSample_>;
 
-template <typename Db> void createTabFoo(Db &db) {
+template <typename Db>
+void createTabFoo(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db.execute(R"+++(CREATE TABLE tab_foo (
   omega bigint(20) DEFAULT NULL
@@ -63,12 +65,14 @@ struct TabFoo_ : public ::sqlpp::name_tag_base {
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_foo, tabFoo);
-  template <typename T> using _table_columns = sqlpp::table_columns<T, Omega>;
+  template <typename T>
+  using _table_columns = sqlpp::table_columns<T, Omega>;
   using _required_insert_columns = sqlpp::detail::type_set<>;
 };
 using TabFoo = ::sqlpp::table_t<TabFoo_>;
 
-template <typename Db> void createIntegralSample(Db &db) {
+template <typename Db>
+void createIntegralSample(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS integral_sample)+++");
   db.execute(R"+++(CREATE TABLE integral_sample (
   signed_value INTEGER,
@@ -94,7 +98,8 @@ struct IntegralSample_ : public ::sqlpp::name_tag_base {
 };
 using IntegralSample = ::sqlpp::table_t<IntegralSample_>;
 
-template <typename Db> void createBlobSample(Db &db) {
+template <typename Db>
+void createBlobSample(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
   db.execute(R"+++(CREATE TABLE blob_sample (
   id INTEGER PRIMARY KEY,
@@ -120,7 +125,8 @@ struct BlobSample_ : public ::sqlpp::name_tag_base {
 };
 using BlobSample = ::sqlpp::table_t<BlobSample_>;
 
-template <typename Db> void createFpSample(Db &db) {
+template <typename Db>
+void createFpSample(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS fp_sample)+++");
   db.execute(R"+++(CREATE TABLE fp_sample (
   id INTEGER PRIMARY KEY,
@@ -140,12 +146,14 @@ struct FpSample_ : public ::sqlpp::name_tag_base {
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(fp_sample, fpSample);
-  template <typename T> using _table_columns = sqlpp::table_columns<T, Id, Fp>;
+  template <typename T>
+  using _table_columns = sqlpp::table_columns<T, Id, Fp>;
   using _required_insert_columns = sqlpp::detail::type_set<>;
 };
 using FpSample = ::sqlpp::table_t<FpSample_>;
 
-template <typename Db> void createTabDateTime(Db &db) {
+template <typename Db>
+void createTabDateTime(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db.execute(R"+++(CREATE TABLE tab_date_time
 (
@@ -185,4 +193,4 @@ struct TabDateTime_ : public ::sqlpp::name_tag_base {
 };
 using TabDateTime = ::sqlpp::table_t<TabDateTime_>;
 
-} // namespace test
+}  // namespace test

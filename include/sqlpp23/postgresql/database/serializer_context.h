@@ -35,12 +35,12 @@ namespace postgresql {
 // Context for serialization
 struct context_t {
   context_t() = default;
-  context_t(const context_t &) = delete;
-  context_t(context_t &&) = delete;
-  context_t &operator=(const context_t &) = delete;
-  context_t &operator=(context_t &&) = delete;
+  context_t(const context_t&) = delete;
+  context_t(context_t&&) = delete;
+  context_t& operator=(const context_t&) = delete;
+  context_t& operator=(context_t&&) = delete;
 
   size_t _count{0};
 };
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

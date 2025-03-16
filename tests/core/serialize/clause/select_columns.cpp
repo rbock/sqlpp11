@@ -32,7 +32,7 @@ SQLPP_CREATE_NAME_TAG(cheese);
 SQLPP_CREATE_NAME_TAG(cake);
 SQLPP_CREATE_NAME_TAG(id_count);
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
   const auto foo = test::TabFoo{};

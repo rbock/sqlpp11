@@ -28,18 +28,20 @@
  */
 
 #include <sqlpp23/core/clause/expression_static_check.h>
+#include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/group_by_column.h>
 #include <sqlpp23/core/logic.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/concepts.h>
 #include <tuple>
 
 namespace sqlpp {
-template <typename... Expressions> struct group_by_t {
-  group_by_t(std::tuple<Expressions...> expressions) : _expressions(std::move(expressions)){}
+template <typename... Expressions>
+struct group_by_t {
+  group_by_t(std::tuple<Expressions...> expressions)
+      : _expressions(std::move(expressions)) {}
 
   group_by_t(const group_by_t&) = default;
   group_by_t(group_by_t&&) = default;
@@ -72,7 +74,8 @@ struct is_clause<group_by_t<Expressions...>> : public std::true_type {};
 template <typename Statement, typename... Expressions>
 struct consistency_check<Statement, group_by_t<Expressions...>> {
   using type = detail::expression_static_check_t<
-      Statement, group_by_t<Expressions...>,
+      Statement,
+      group_by_t<Expressions...>,
       assert_no_unknown_static_tables_in_group_by_t>;
 };
 
@@ -82,9 +85,9 @@ struct prepare_check<Statement, group_by_t<Expressions...>> {
       static_check_t<
           Statement::template _no_unknown_tables<group_by_t<Expressions...>>,
           assert_no_unknown_tables_in_group_by_t>,
-      static_check_t<
-          Statement::template _no_unknown_static_tables<group_by_t<Expressions...>>,
-          assert_no_unknown_static_tables_in_group_by_t>>;
+      static_check_t<Statement::template _no_unknown_static_tables<
+                         group_by_t<Expressions...>>,
+                     assert_no_unknown_static_tables_in_group_by_t>>;
 };
 
 template <typename... Expressions>
@@ -94,7 +97,8 @@ struct known_aggregate_columns_of<group_by_t<Expressions...>> {
 };
 
 namespace detail {
-template <typename Column> struct make_static_aggregate_column_set {
+template <typename Column>
+struct make_static_aggregate_column_set {
   using type = detail::type_set<raw_group_by_column_t<Column>>;
 };
 template <typename Column>
@@ -104,7 +108,7 @@ struct make_static_aggregate_column_set<dynamic_t<Column>> {
 template <typename Column>
 using make_static_aggregate_column_set_t =
     typename make_static_aggregate_column_set<Column>::type;
-} // namespace detail
+}  // namespace detail
 
 template <typename... Expressions>
 struct known_static_aggregate_columns_of<group_by_t<Expressions...>> {
@@ -112,14 +116,15 @@ struct known_static_aggregate_columns_of<group_by_t<Expressions...>> {
       detail::make_static_aggregate_column_set_t<Expressions>...>;
 };
 
-template <typename... Expressions> struct nodes_of<group_by_t<Expressions...>> {
+template <typename... Expressions>
+struct nodes_of<group_by_t<Expressions...>> {
   using type = detail::type_vector<Expressions...>;
 };
 
 // NO GROUP BY YET
 struct no_group_by_t {
   template <typename Statement, DynamicValue... Expressions>
-  auto group_by(this Statement &&statement, Expressions... expressions) {
+  auto group_by(this Statement&& statement, Expressions... expressions) {
     SQLPP_STATIC_ASSERT(sizeof...(Expressions),
                         "at least one column required in group_by()");
     SQLPP_STATIC_ASSERT(
@@ -128,8 +133,8 @@ struct no_group_by_t {
         "all arguments for group_by() must be columns or expressions wrapped "
         "in declare_group_by_column()");
     SQLPP_STATIC_ASSERT(
-        logic::none<contains_aggregate_function<
-            raw_group_by_column_t<remove_dynamic_t<Expressions>>>::value...>::value,
+        logic::none<contains_aggregate_function<raw_group_by_column_t<
+            remove_dynamic_t<Expressions>>>::value...>::value,
         "arguments for group_by() must not contain aggregate functions");
 
     return new_statement<no_group_by_t>(
@@ -138,18 +143,19 @@ struct no_group_by_t {
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_group_by_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_group_by_t&) -> std::string {
+  return "";
+}
 
 template <typename Statement>
 struct consistency_check<Statement, no_group_by_t> {
   using type = consistent_t;
 };
 
-template <DynamicValue... Expressions> auto group_by(Expressions... expressions) {
+template <DynamicValue... Expressions>
+auto group_by(Expressions... expressions) {
   return statement_t<no_group_by_t>{}.group_by(std::move(expressions)...);
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

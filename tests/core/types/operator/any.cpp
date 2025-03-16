@@ -31,7 +31,8 @@
 SQLPP_CREATE_NAME_TAG(r_not_null);
 SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
-template <typename Value> void test_any(Value v) {
+template <typename Value>
+void test_any(Value v) {
   using ValueType = sqlpp::value_type_of_t<Value>;
   using OptValueType = sqlpp::value_type_of_t<std::optional<Value>>;
 

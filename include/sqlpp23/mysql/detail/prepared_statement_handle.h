@@ -38,7 +38,7 @@ struct bind_result_buffer {
   unsigned long length;
   my_bool is_null;
   my_bool error;
-  union // unnamed union injects members into scope
+  union  // unnamed union injects members into scope
   {
     bool _bool;
     int64_t _int64;
@@ -46,7 +46,7 @@ struct bind_result_buffer {
     double _double;
     MYSQL_TIME _mysql_time;
   };
-  std::vector<char> var_buffer; // text and blobs
+  std::vector<char> var_buffer;  // text and blobs
 };
 
 struct prepared_statement_handle_t {
@@ -55,43 +55,47 @@ struct prepared_statement_handle_t {
 
     wrapped_bool() : value{false} {}
     wrapped_bool(bool v) : value{v} {}
-    wrapped_bool(const wrapped_bool &) = default;
-    wrapped_bool(wrapped_bool &&) = default;
-    wrapped_bool &operator=(const wrapped_bool &) = default;
-    wrapped_bool &operator=(wrapped_bool &&) = default;
+    wrapped_bool(const wrapped_bool&) = default;
+    wrapped_bool(wrapped_bool&&) = default;
+    wrapped_bool& operator=(const wrapped_bool&) = default;
+    wrapped_bool& operator=(wrapped_bool&&) = default;
     ~wrapped_bool() = default;
   };
 
-  MYSQL_STMT *mysql_stmt;
+  MYSQL_STMT* mysql_stmt;
   std::vector<MYSQL_BIND> stmt_params;
   std::vector<MYSQL_TIME> stmt_date_time_param_buffer;
   std::vector<wrapped_bool>
-      stmt_param_is_null; // my_bool is bool after 8.0, and vector<bool> is bad
+      stmt_param_is_null;  // my_bool is bool after 8.0, and vector<bool> is bad
   std::vector<MYSQL_BIND> result_params;
   std::vector<bind_result_buffer> result_buffers;
   bool debug;
 
-  prepared_statement_handle_t(MYSQL_STMT *stmt, size_t no_of_parameters,
-                              size_t no_of_columns, bool debug_)
+  prepared_statement_handle_t(MYSQL_STMT* stmt,
+                              size_t no_of_parameters,
+                              size_t no_of_columns,
+                              bool debug_)
       : mysql_stmt(stmt),
         stmt_params(no_of_parameters,
-                    MYSQL_BIND{}), // ()-init for correct constructor
+                    MYSQL_BIND{}),  // ()-init for correct constructor
         stmt_date_time_param_buffer(
-            no_of_parameters, MYSQL_TIME{}), // ()-init for correct constructor
+            no_of_parameters,
+            MYSQL_TIME{}),  // ()-init for correct constructor
         stmt_param_is_null(no_of_parameters,
-                           false), // ()-init for correct constructor
+                           false),  // ()-init for correct constructor
         result_params(no_of_columns,
-                      MYSQL_BIND{}), // ()-init for correct constructor
-        result_buffers(no_of_columns,
-                       bind_result_buffer{}), // ()-init for correct constructor
+                      MYSQL_BIND{}),  // ()-init for correct constructor
+        result_buffers(
+            no_of_columns,
+            bind_result_buffer{}),  // ()-init for correct constructor
         debug{debug_} {}
 
-  prepared_statement_handle_t(const prepared_statement_handle_t &) = delete;
-  prepared_statement_handle_t(prepared_statement_handle_t &&) = default;
-  prepared_statement_handle_t &
-  operator=(const prepared_statement_handle_t &) = delete;
-  prepared_statement_handle_t &
-  operator=(prepared_statement_handle_t &&) = default;
+  prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
+  prepared_statement_handle_t(prepared_statement_handle_t&&) = default;
+  prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) =
+      delete;
+  prepared_statement_handle_t& operator=(prepared_statement_handle_t&&) =
+      default;
 
   ~prepared_statement_handle_t() {
     if (mysql_stmt)
@@ -100,6 +104,6 @@ struct prepared_statement_handle_t {
 
   bool operator!() const { return !mysql_stmt; }
 };
-} // namespace detail
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace mysql
+}  // namespace sqlpp

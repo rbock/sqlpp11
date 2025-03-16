@@ -30,37 +30,43 @@
 namespace sqlpp {
 struct no_name_t {
   static constexpr const char name[] = "_";
-  template <typename T> struct _member_t {
+  template <typename T>
+  struct _member_t {
     T _ = {};
-    T &operator()() { return _; }
-    const T &operator()() const { return _; }
+    T& operator()() { return _; }
+    const T& operator()() const { return _; }
   };
 };
 
-struct name_tag_base {}; // Used by SQLPP_CREATE_NAME_TAG and ddl2cpp
+struct name_tag_base {};  // Used by SQLPP_CREATE_NAME_TAG and ddl2cpp
 
-template <typename T, bool IsNameTag> struct name_tag_of_impl {
+template <typename T, bool IsNameTag>
+struct name_tag_of_impl {
   using type = no_name_t;
 };
-template <typename T> struct name_tag_of_impl<T, true> {
+template <typename T>
+struct name_tag_of_impl<T, true> {
   using type = typename T::_sqlpp_name_tag;
 };
 
-template <typename T> struct name_tag_of {
+template <typename T>
+struct name_tag_of {
   using type =
       typename name_tag_of_impl<T,
                                 std::is_base_of<name_tag_base, T>::value>::type;
 };
 
-template <typename T> using name_tag_of_t = typename name_tag_of<T>::type;
+template <typename T>
+using name_tag_of_t = typename name_tag_of<T>::type;
 
 // Override this for other classes like columns or tables.
 template <typename T>
 struct has_name_tag
     : public std::integral_constant<
-          bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
+          bool,
+          not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
 
 template <typename T>
 static inline constexpr bool has_name_tag_v = has_name_tag<T>::value;
 
-} // namespace sqlpp
+}  // namespace sqlpp

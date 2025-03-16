@@ -49,7 +49,7 @@ template <typename... Expressions>
 concept cannot_call_with_with =
     not(can_call_with_with_standalone<Expressions...> or
         can_call_with_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;
@@ -84,13 +84,15 @@ int main() {
         cte(sqlpp::alias::a).as(select(bar.id).from(bar).where(true));
     const auto b = cte(sqlpp::alias::b).as(select(a.id).from(a).where(true));
 
-    std::ignore = with(a);                    // OK
-    std::ignore = with(a, b);                 // OK
-    std::ignore = with(a, dynamic(maybe, b)); // OK
-    SQLPP_CHECK_STATIC_ASSERT(with(b), "at least one CTE depends on another "
-                                       "CTE that is not defined left of it");
-    SQLPP_CHECK_STATIC_ASSERT(with(b, a), "at least one CTE depends on another "
-                                          "CTE that is not defined left of it");
+    std::ignore = with(a);                     // OK
+    std::ignore = with(a, b);                  // OK
+    std::ignore = with(a, dynamic(maybe, b));  // OK
+    SQLPP_CHECK_STATIC_ASSERT(with(b),
+                              "at least one CTE depends on another "
+                              "CTE that is not defined left of it");
+    SQLPP_CHECK_STATIC_ASSERT(with(b, a),
+                              "at least one CTE depends on another "
+                              "CTE that is not defined left of it");
     SQLPP_CHECK_STATIC_ASSERT(
         with(dynamic(maybe, a), b),
         "at least one CTE statically depends on another CTE that is not "
@@ -105,8 +107,8 @@ int main() {
     const auto a2 =
         cte(sqlpp::alias::a).as(select(foo.id).from(foo).where(true));
 
-    std::ignore = with(a1); // OK
-    std::ignore = with(a2); // OK
+    std::ignore = with(a1);  // OK
+    std::ignore = with(a2);  // OK
     SQLPP_CHECK_STATIC_ASSERT(with(a1, a2),
                               "CTEs in with need to have unique names");
   }

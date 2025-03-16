@@ -48,7 +48,8 @@ template <typename Pool>
 using pool_conn_type =
     typename std::decay<decltype(std::declval<Pool>().get())>::type;
 
-template <typename Pool> native_set<Pool> get_native_handles(Pool &pool) {
+template <typename Pool>
+native_set<Pool> get_native_handles(Pool& pool) {
   native_set<Pool> ns;
   if (pool.available() == 0) {
     return ns;
@@ -62,7 +63,8 @@ template <typename Pool> native_set<Pool> get_native_handles(Pool &pool) {
   }
 }
 
-template <typename Pool> void test_conn_move(Pool &pool) {
+template <typename Pool>
+void test_conn_move(Pool& pool) {
   std::clog << __func__ << '\n';
   auto nh_all = get_native_handles(pool);
   {
@@ -114,7 +116,8 @@ template <typename Pool> void test_conn_move(Pool &pool) {
   }
 }
 
-template <typename Pool> void test_conn_check(Pool &pool) {
+template <typename Pool>
+void test_conn_check(Pool& pool) {
   std::clog << __func__ << '\n';
   auto check_db = [](typename Pool::_pooled_connection_t db) {
     if (db.is_connected() == false) {
@@ -130,7 +133,7 @@ template <typename Pool> void test_conn_check(Pool &pool) {
 }
 
 template <typename Pool>
-void test_basic(Pool &pool, const std::string &create_table) {
+void test_basic(Pool& pool, const std::string& create_table) {
   std::clog << __func__ << '\n';
   try {
     auto db = pool.get();
@@ -138,16 +141,17 @@ void test_basic(Pool &pool, const std::string &create_table) {
     db.execute(create_table);
     model::TabDepartment tabDept = {};
     db(insert_into(tabDept).default_values());
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception in " << __func__ << "\n";
     throw;
   }
 }
 
-template <typename Pool> void test_single_connection(Pool &pool) {
+template <typename Pool>
+void test_single_connection(Pool& pool) {
   std::clog << __func__ << '\n';
   try {
-    auto *handle = [&pool]() {
+    auto* handle = [&pool]() {
       auto db = pool.get();
       return db.native_handle();
     }();
@@ -160,35 +164,38 @@ template <typename Pool> void test_single_connection(Pool &pool) {
         throw std::logic_error{"Pool acquired more than one connection"};
       }
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception in " << __func__ << "\n";
     throw;
   }
 }
 
-template <typename Pool> void test_multiple_connections(Pool &pool) {
+template <typename Pool>
+void test_multiple_connections(Pool& pool) {
   std::clog << __func__ << '\n';
   try {
     model::TabDepartment tabDept = {};
     auto connections =
         std::vector<typename std::decay<decltype(pool.get())>::type>{};
-    auto pointers = std::set<void *>{};
+    auto pointers = std::set<void*>{};
     for (auto i = 0; i < 50; ++i) {
       connections.push_back(pool.get());
       if (pointers.count(connections.back().native_handle())) {
-        throw std::logic_error{"Pool yielded connection twice (without getting "
-                               "it back in between)"};
+        throw std::logic_error{
+            "Pool yielded connection twice (without getting "
+            "it back in between)"};
       }
       pointers.insert(connections.back().native_handle());
       connections.back()(insert_into(tabDept).default_values());
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception in " << __func__ << "\n";
     throw;
   }
 }
 
-template <typename Pool> void test_multithreaded(Pool &pool) {
+template <typename Pool>
+void test_multithreaded(Pool& pool) {
   std::clog << __func__ << '\n';
   std::random_device r;
   std::default_random_engine random_engine(r());
@@ -211,17 +218,17 @@ template <typename Pool> void test_multithreaded(Pool &pool) {
             auto connection = pool.get();
             connection(insert_into(tabDept).default_values());
           }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
           std::cerr << std::string(func) +
                            ": In-thread exception: " + e.what() + "\n";
           std::abort();
         }
       }));
     }
-    for (auto &&t : threads) {
+    for (auto&& t : threads) {
       t.join();
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception in " << __func__ << "\n";
     throw;
   }
@@ -236,11 +243,12 @@ void test_destruction_order(typename Pool::_config_ptr_t config) {
   auto conn = pool->get();
   pool = nullptr;
 }
-} // namespace
+}  // namespace
 
 template <typename Pool>
 void test_connection_pool(typename Pool::_config_ptr_t config,
-                          const std::string &create_table, bool test_mt) {
+                          const std::string& create_table,
+                          bool test_mt) {
   auto pool = Pool{config, 5};
   test_conn_move(pool);
   test_basic(pool, create_table);
@@ -252,5 +260,5 @@ void test_connection_pool(typename Pool::_config_ptr_t config,
   }
   test_destruction_order<Pool>(config);
 }
-} // namespace test
-} // namespace sqlpp
+}  // namespace test
+}  // namespace sqlpp

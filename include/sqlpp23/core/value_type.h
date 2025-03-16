@@ -30,5 +30,6 @@
 #include <type_traits>
 
 namespace sqlpp {
-template <typename T> using value_type_t = value_type_of_t<T>;
-} // namespace sqlpp
+template <typename T>
+using value_type_t = value_type_of_t<T>;
+}  // namespace sqlpp

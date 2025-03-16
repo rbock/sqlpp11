@@ -34,12 +34,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename L, typename Operator, typename R> struct assign_expression {
+template <typename L, typename Operator, typename R>
+struct assign_expression {
   constexpr assign_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
-  assign_expression(const assign_expression &) = default;
-  assign_expression(assign_expression &&) = default;
-  assign_expression &operator=(const assign_expression &) = default;
-  assign_expression &operator=(assign_expression &&) = default;
+  assign_expression(const assign_expression&) = default;
+  assign_expression(assign_expression&&) = default;
+  assign_expression& operator=(const assign_expression&) = default;
+  assign_expression& operator=(assign_expression&&) = default;
   ~assign_expression() = default;
 
   L _l;
@@ -87,7 +88,7 @@ struct rhs<assign_expression<L, Operator, R>> {
 };
 
 template <typename Context, typename L, typename Operator, typename R>
-auto to_sql_string(Context &context, const assign_expression<L, Operator, R> &t)
+auto to_sql_string(Context& context, const assign_expression<L, Operator, R>& t)
     -> std::string {
   return to_sql_string(context, simple_column(t._l)) + Operator::symbol +
          operand_to_sql_string(context, t._r);
@@ -97,18 +98,22 @@ struct op_assign {
   static constexpr auto symbol = " = ";
 };
 
-template <typename _Table, typename ColumnSpec, typename R,
+template <typename _Table,
+          typename ColumnSpec,
+          typename R,
           typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
 constexpr auto assign(column_t<_Table, ColumnSpec> column, R value)
     -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, R> {
   return {std::move(column), std::move(value)};
 }
 
-template <typename _Table, typename ColumnSpec,
+template <typename _Table,
+          typename ColumnSpec,
           typename = check_assign_default_args<column_t<_Table, ColumnSpec>>>
 constexpr auto assign(column_t<_Table, ColumnSpec> column,
                       default_value_t value)
-    -> assign_expression<column_t<_Table, ColumnSpec>, op_assign,
+    -> assign_expression<column_t<_Table, ColumnSpec>,
+                         op_assign,
                          default_value_t> {
   return {std::move(column), std::move(value)};
 }
@@ -117,7 +122,9 @@ struct op_plus_assign {
   static constexpr auto symbol = " += ";
 };
 
-template <typename _Table, typename ColumnSpec, typename R,
+template <typename _Table,
+          typename ColumnSpec,
+          typename R,
           typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
 constexpr auto plus_assign(column_t<_Table, ColumnSpec> column, R value)
     -> assign_expression<column_t<_Table, ColumnSpec>, op_plus_assign, R> {
@@ -128,11 +135,13 @@ struct op_minus_assign {
   static constexpr auto symbol = " -= ";
 };
 
-template <typename _Table, typename ColumnSpec, typename R,
+template <typename _Table,
+          typename ColumnSpec,
+          typename R,
           typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
 constexpr auto minus_assign(column_t<_Table, ColumnSpec> column, R value)
     -> assign_expression<column_t<_Table, ColumnSpec>, op_minus_assign, R> {
   return {std::move(column), std::move(value)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

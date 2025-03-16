@@ -92,4 +92,6 @@ void test_parameter() {
   }
 }
 
-int main() { void test_column(); }
+int main() {
+  void test_column();
+}

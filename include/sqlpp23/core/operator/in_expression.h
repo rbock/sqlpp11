@@ -47,10 +47,10 @@ template <typename L, typename Operator, typename Container>
 struct in_expression : public enable_as<in_expression<L, Operator, Container>> {
   constexpr in_expression(L l, Container r)
       : _l(std::move(l)), _r(std::move(r)) {}
-  in_expression(const in_expression &) = default;
-  in_expression(in_expression &&) = default;
-  in_expression &operator=(const in_expression &) = default;
-  in_expression &operator=(in_expression &&) = default;
+  in_expression(const in_expression&) = default;
+  in_expression(in_expression&&) = default;
+  in_expression& operator=(const in_expression&) = default;
+  in_expression& operator=(in_expression&&) = default;
   ~in_expression() = default;
 
   L _l;
@@ -62,10 +62,10 @@ struct in_expression<L, Operator, std::tuple<Args...>>
     : public enable_as<in_expression<L, Operator, std::tuple<Args...>>> {
   constexpr in_expression(L l, std::tuple<Args...> r)
       : _l(std::move(l)), _r(std::move(r)) {}
-  in_expression(const in_expression &) = default;
-  in_expression(in_expression &&) = default;
-  in_expression &operator=(const in_expression &) = default;
-  in_expression &operator=(in_expression &&) = default;
+  in_expression(const in_expression&) = default;
+  in_expression(in_expression&&) = default;
+  in_expression& operator=(const in_expression&) = default;
+  in_expression& operator=(in_expression&&) = default;
   ~in_expression() = default;
 
   L _l;
@@ -81,14 +81,16 @@ template <typename L, typename Operator, typename R>
 struct value_type_of<in_expression<L, Operator, std::vector<R>>>
     : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                            sqlpp::is_optional<value_type_of_t<R>>::value,
-                       std::optional<boolean>, boolean> {};
+                       std::optional<boolean>,
+                       boolean> {};
 
 template <typename L, typename Operator, typename... Args>
 struct value_type_of<in_expression<L, Operator, std::tuple<Args...>>>
     : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                            logic::any<sqlpp::is_optional<
                                value_type_of_t<Args>>::value...>::value,
-                       std::optional<boolean>, boolean> {};
+                       std::optional<boolean>,
+                       boolean> {};
 
 template <typename L, typename Operator, typename R>
 struct nodes_of<in_expression<L, Operator, std::vector<R>>> {
@@ -109,8 +111,8 @@ struct requires_parentheses<in_expression<L, Operator, std::tuple<Args...>>>
     : public std::true_type {};
 
 template <typename Context, typename L, typename Operator, typename... Args>
-auto to_sql_string(Context &context,
-                   const in_expression<L, Operator, std::tuple<Args...>> &t)
+auto to_sql_string(Context& context,
+                   const in_expression<L, Operator, std::tuple<Args...>>& t)
     -> std::string {
   auto result = operand_to_sql_string(context, t._l) + Operator::symbol + " (";
   if (sizeof...(Args) == 1) {
@@ -122,11 +124,12 @@ auto to_sql_string(Context &context,
   return result;
 }
 
-template <typename Container> struct value_list_t;
+template <typename Container>
+struct value_list_t;
 
 template <typename Context, typename L, typename Operator, typename R>
-auto to_sql_string(Context &context,
-                   const in_expression<L, Operator, std::vector<R>> &t)
+auto to_sql_string(Context& context,
+                   const in_expression<L, Operator, std::vector<R>>& t)
     -> std::string {
   if (t._r.empty()) {
     // SQL would normally treat this as a bug in the query.
@@ -138,7 +141,7 @@ auto to_sql_string(Context &context,
   }
   auto result = to_sql_string(context, t._l) + Operator::symbol + " (";
   bool first = true;
-  for (const auto &entry : t._r) {
+  for (const auto& entry : t._r) {
     if (first) {
       first = false;
     } else {
@@ -194,4 +197,4 @@ constexpr auto not_in(L l, std::vector<Arg> args)
   return {std::move(l), std::move(args)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

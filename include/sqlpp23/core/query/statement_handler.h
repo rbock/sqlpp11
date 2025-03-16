@@ -30,18 +30,17 @@
 #include <utility>
 
 namespace sqlpp {
-class statement_handler_t
-{
-  public:
-    template <typename Statement, typename Db>
-    auto run(Statement&& statement, Db& db) {
-      return std::forward<Statement>(statement)._run(db);
-    }
+class statement_handler_t {
+ public:
+  template <typename Statement, typename Db>
+  auto run(Statement&& statement, Db& db) {
+    return std::forward<Statement>(statement)._run(db);
+  }
 
-    template <typename Statement, typename Db>
-    auto prepare(Statement&& statement, Db& db) {
-      return std::forward<Statement>(statement)._prepare(db);
-    }
+  template <typename Statement, typename Db>
+  auto prepare(Statement&& statement, Db& db) {
+    return std::forward<Statement>(statement)._prepare(db);
+  }
 };
 
-} // namespace sqlpp
+}  // namespace sqlpp

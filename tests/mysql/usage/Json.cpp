@@ -26,12 +26,12 @@
 
 #include "make_test_connection.h"
 
-#include <iostream>
 #include <mysql.h>
+#include <iostream>
 
 // JSON support only in MYSQL 5.7.8 and later
 #if !USE_MARIADB && (LIBMYSQL_VERSION_ID < 50708)
-int Json(int, char *[]) {
+int Json(int, char*[]) {
   std::cerr << "Warning: not testing Json, because the MySQL version id is "
                "less than 50708"
             << std::endl;
@@ -40,7 +40,7 @@ int Json(int, char *[]) {
 #else
 // JSON support only in MariaDB 10.2.7 and later
 #if USE_MARIADB && (MARIADB_VERSION_ID < 100207)
-int Json(int, char *[]) {
+int Json(int, char*[]) {
   std::cerr << "Warning: not testing Json, because the MariaDB version id is "
                "less than 100207"
             << std::endl;
@@ -48,16 +48,16 @@ int Json(int, char *[]) {
 }
 #else
 
-#include "Tables.h"
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 namespace test {
 SQLPP_CREATE_NAME_TAG(value);
 }
 
 namespace sql = sqlpp::mysql;
-int Json(int, char *[]) {
+int Json(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -82,7 +82,7 @@ int Json(int, char *[]) {
     if (value != "value")
       throw std::runtime_error{std::string{"unexpected value: "} +
                                std::string(value ? value.value() : "NULL")};
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

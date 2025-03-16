@@ -32,13 +32,14 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expr> struct lower_t : public enable_as<lower_t<Expr>> {
+template <typename Expr>
+struct lower_t : public enable_as<lower_t<Expr>> {
   lower_t(const Expr expr) : _expr(expr) {}
 
-  lower_t(const lower_t &) = default;
-  lower_t(lower_t &&) = default;
-  lower_t &operator=(const lower_t &) = default;
-  lower_t &operator=(lower_t &&) = default;
+  lower_t(const lower_t&) = default;
+  lower_t(lower_t&&) = default;
+  lower_t& operator=(const lower_t&) = default;
+  lower_t& operator=(lower_t&&) = default;
   ~lower_t() = default;
 
   Expr _expr;
@@ -47,12 +48,13 @@ template <typename Expr> struct lower_t : public enable_as<lower_t<Expr>> {
 template <typename Expr>
 struct value_type_of<lower_t<Expr>> : public value_type_of<Expr> {};
 
-template <typename Expr> struct nodes_of<lower_t<Expr>> {
+template <typename Expr>
+struct nodes_of<lower_t<Expr>> {
   using type = detail::type_vector<Expr>;
 };
 
 template <typename Context, typename Expr>
-auto to_sql_string(Context &context, const lower_t<Expr> &t) -> std::string {
+auto to_sql_string(Context& context, const lower_t<Expr>& t) -> std::string {
   return "LOWER(" + to_sql_string(context, t._expr) + ")";
 }
 
@@ -64,4 +66,4 @@ auto lower(T t) -> lower_t<T> {
   return {std::move(t)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

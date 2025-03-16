@@ -33,9 +33,9 @@ namespace sqlpp {
 struct default_value_t {};
 
 template <typename Context>
-auto to_sql_string(Context &, const default_value_t &) -> std::string {
+auto to_sql_string(Context&, const default_value_t&) -> std::string {
   return "DEFAULT";
 }
 
 constexpr default_value_t default_value = {};
-} // namespace sqlpp
+}  // namespace sqlpp

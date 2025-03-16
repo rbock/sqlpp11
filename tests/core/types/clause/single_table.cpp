@@ -48,4 +48,6 @@ void test_single_table() {
   }
 }
 
-int main() { void test_single_table(); }
+int main() {
+  void test_single_table();
+}

@@ -32,7 +32,7 @@
 
 SQLPP_CREATE_NAME_TAG(sample);
 
-int TableAlias(int, char *[]) {
+int TableAlias(int, char*[]) {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 

@@ -41,10 +41,10 @@ struct avg_t : public enable_as<avg_t<Flag, Expr>>,
                public enable_over<avg_t<Flag, Expr>> {
   constexpr avg_t(Expr expr) : _expr(std::move(expr)) {}
 
-  avg_t(const avg_t &) = default;
-  avg_t(avg_t &&) = default;
-  avg_t &operator=(const avg_t &) = default;
-  avg_t &operator=(avg_t &&) = default;
+  avg_t(const avg_t&) = default;
+  avg_t(avg_t&&) = default;
+  avg_t& operator=(const avg_t&) = default;
+  avg_t& operator=(avg_t&&) = default;
   ~avg_t() = default;
 
   Expr _expr;
@@ -53,7 +53,8 @@ struct avg_t : public enable_as<avg_t<Flag, Expr>>,
 template <typename Flag, typename Expr>
 struct is_aggregate_function<avg_t<Flag, Expr>> : public std::true_type {};
 
-template <typename Flag, typename Expr> struct nodes_of<avg_t<Flag, Expr>> {
+template <typename Flag, typename Expr>
+struct nodes_of<avg_t<Flag, Expr>> {
   using type = sqlpp::detail::type_vector<Expr>;
 };
 
@@ -63,7 +64,7 @@ struct value_type_of<avg_t<Flag, Expr>> {
 };
 
 template <typename Context, typename Flag, typename Expr>
-auto to_sql_string(Context &context, const avg_t<Flag, Expr> &t)
+auto to_sql_string(Context& context, const avg_t<Flag, Expr>& t)
     -> std::string {
   return "AVG(" + to_sql_string(context, Flag()) +
          to_sql_string(context, t._expr) + ")";
@@ -81,9 +82,9 @@ auto avg(T t) -> avg_t<no_flag_t, T> {
 }
 
 template <typename T, typename = check_avg_arg<T>>
-auto avg(const distinct_t & /*unused*/, T t) -> avg_t<distinct_t, T> {
+auto avg(const distinct_t& /*unused*/, T t) -> avg_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "avg() must not be used on an aggregate function");
   return {std::move(t)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

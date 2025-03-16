@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include <iostream>
 #include <vector>
@@ -36,7 +36,7 @@ const auto tab = test::TabSample{};
 
 namespace sql = sqlpp::mysql;
 
-int DeleteFrom(int, char *[]) {
+int DeleteFrom(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -47,7 +47,7 @@ int DeleteFrom(int, char *[]) {
     db(insert_into(tab).set(tab.textN = "3", tab.boolN = false));
 
     db(sql::delete_from(tab).where(true).order_by(tab.intN.desc()).limit(1u));
-    for (const auto &row : db(sqlpp::select(tab.textN)
+    for (const auto& row : db(sqlpp::select(tab.textN)
                                   .from(tab)
                                   .where(true)
                                   .order_by(tab.intN.desc())
@@ -56,7 +56,7 @@ int DeleteFrom(int, char *[]) {
         throw std::runtime_error("unexpected value for row.textN: " +
                                  std::string(row.textN.value_or("NULL")));
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

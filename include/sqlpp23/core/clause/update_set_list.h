@@ -29,10 +29,10 @@
 
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -46,17 +46,17 @@ struct update_set_list_t {
   update_set_list_t& operator=(update_set_list_t&&) = default;
   ~update_set_list_t() = default;
 
-  private:
+ private:
   friend reader_t;
   std::tuple<Assignments...> _assignments;
 };
 
-  template <typename Context, typename... Assignments>
-  auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
-      -> std::string {
-    return " SET " + tuple_to_sql_string(context, read.assignments(t),
-                                         tuple_operand_no_dynamic{", "});
-  }
+template <typename Context, typename... Assignments>
+auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
+    -> std::string {
+  return " SET " + tuple_to_sql_string(context, read.assignments(t),
+                                       tuple_operand_no_dynamic{", "});
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_update_assignments_t,
                             "at least one update assignment requires a table "
@@ -74,7 +74,8 @@ template <typename Statement, typename... Assignments>
 struct prepare_check<Statement, update_set_list_t<Assignments...>> {
   using type = std::conditional_t<
       Statement::template _no_unknown_tables<update_set_list_t<Assignments...>>,
-      consistent_t, assert_no_unknown_tables_in_update_assignments_t>;
+      consistent_t,
+      assert_no_unknown_tables_in_update_assignments_t>;
 };
 
 template <typename... Assignments>
@@ -84,7 +85,7 @@ struct nodes_of<update_set_list_t<Assignments...>> {
 
 struct no_update_set_list_t {
   template <typename Statement, DynamicAssignment... Assignments>
-  auto set(this Statement &&statement, Assignments... assignments)
+  auto set(this Statement&& statement, Assignments... assignments)
 
   {
     SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0,
@@ -101,14 +102,12 @@ struct no_update_set_list_t {
         std::forward<Statement>(statement),
         update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
   }
-
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_update_set_list_t&)
-      -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_update_set_list_t&) -> std::string {
+  return "";
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_update_assignments_t,
                             "update assignments required, i.e. set(...)");
@@ -118,8 +117,9 @@ struct consistency_check<Statement, no_update_set_list_t> {
   using type = assert_update_assignments_t;
 };
 
-template <DynamicAssignment... T> auto update_set(T... t) {
+template <DynamicAssignment... T>
+auto update_set(T... t) {
   return statement_t<no_update_set_list_t>().set(std::move(t)...);
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

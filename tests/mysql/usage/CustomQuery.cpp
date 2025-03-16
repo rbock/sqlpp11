@@ -24,25 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
-#include <iostream>
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
+#include <iostream>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 namespace {
 struct on_duplicate_key_update {
   std::string _serialized;
 
   template <typename Db, typename Assignment>
-  on_duplicate_key_update(Db &, Assignment assignment) {
+  on_duplicate_key_update(Db&, Assignment assignment) {
     typename Db::_context_t context;
     _serialized =
         " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
   }
 
   template <typename Db, typename Assignment>
-  auto operator()(Db &, Assignment assignment) -> on_duplicate_key_update & {
+  auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update& {
     typename Db::_context_t context;
     _serialized += ", " + to_sql_string(context, assignment);
     return *this;
@@ -52,12 +52,12 @@ struct on_duplicate_key_update {
     return ::sqlpp::verbatim(_serialized);
   }
 };
-} // namespace
+}  // namespace
 
 const auto tab = test::TabSample{};
 
 namespace sql = sqlpp::mysql;
-int CustomQuery(int, char *[]) {
+int CustomQuery(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -68,7 +68,7 @@ int CustomQuery(int, char *[]) {
        << on_duplicate_key_update(db, tab.textN = "sample")(db,
                                                             tab.boolN = false)
               .get());
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

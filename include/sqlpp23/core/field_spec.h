@@ -33,9 +33,10 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename NameTag, typename ValueType> struct field_spec_t {
-  using result_value_type = result_value_t<ValueType>; // Used in result_row_t.
-  using value_type = ValueType; // This is used by column_t.
+template <typename NameTag, typename ValueType>
+struct field_spec_t {
+  using result_value_type = result_value_t<ValueType>;  // Used in result_row_t.
+  using value_type = ValueType;  // This is used by column_t.
 };
 
 template <typename NameTag, typename ValueType>
@@ -53,7 +54,9 @@ struct is_field_compatible {
   static constexpr auto value = false;
 };
 
-template <typename LeftNameTag, typename LeftValue, typename RightNameTag,
+template <typename LeftNameTag,
+          typename LeftValue,
+          typename RightNameTag,
           typename RightValue>
 struct is_field_compatible<field_spec_t<LeftNameTag, LeftValue>,
                            field_spec_t<RightNameTag, RightValue>> {
@@ -62,25 +65,28 @@ struct is_field_compatible<field_spec_t<LeftNameTag, LeftValue>,
   static constexpr auto value =
       std::is_same<make_char_sequence_t<L>, make_char_sequence_t<R>>::value and
       std::is_same<remove_optional_t<LeftValue>,
-                   remove_optional_t<RightValue>>::value and // Same value type
+                   remove_optional_t<RightValue>>::value and  // Same value type
       (is_optional<LeftValue>::value or
-       !is_optional<RightValue>::
-           value); // The left hand side determines the result row and therefore
-                   // must allow NULL if the right hand side allows it
+       !is_optional<RightValue>::value);  // The left hand side determines the
+                                          // result row and therefore must allow
+                                          // NULL if the right hand side allows
+                                          // it
 };
 
-template <typename Statement, typename NamedExpr> struct make_field_spec {
+template <typename Statement, typename NamedExpr>
+struct make_field_spec {
   using ValueType = select_column_value_type_of_t<NamedExpr>;
   static constexpr bool _depends_on_optional_table =
       provided_optional_tables_of_t<Statement>::contains_any(
           required_tables_of_t<NamedExpr>{});
 
-  using type = field_spec_t<
-      select_column_name_tag_of_t<NamedExpr>,
-      std::conditional_t<_depends_on_optional_table,
-                         sqlpp::force_optional_t<ValueType>, ValueType>>;
+  using type =
+      field_spec_t<select_column_name_tag_of_t<NamedExpr>,
+                   std::conditional_t<_depends_on_optional_table,
+                                      sqlpp::force_optional_t<ValueType>,
+                                      ValueType>>;
 };
 
 template <typename Statement, typename NamedExpr>
 using make_field_spec_t = typename make_field_spec<Statement, NamedExpr>::type;
-} // namespace sqlpp
+}  // namespace sqlpp

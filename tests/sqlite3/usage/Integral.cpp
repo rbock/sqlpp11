@@ -41,7 +41,7 @@ namespace sql = sqlpp::sqlite3;
 const auto intSample = test::IntegralSample{};
 
 template <typename L, typename R>
-auto require_equal(int line, const L &l, const R &r) -> void {
+auto require_equal(int line, const L& l, const R& r) -> void {
   if (l != r) {
     std::cerr << line << ": ";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
@@ -51,7 +51,7 @@ auto require_equal(int line, const L &l, const R &r) -> void {
   }
 }
 
-int Integral(int, char *[]) {
+int Integral(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -78,9 +78,9 @@ int Integral(int, char *[]) {
   uint32_t uint32_t_value = std::numeric_limits<uint32_t>::max();
   int32_t int32_t_value = std::numeric_limits<int32_t>::max();
 
-  db(insert_into(intSample).set(intSample.signedValue = int64_t_value_max,
-                                intSample.unsignedValue =
-                                    uint64_t_value_supported));
+  db(insert_into(intSample).set(
+      intSample.signedValue = int64_t_value_max,
+      intSample.unsignedValue = uint64_t_value_supported));
 
   auto prepared_insert = db.prepare(insert_into(intSample).set(
       intSample.signedValue = parameter(intSample.signedValue),

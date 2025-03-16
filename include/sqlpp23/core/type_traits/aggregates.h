@@ -38,25 +38,28 @@ namespace sqlpp {
 // GROUP BY columns. Non-aggregates are columns (unless they are aggregate
 // columns). Constant values are neutral.
 
-template <typename T> struct is_aggregate_function : public std::false_type {};
+template <typename T>
+struct is_aggregate_function : public std::false_type {};
 
 // Finds calls to aggregate functions (avg, count, max, min, sum) in
 // expressions. This is important as aggregated functions must not be nested.
 template <typename T>
 struct contains_aggregate_function
     : public std::integral_constant<
-          bool, is_aggregate_function<T>::value or
-                    contains_aggregate_function<nodes_of_t<T>>::value> {};
+          bool,
+          is_aggregate_function<T>::value or
+              contains_aggregate_function<nodes_of_t<T>>::value> {};
 
 template <typename... T>
 struct contains_aggregate_function<detail::type_vector<T...>>
     : public std::integral_constant<
-          bool, logic::any<(is_aggregate_function<T>::value or
-                            contains_aggregate_function<T>::value)...>::value> {
-};
+          bool,
+          logic::any<(is_aggregate_function<T>::value or
+                      contains_aggregate_function<T>::value)...>::value> {};
 
 // Obtain known aggregate columns, i.e. GROUP BY columns.
-template <typename T> struct known_aggregate_columns_of {
+template <typename T>
+struct known_aggregate_columns_of {
   using type = detail::type_set<>;
 };
 
@@ -64,7 +67,8 @@ template <typename T>
 using known_aggregate_columns_of_t =
     typename known_aggregate_columns_of<T>::type;
 
-template <typename T> struct known_static_aggregate_columns_of {
+template <typename T>
+struct known_static_aggregate_columns_of {
   using type = detail::type_set<>;
 };
 
@@ -72,7 +76,8 @@ template <typename T>
 using known_static_aggregate_columns_of_t =
     typename known_static_aggregate_columns_of<T>::type;
 
-template <typename T> struct is_aggregate_neutral : public std::true_type {};
+template <typename T>
+struct is_aggregate_neutral : public std::true_type {};
 
 // Checks if T is an aggregate expression, i.e. either
 //  - T is an aggregate function,
@@ -121,8 +126,9 @@ struct static_part_is_aggregate_expression<KnownStaticAggregateColumns,
 template <typename KnownStaticAggregateColumns, typename... T>
 struct static_part_is_aggregate_expression<KnownStaticAggregateColumns,
                                            detail::type_vector<T...>> {
-  static constexpr bool value = logic::all<static_part_is_aggregate_expression<
-      KnownStaticAggregateColumns, T>::value...>::value;
+  static constexpr bool value = logic::all<
+      static_part_is_aggregate_expression<KnownStaticAggregateColumns,
+                                          T>::value...>::value;
 };
 
 // Checks if T is an non-aggregate expression, i.e.
@@ -149,4 +155,4 @@ struct is_non_aggregate_expression<KnownAggregateColumns,
       is_non_aggregate_expression<KnownAggregateColumns, T>::value...>::value;
 };
 
-} // namespace sqlpp
+}  // namespace sqlpp

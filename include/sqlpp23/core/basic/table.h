@@ -40,7 +40,7 @@ template <typename TableSpec>
 struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
                  public enable_join<table_t<TableSpec>> {
   template <typename NameTagProvider>
-  constexpr auto as(const NameTagProvider & /*unused*/) const
+  constexpr auto as(const NameTagProvider& /*unused*/) const
       -> table_as_t<TableSpec, name_tag_of_t<NameTagProvider>> {
     return {};
   }
@@ -55,7 +55,8 @@ struct is_table<table_t<TableSpec>> : public std::true_type {};
 template <typename TableSpec>
 struct name_tag_of<table_t<TableSpec>> : public name_tag_of<TableSpec> {};
 
-template <typename TableSpec> struct provided_tables_of<table_t<TableSpec>> {
+template <typename TableSpec>
+struct provided_tables_of<table_t<TableSpec>> {
   using type = sqlpp::detail::type_set<table_t<TableSpec>>;
 };
 
@@ -65,8 +66,8 @@ struct required_insert_columns_of<table_t<TableSpec>> {
 };
 
 template <typename Context, typename TableSpec>
-auto to_sql_string(Context &context, const table_t<TableSpec> & /*unused*/)
+auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/)
     -> std::string {
   return name_to_sql_string(context, name_tag_of_t<TableSpec>{});
 }
-} // namespace sqlpp
+}  // namespace sqlpp

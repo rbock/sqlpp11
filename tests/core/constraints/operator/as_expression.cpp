@@ -37,11 +37,12 @@ template <typename Expression, typename NameTagProvider, typename = void>
 struct can_call_as_with : public std::false_type {};
 
 template <typename Expression, typename NameTagProvider>
-struct can_call_as_with<Expression, NameTagProvider,
+struct can_call_as_with<Expression,
+                        NameTagProvider,
                         std::void_t<decltype(std::declval<Expression>().as(
                             std::declval<NameTagProvider>()))>>
     : public std::true_type {};
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

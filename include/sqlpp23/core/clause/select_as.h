@@ -29,19 +29,22 @@
 
 #include <sqlpp23/core/basic/enable_join.h>
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/query/statement.h>
 
 namespace sqlpp {
-template <typename NameTag> struct select_ref_t {};
+template <typename NameTag>
+struct select_ref_t {};
 
-template <typename NameTag> struct name_tag_of<select_ref_t<NameTag>> {
+template <typename NameTag>
+struct name_tag_of<select_ref_t<NameTag>> {
   using type = NameTag;
 };
 
 // select_member is a helper to add column data members to `select_as_t`.
-template <typename NameTag, typename FieldSpec> struct select_member {
+template <typename NameTag, typename FieldSpec>
+struct select_member {
   using type = member_t<FieldSpec, column_t<select_ref_t<NameTag>, FieldSpec>>;
 };
 
@@ -51,10 +54,10 @@ struct select_as_t
       public enable_join<select_as_t<Select, NameTag, FieldSpecs...>> {
   select_as_t(Select select) : _expression(select) {}
 
-  select_as_t(const select_as_t &rhs) = default;
-  select_as_t(select_as_t &&rhs) = default;
-  select_as_t &operator=(const select_as_t &rhs) = default;
-  select_as_t &operator=(select_as_t &&rhs) = default;
+  select_as_t(const select_as_t& rhs) = default;
+  select_as_t(select_as_t&& rhs) = default;
+  select_as_t& operator=(const select_as_t& rhs) = default;
+  select_as_t& operator=(select_as_t&& rhs) = default;
   ~select_as_t() = default;
 
   using _column_tuple_t =
@@ -101,4 +104,4 @@ struct provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
                               sqlpp::detail::type_set<select_ref_t<NameTag>>,
                               sqlpp::detail::type_set<>> {};
 
-} // namespace sqlpp
+}  // namespace sqlpp

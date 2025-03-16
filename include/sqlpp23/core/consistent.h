@@ -31,6 +31,7 @@
 
 namespace sqlpp {
 struct consistent_t : std::true_type {
-  template <typename... T> static constexpr void verify(T &&...) {}
+  template <typename... T>
+  static constexpr void verify(T&&...) {}
 };
-} // namespace sqlpp
+}  // namespace sqlpp

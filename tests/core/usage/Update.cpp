@@ -24,13 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <iostream>
+#include "is_regular.h"
 
-int Update(int, char *[]) {
+int Update(int, char*[]) {
   const auto maybe = true;
   MockDb db;
   MockDb::_context_t printer = {};

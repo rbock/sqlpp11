@@ -30,22 +30,22 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
-#include "make_test_connection.h"
 #include <sqlpp23/tests/postgresql/tables.h>
+#include "make_test_connection.h"
 
 namespace {
 template <typename L, typename R>
-void require_equal(int line, const L &l, const R &r) {
+void require_equal(int line, const L& l, const R& r) {
   if (l != r) {
     std::cerr << line << ": --" << l << " != " << r << "--" << std::endl;
     throw std::runtime_error("Unexpected result");
   }
 }
-} // namespace
+}  // namespace
 
 namespace sql = sqlpp::postgresql;
 
-int Type(int, char *[]) {
+int Type(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
   try {
@@ -54,7 +54,7 @@ int Type(int, char *[]) {
 
     const auto tab = test::TabBar{};
     db(insert_into(tab).default_values());
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.has_value(), false);
       require_equal(__LINE__, row.textN.has_value(), false);
       require_equal(__LINE__, row.boolNn, false);
@@ -64,7 +64,7 @@ int Type(int, char *[]) {
            .set(tab.intN = 10, tab.textN = "Cookies!", tab.boolNn = true)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.has_value(), true);
       require_equal(__LINE__, row.intN.value(), 10);
       require_equal(__LINE__, row.textN.has_value(), true);
@@ -76,7 +76,7 @@ int Type(int, char *[]) {
            .set(tab.intN = 20, tab.textN = "Monster", tab.boolNn = false)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.value(), 20);
       require_equal(__LINE__, row.textN.value(), "Monster");
       require_equal(__LINE__, row.boolNn, false);
@@ -95,12 +95,12 @@ int Type(int, char *[]) {
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.intN.value(), 30);
       require_equal(__LINE__, row.textN.value(), "IceCream");
       require_equal(__LINE__, row.boolNn, true);
     }
-  } catch (std::exception &e) {
+  } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   } catch (...) {

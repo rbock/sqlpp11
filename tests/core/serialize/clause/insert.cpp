@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   const auto foo = test::TabFoo{};
 
   // Without values.
@@ -50,8 +50,9 @@ int main(int, char *[]) {
     i.add_values(foo.id = sqlpp::default_value,
                  foo.boolN = sqlpp::default_value, foo.textNnD = "cheese");
     i.add_values(foo.id = 17, foo.boolN = std::nullopt, foo.textNnD = "cake");
-    SQLPP_COMPARE(i, "INSERT INTO tab_foo (id, bool_n, text_nn_d) VALUES "
-                     "(DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");
+    SQLPP_COMPARE(i,
+                  "INSERT INTO tab_foo (id, bool_n, text_nn_d) VALUES "
+                  "(DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");
   }
 
   return 0;

@@ -24,9 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -43,15 +43,15 @@ SQLPP_CREATE_NAME_TAG(sub);
 SQLPP_CREATE_NAME_TAG(something);
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
 }
-} // namespace
+}  // namespace
 
 namespace sql = sqlpp::sqlite3;
-int Sample(int, char *[]) {
+int Sample(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -67,13 +67,13 @@ int Sample(int, char *[]) {
   db(delete_from(tab).where(true));
 
   // explicit all_of(tab)
-  for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta
               << ", row.gamma: " << row.gamma << std::endl;
   };
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   // selecting a table implicitly expands to all_of(tab)
-  for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta
               << ", row.gamma: " << row.gamma << std::endl;
   };
@@ -105,7 +105,7 @@ int Sample(int, char *[]) {
 
   auto tx = start_transaction(db);
   test::TabFoo foo;
-  for (const auto &row :
+  for (const auto& row :
        db(select(all_of(tab), value(select(max(foo.omega).as(something))
                                         .from(foo)
                                         .where(foo.omega > tab.alpha))
@@ -118,13 +118,13 @@ int Sample(int, char *[]) {
   }
   tx.commit();
 
-  for (const auto &row : db(select(tab.alpha)
+  for (const auto& row : db(select(tab.alpha)
                                 .from(tab.join(foo).on(tab.alpha == foo.omega))
                                 .where(true))) {
     std::cerr << row.alpha << std::endl;
   }
 
-  for (const auto &row :
+  for (const auto& row :
        db(select(tab.alpha)
               .from(tab.left_outer_join(foo).on(tab.alpha == foo.omega))
               .where(true))) {
@@ -139,7 +139,7 @@ int Sample(int, char *[]) {
   ps.params.alpha = 7;
   ps.params.beta = "wurzelbrunft";
   ps.params.gamma = true;
-  for (const auto &row : db(ps)) {
+  for (const auto& row : db(ps)) {
     std::cerr << "bound result: alpha: " << row.alpha << std::endl;
     std::cerr << "bound result: beta: " << row.beta << std::endl;
     std::cerr << "bound result: gamma: " << row.gamma << std::endl;
@@ -153,7 +153,7 @@ int Sample(int, char *[]) {
           .something;
   ps.params.alpha = last_id.value();
   ps.params.gamma = false;
-  for (const auto &row : db(ps)) {
+  for (const auto& row : db(ps)) {
     std::cerr << "bound result: alpha: " << row.alpha << std::endl;
     std::cerr << "bound result: beta: " << row.beta << std::endl;
     std::cerr << "bound result: gamma: " << row.gamma << std::endl;
@@ -161,7 +161,7 @@ int Sample(int, char *[]) {
 
   std::cerr << "--------" << std::endl;
   ps.params.beta = "kaesekuchen";
-  for (const auto &row : db(ps)) {
+  for (const auto& row : db(ps)) {
     std::cerr << "bound result: alpha: " << row.alpha << std::endl;
     std::cerr << "bound result: beta: " << row.beta << std::endl;
     std::cerr << "bound result: gamma: " << row.gamma << std::endl;
@@ -190,7 +190,7 @@ int Sample(int, char *[]) {
                          tab.alpha == parameter(tab.alpha)) or
                         tab.gamma != parameter(tab.gamma));
     using P = decltype(db.prepare(s));
-    P p; // You must not use this one yet!
+    P p;  // You must not use this one yet!
     p = db.prepare(s);
   }
 
@@ -235,12 +235,12 @@ int Sample(int, char *[]) {
 
   // Testing sub select tables and unconditional joins
   const auto subQuery = select(tab.alpha).from(tab).where(true).as(sub);
-  for (const auto &row :
+  for (const auto& row :
        db(select(subQuery.alpha).from(subQuery).where(true))) {
     std::cerr << row.alpha;
   }
 
-  for (const auto &row :
+  for (const auto& row :
        db(select(subQuery.alpha).from(tab.cross_join(subQuery)).where(true))) {
     std::cerr << "row.alpha: " << row.alpha << std::endl;
   }

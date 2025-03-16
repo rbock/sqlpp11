@@ -34,7 +34,7 @@ SQLPP_CREATE_NAME_TAG(meme);
 SQLPP_CREATE_NAME_TAG(verb);
 SQLPP_CREATE_NAME_TAG(CTE);
 SQLPP_CREATE_NAME_TAG(sel_as);
-} // namespace test
+}  // namespace test
 
 void test_join() {
   auto foo = test::TabFoo{};
@@ -339,4 +339,6 @@ void test_join() {
   }
 }
 
-int main() { void test_join(); }
+int main() {
+  void test_join();
+}

@@ -34,9 +34,11 @@ namespace detail {
 // A template that always returns false
 // To be used with static assert, for instance, to ensure it
 // fires only when the template is instantiated.
-template <typename... T> struct wrong {
+template <typename... T>
+struct wrong {
   using type = std::false_type;
 };
-} // namespace detail
-template <typename... T> using wrong_t = typename detail::wrong<T...>::type;
-} // namespace sqlpp
+}  // namespace detail
+template <typename... T>
+using wrong_t = typename detail::wrong<T...>::type;
+}  // namespace sqlpp

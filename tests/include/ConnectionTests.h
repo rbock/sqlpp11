@@ -31,7 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 namespace test {
 namespace {
-template <typename Connection> void test_conn_empty() {
+template <typename Connection>
+void test_conn_empty() {
   Connection db;
   if (db.is_connected()) {
     throw std::runtime_error{"Unexpected is_connected() == true"};
@@ -42,7 +43,7 @@ template <typename Connection> void test_conn_empty() {
 }
 
 template <typename Connection, typename ConfigPtr>
-void test_conn_connected(const ConfigPtr &connection_config) {
+void test_conn_connected(const ConfigPtr& connection_config) {
   Connection db{connection_config};
   if (db.is_connected() == false) {
     throw std::runtime_error{"Unexpected is_connected() == false"};
@@ -51,12 +52,12 @@ void test_conn_connected(const ConfigPtr &connection_config) {
     throw std::runtime_error{"Unexpected ping_server() == false"};
   }
 }
-} // namespace
+}  // namespace
 
 template <typename Connection, typename ConfigPtr>
-void test_normal_connection(const ConfigPtr &connection_config) {
+void test_normal_connection(const ConfigPtr& connection_config) {
   test_conn_empty<Connection>();
   test_conn_connected<Connection>(connection_config);
 }
-} // namespace test
-} // namespace sqlpp
+}  // namespace test
+}  // namespace sqlpp

@@ -33,7 +33,7 @@
 #include <sqlpp23/sqlpp23.h>
 
 namespace sql = sqlpp::postgresql;
-int Basic(int, char *[]) {
+int Basic(int, char*[]) {
   auto config = std::make_shared<sql::connection_config>();
   config->host = "localhost";
   config->user = "unknown_user_must_fail";
@@ -41,7 +41,7 @@ int Basic(int, char *[]) {
     sql::connection db(config);
 
     throw std::logic_error("should never reach this point");
-  } catch (const sqlpp::postgresql::broken_connection &ex) {
+  } catch (const sqlpp::postgresql::broken_connection& ex) {
     std::cout << "Got exception: '" << ex.what() << "'";
     return 0;
   }

@@ -31,13 +31,16 @@ namespace {
 SQLPP_CREATE_NAME_TAG(cheese);
 SQLPP_CREATE_NAME_TAG(cake);
 
-template <typename T> struct clause_of;
+template <typename T>
+struct clause_of;
 
-template <typename T> struct clause_of<sqlpp::statement_t<T>> {
+template <typename T>
+struct clause_of<sqlpp::statement_t<T>> {
   using type = T;
 };
-template <typename T> using clause_of_t = typename clause_of<T>::type;
-} // namespace
+template <typename T>
+using clause_of_t = typename clause_of<T>::type;
+}  // namespace
 
 void test_select_columns() {
   const auto maybe = true;
@@ -129,4 +132,6 @@ void test_select_columns() {
   }
 }
 
-int main() { void test_group_by(); }
+int main() {
+  void test_group_by();
+}

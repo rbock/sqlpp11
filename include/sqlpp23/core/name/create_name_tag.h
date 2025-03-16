@@ -30,44 +30,54 @@
 #include <sqlpp23/core/name/char_sequence.h>
 #include <sqlpp23/core/type_traits.h>
 
-#define SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME)                                \
-  [[maybe_unused]] static constexpr bool require_quotes = false;               \
-  [[maybe_unused]] static constexpr const char name[] = #SQL_NAME;             \
-  template <typename T> struct _member_t {                                     \
-    T CPP_NAME = {};                                                           \
-    T &operator()() { return CPP_NAME; }                                       \
-    const T &operator()() const { return CPP_NAME; }                           \
+#define SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME)                    \
+  [[maybe_unused]] static constexpr bool require_quotes = false;   \
+  [[maybe_unused]] static constexpr const char name[] = #SQL_NAME; \
+  template <typename T>                                            \
+  struct _member_t {                                               \
+    T CPP_NAME = {};                                               \
+    T& operator()() {                                              \
+      return CPP_NAME;                                             \
+    }                                                              \
+    const T& operator()() const {                                  \
+      return CPP_NAME;                                             \
+    }                                                              \
   }
 
-#define SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME)              \
-  struct _sqlpp_name_tag {                                                     \
-    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                                   \
+#define SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME) \
+  struct _sqlpp_name_tag {                                        \
+    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                      \
   }
 
-#define SQLPP_CREATE_NAME_TAG(NAME)                                            \
-  struct NAME##_t : public ::sqlpp::name_tag_base {                            \
-    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME);                         \
-  };                                                                           \
+#define SQLPP_CREATE_NAME_TAG(NAME)                    \
+  struct NAME##_t : public ::sqlpp::name_tag_base {    \
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
+  };                                                   \
   constexpr auto NAME = NAME##_t {}
 
-#define SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME)                         \
-  static constexpr bool require_quotes = true;                                 \
-  static constexpr const char name[] = #SQL_NAME;                              \
-  template <typename T> struct _member_t {                                     \
-    T CPP_NAME = {};                                                           \
-    T &operator()() { return CPP_NAME; }                                       \
-    const T &operator()() const { return CPP_NAME; }                           \
+#define SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME) \
+  static constexpr bool require_quotes = true;         \
+  static constexpr const char name[] = #SQL_NAME;      \
+  template <typename T>                                \
+  struct _member_t {                                   \
+    T CPP_NAME = {};                                   \
+    T& operator()() {                                  \
+      return CPP_NAME;                                 \
+    }                                                  \
+    const T& operator()() const {                      \
+      return CPP_NAME;                                 \
+    }                                                  \
   }
 
-#define SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME)       \
-  struct _sqlpp_name_tag {                                                     \
-    SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                            \
+#define SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME) \
+  struct _sqlpp_name_tag {                                               \
+    SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                      \
   }
 
-#define SQLPP_CREATE_QUOTED_NAME_TAG(NAME)                                     \
-  struct NAME##_t : public ::sqlpp::name_tag_base {                            \
-    SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME);                  \
-  };                                                                           \
+#define SQLPP_CREATE_QUOTED_NAME_TAG(NAME)                    \
+  struct NAME##_t : public ::sqlpp::name_tag_base {           \
+    SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
+  };                                                          \
   constexpr auto NAME = NAME##_t {}
 
 namespace sqlpp {
@@ -100,5 +110,5 @@ SQLPP_CREATE_NAME_TAG(y);
 SQLPP_CREATE_NAME_TAG(z);
 SQLPP_CREATE_NAME_TAG(left);
 SQLPP_CREATE_NAME_TAG(right);
-} // namespace alias
-} // namespace sqlpp
+}  // namespace alias
+}  // namespace sqlpp

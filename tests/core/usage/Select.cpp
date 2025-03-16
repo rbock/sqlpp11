@@ -24,21 +24,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "is_regular.h"
-#include <algorithm>
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <algorithm>
+#include <iostream>
+#include "is_regular.h"
 
 struct to_cerr {
-  template <typename Field> auto operator()(const Field &field) const -> void {
+  template <typename Field>
+  auto operator()(const Field& field) const -> void {
     std::cerr << field << std::endl;
   }
 };
 
-template <typename Row> void print_row(Row const &row) {
+template <typename Row>
+void print_row(Row const& row) {
   const std::optional<int64_t> a = row.id;
   const std::optional<std::string_view> b = row.textN;
   std::cout << a << ", " << b << std::endl;
@@ -49,7 +51,7 @@ SQLPP_CREATE_NAME_TAG(cheese);
 SQLPP_CREATE_NAME_TAG(average);
 SQLPP_CREATE_NAME_TAG(N);
 
-int Select(int, char *[]) {
+int Select(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t printer = {};
 
@@ -65,7 +67,7 @@ int Select(int, char *[]) {
   std::cerr << to_sql_string(printer,
                              select(sqlpp::value(false).as(sqlpp::alias::a)))
             << std::endl;
-  for (const auto &row : db(select(sqlpp::value(false).as(sqlpp::alias::a)))) {
+  for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a)))) {
     std::cout << row.a << std::endl;
   }
 
@@ -77,13 +79,13 @@ int Select(int, char *[]) {
                   &print_row<decltype(*rows.begin())>);
   }
 
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     const std::optional<int64_t> a = row.id;
     const std::optional<std::string_view> b = row.textN;
     std::cout << a << ", " << b << std::endl;
   }
 
-  for (const auto &row : db(select(all_of(t), t.boolNn.as(t))
+  for (const auto& row : db(select(all_of(t), t.boolNn.as(t))
                                 .from(t)
                                 .where(t.id > 7 and trim(t.textN) == "test")
                                 .for_update())) {
@@ -93,14 +95,14 @@ int Select(int, char *[]) {
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
-  for (const auto &row :
+  for (const auto& row :
        db(select(all_of(t), f.textNnD)
               .from(t.join(f).on(t.id > f.doubleN and not t.boolNn))
               .where(true))) {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto &row : db(select(all_of(t), f.textNnD)
+  for (const auto& row : db(select(all_of(t), f.textNnD)
                                 .from(t.join(f)
                                           .on(t.id > f.doubleN)
                                           .join(tab_a)
@@ -109,13 +111,13 @@ int Select(int, char *[]) {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto &row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average))
+  for (const auto& row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average))
                                 .from(t)
                                 .where(true))) {
     std::cout << row.N << std::endl;
   }
 
-  for (const auto &row : db(select(count(t.id).as(N), avg(t.id).as(average))
+  for (const auto& row : db(select(count(t.id).as(N), avg(t.id).as(average))
                                 .from(t)
                                 .where(t.id == 0))) {
     std::cout << row.N << std::endl;
@@ -143,7 +145,7 @@ int Select(int, char *[]) {
                .having(sum(t.id) > parameter(t.intN))
                .limit(32u)
                .offset(7u);
-  for (const auto &row : db(db.prepare(s))) {
+  for (const auto& row : db(db.prepare(s))) {
     const std::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
@@ -158,7 +160,7 @@ int Select(int, char *[]) {
                 .having(dynamic(maybe, sum(t.id) > 27))
                 .limit(sqlpp::dynamic(maybe, 32u))
                 .offset(sqlpp::dynamic(maybe, 7u));
-  for (const auto &row : db(db.prepare(s2))) {
+  for (const auto& row : db(db.prepare(s2))) {
     const std::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
@@ -167,7 +169,7 @@ int Select(int, char *[]) {
 
   select(sqlpp::value(7).as(t.id));
 
-  for (const auto &row : db(select(sqlpp::case_when(true)
+  for (const auto& row : db(select(sqlpp::case_when(true)
                                        .then(t.textN)
                                        .else_(std::nullopt)
                                        .as(t.textN))
@@ -176,7 +178,7 @@ int Select(int, char *[]) {
     std::cerr << row.textN << std::endl;
   }
 
-  for (const auto &row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
     for_each_field(row, to_cerr{});
   }
 
@@ -202,7 +204,7 @@ int Select(int, char *[]) {
   }
 
   // Move to type tests?
-  for (const auto &row :
+  for (const auto& row :
        db(select(
               f.doubleN,
               value(select(count(t.id).as(N)).from(t).where(true)).as(cheese))

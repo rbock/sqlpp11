@@ -28,16 +28,20 @@
  */
 
 namespace sqlpp {
-template <typename Expr> struct dynamic_t;
+template <typename Expr>
+struct dynamic_t;
 
-template <typename T> struct remove_dynamic {
+template <typename T>
+struct remove_dynamic {
   using type = T;
 };
 
-template <typename Expr> struct remove_dynamic<dynamic_t<Expr>> {
+template <typename Expr>
+struct remove_dynamic<dynamic_t<Expr>> {
   using type = Expr;
 };
 
-template <typename T> using remove_dynamic_t = typename remove_dynamic<T>::type;
+template <typename T>
+using remove_dynamic_t = typename remove_dynamic<T>::type;
 
-} // namespace sqlpp
+}  // namespace sqlpp

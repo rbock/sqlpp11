@@ -28,7 +28,7 @@
 
 #include <sqlpp23/tests/postgresql/serialize_helpers.h>
 
-int Float(int, char *[]) {
+int Float(int, char*[]) {
   SQLPP_COMPARE(sqlpp::value(10.0000114), "10.0000114");
 
   return 0;

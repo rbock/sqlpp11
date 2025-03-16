@@ -31,7 +31,7 @@
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 SQLPP_CREATE_NAME_TAG(tab);
-} // namespace
+}  // namespace
 
 int main() {
   const auto foo = test::TabFoo{};
@@ -86,8 +86,9 @@ int main() {
     // Missing table
     auto t = sqlpp::select(bar.id).from(bar).where(foo.id > 7);
     SQLPP_CHECK_STATIC_ASSERT(
-        t.as(tab), "at least one expression in where() requires a table which "
-                   "is otherwise not known in the statement");
+        t.as(tab),
+        "at least one expression in where() requires a table which "
+        "is otherwise not known in the statement");
 
     // Note that t could be used as a sub query, though.
     static_assert(sqlpp::statement_consistency_check_t<decltype(t)>::value, "");

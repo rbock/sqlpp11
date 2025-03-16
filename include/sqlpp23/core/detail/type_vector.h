@@ -27,13 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stddef.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/wrong.h>
+#include <stddef.h>
 
 namespace sqlpp {
 namespace detail {
-template <typename... T> struct type_vector {
+template <typename... T>
+struct type_vector {
   template <typename X>
   struct contains : public ::sqlpp::logic::any<std::is_same<T, X>::value...> {};
 
@@ -41,7 +42,8 @@ template <typename... T> struct type_vector {
   struct contains_not
       : public ::sqlpp::logic::none<std::is_same<T, X>::value...> {};
 
-  template <typename TypeVector> struct contains_all;
+  template <typename TypeVector>
+  struct contains_all;
 
   template <typename... X>
   struct contains_all<type_vector<X...>>
@@ -62,16 +64,19 @@ template <typename... T> struct type_vector {
   static constexpr bool empty() { return size() == 0; }
 };
 
-template <typename... T> struct type_vector_cat_impl {
+template <typename... T>
+struct type_vector_cat_impl {
   static_assert(wrong_t<type_vector_cat_impl>::value,
                 "type_vector_cat must be called with type_vector arguments");
 };
 
-template <> struct type_vector_cat_impl<> {
+template <>
+struct type_vector_cat_impl<> {
   using type = type_vector<>;
 };
 
-template <typename... T> struct type_vector_cat_impl<type_vector<T...>> {
+template <typename... T>
+struct type_vector_cat_impl<type_vector<T...>> {
   using type = type_vector<T...>;
 };
 
@@ -83,7 +88,8 @@ struct type_vector_cat_impl<type_vector<L...>, type_vector<R...>> {
 template <typename... L, typename... Rest>
 struct type_vector_cat_impl<type_vector<L...>, Rest...> {
   using type = typename type_vector_cat_impl<
-      type_vector<L...>, typename type_vector_cat_impl<Rest...>::type>::type;
+      type_vector<L...>,
+      typename type_vector_cat_impl<Rest...>::type>::type;
 };
 
 template <typename... T>
@@ -105,13 +111,13 @@ struct copy_if;
 
 template <template <typename> class Predicate, typename... T>
 struct copy_if<type_vector<T...>, Predicate> {
-  using type =
-      type_vector_cat_t<std::conditional_t<Predicate<T>::value, type_vector<T>,
-                                           type_vector<>>...>;
+  using type = type_vector_cat_t<std::conditional_t<Predicate<T>::value,
+                                                    type_vector<T>,
+                                                    type_vector<>>...>;
 };
 
 template <typename TypeVector, template <typename> class Predicate>
 using copy_if_t = typename copy_if<TypeVector, Predicate>::type;
 
-} // namespace detail
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlpp

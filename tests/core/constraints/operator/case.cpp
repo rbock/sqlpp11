@@ -38,7 +38,8 @@ struct can_call_case_when_with : public std::false_type {};
 
 template <typename Lhs>
 struct can_call_case_when_with<
-    Lhs, std::void_t<decltype(sqlpp::case_when(std::declval<Lhs>()))>>
+    Lhs,
+    std::void_t<decltype(sqlpp::case_when(std::declval<Lhs>()))>>
     : public std::true_type {};
 
 // Returns true if `declcal<Lhs>.then(declval<Rhs>())` is a valid function call.
@@ -47,7 +48,8 @@ struct can_call_then_with : public std::false_type {};
 
 template <typename Lhs, typename Rhs>
 struct can_call_then_with<
-    Lhs, Rhs,
+    Lhs,
+    Rhs,
     std::void_t<decltype(std::declval<Lhs>().then(std::declval<Rhs>()))>>
     : public std::true_type {};
 
@@ -58,10 +60,11 @@ struct can_call_else_with : public std::false_type {};
 
 template <typename Lhs, typename Rhs>
 struct can_call_else_with<
-    Lhs, Rhs,
+    Lhs,
+    Rhs,
     std::void_t<decltype(std::declval<Lhs>().else_(std::declval<Rhs>()))>>
     : public std::true_type {};
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;
@@ -105,9 +108,10 @@ int main() {
     // OK
     static_assert(can_call_then_with<CW, decltype(bar.id)>::value, "");
     static_assert(can_call_then_with<CW, decltype(bar.textN)>::value, "");
-    static_assert(can_call_then_with<CW, decltype(std::optional<int>(
-                                             std::nullopt))>::value,
-                  "");
+    static_assert(
+        can_call_then_with<CW,
+                           decltype(std::optional<int>(std::nullopt))>::value,
+        "");
 
     // Fail: Cannot use nullopt, as we need a value_type for the CASE
     // expression.
@@ -133,9 +137,10 @@ int main() {
     // OK
     static_assert(can_call_else_with<CW, decltype(bar.textN)>::value, "");
     static_assert(can_call_else_with<CW, decltype(foo.textNnD)>::value, "");
-    static_assert(can_call_else_with<CW, decltype(std::optional<int>(
-                                             std::nullopt))>::value,
-                  "");
+    static_assert(
+        can_call_else_with<CW,
+                           decltype(std::optional<int>(std::nullopt))>::value,
+        "");
 
     // OK: the value type of CASE is determined by the THEN expression.
     static_assert(can_call_else_with<CW, decltype(std::nullopt)>::value, "");
@@ -164,9 +169,10 @@ int main() {
     // OK
     static_assert(can_call_else_with<CW, decltype(bar.textN)>::value, "");
     static_assert(can_call_else_with<CW, decltype(foo.textNnD)>::value, "");
-    static_assert(can_call_else_with<CW, decltype(std::optional<int>(
-                                             std::nullopt))>::value,
-                  "");
+    static_assert(
+        can_call_else_with<CW,
+                           decltype(std::optional<int>(std::nullopt))>::value,
+        "");
 
     // OK: the value type of CASE is determined by the THEN expression.
     static_assert(can_call_else_with<CW, decltype(std::nullopt)>::value, "");

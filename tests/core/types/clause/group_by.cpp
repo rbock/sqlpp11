@@ -37,7 +37,7 @@ template <typename S>
 auto known_static_aggregate_columns_of(S)
     -> sqlpp::known_static_aggregate_columns_of_t<extract_clause_t<S>>;
 
-} // namespace
+}  // namespace
 
 void test_group_by() {
   using sqlpp::detail::type_set;
@@ -110,4 +110,6 @@ void test_group_by() {
   }
 }
 
-int main() { void test_group_by(); }
+int main() {
+  void test_group_by();
+}

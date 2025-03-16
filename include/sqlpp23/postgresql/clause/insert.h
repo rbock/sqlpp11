@@ -33,11 +33,15 @@
 
 namespace sqlpp {
 namespace postgresql {
-using blank_insert_t =
-    statement_t<insert_t, no_into_t, no_insert_value_list_t, no_on_conflict_t,
-                no_returning_column_list_t>;
+using blank_insert_t = statement_t<insert_t,
+                                   no_into_t,
+                                   no_insert_value_list_t,
+                                   no_on_conflict_t,
+                                   no_returning_column_list_t>;
 
-inline auto insert() -> blank_insert_t { return {blank_insert_t()}; }
+inline auto insert() -> blank_insert_t {
+  return {blank_insert_t()};
+}
 
 template <typename _Table>
 constexpr auto insert_into(_Table table)
@@ -45,5 +49,5 @@ constexpr auto insert_into(_Table table)
   return {blank_insert_t().into(table)};
 }
 
-} // namespace postgresql
-} // namespace sqlpp
+}  // namespace postgresql
+}  // namespace sqlpp

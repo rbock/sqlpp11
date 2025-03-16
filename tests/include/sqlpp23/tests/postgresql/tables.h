@@ -12,7 +12,8 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace test {
-template <typename Db> void createTabFoo(Db &db) {
+template <typename Db>
+void createTabFoo(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db.execute(R"+++(CREATE TABLE tab_foo
 (
@@ -64,7 +65,8 @@ struct TabFoo_ : public ::sqlpp::name_tag_base {
 };
 using TabFoo = ::sqlpp::table_t<TabFoo_>;
 
-template <typename Db> void createTabBar(Db &db) {
+template <typename Db>
+void createTabBar(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
   db.execute(R"+++(CREATE TABLE tab_bar
 (
@@ -103,7 +105,8 @@ struct TabBar_ : public ::sqlpp::name_tag_base {
 };
 using TabBar = ::sqlpp::table_t<TabBar_>;
 
-template <typename Db> void createTabDateTime(Db &db) {
+template <typename Db>
+void createTabDateTime(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db.execute(R"+++(CREATE TABLE tab_date_time
 (
@@ -143,14 +146,18 @@ struct TabDateTime_ : public ::sqlpp::name_tag_base {
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_date_time, tabDateTime);
   template <typename T>
-  using _table_columns =
-      sqlpp::table_columns<T, DayPointN, TimePointN, TimeOfDayN, TimePointNTz,
-                           TimeOfDayNTz>;
+  using _table_columns = sqlpp::table_columns<T,
+                                              DayPointN,
+                                              TimePointN,
+                                              TimeOfDayN,
+                                              TimePointNTz,
+                                              TimeOfDayNTz>;
   using _required_insert_columns = sqlpp::detail::type_set<>;
 };
 using TabDateTime = ::sqlpp::table_t<TabDateTime_>;
 
-template <typename Db> void createBlobSample(Db &db) {
+template <typename Db>
+void createBlobSample(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
   db.execute(R"+++(CREATE TABLE blob_sample (
   id bigserial PRIMARY KEY,
@@ -176,7 +183,8 @@ struct BlobSample_ : public ::sqlpp::name_tag_base {
 };
 using BlobSample = ::sqlpp::table_t<BlobSample_>;
 
-template <typename Db> void createTabExcept(Db &db) {
+template <typename Db>
+void createTabExcept(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_except)+++");
   db.execute(R"+++(CREATE TABLE tab_except (
   int_small_n_u smallint UNIQUE,
@@ -202,4 +210,4 @@ struct TabExcept_ : public ::sqlpp::name_tag_base {
 };
 using TabExcept = ::sqlpp::table_t<TabExcept_>;
 
-} // namespace test
+}  // namespace test

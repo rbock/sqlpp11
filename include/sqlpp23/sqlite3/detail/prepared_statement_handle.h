@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/sqlite3/export.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,20 +42,20 @@ namespace sqlpp {
 namespace sqlite3 {
 namespace detail {
 struct prepared_statement_handle_t {
-  sqlite3_stmt *sqlite_statement;
+  sqlite3_stmt* sqlite_statement;
   bool debug;
 
-  prepared_statement_handle_t(sqlite3_stmt *statement, bool debug_)
+  prepared_statement_handle_t(sqlite3_stmt* statement, bool debug_)
       : sqlite_statement{statement}, debug{debug_} {}
 
-  prepared_statement_handle_t(const prepared_statement_handle_t &) = delete;
-  prepared_statement_handle_t(prepared_statement_handle_t &&rhs)
+  prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
+  prepared_statement_handle_t(prepared_statement_handle_t&& rhs)
       : sqlite_statement{rhs.sqlite_statement}, debug{rhs.debug} {
     rhs.sqlite_statement = nullptr;
   }
-  prepared_statement_handle_t &
-  operator=(const prepared_statement_handle_t &) = delete;
-  prepared_statement_handle_t &operator=(prepared_statement_handle_t &&rhs) {
+  prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) =
+      delete;
+  prepared_statement_handle_t& operator=(prepared_statement_handle_t&& rhs) {
     if (sqlite_statement != rhs.sqlite_statement) {
       sqlite_statement = rhs.sqlite_statement;
       rhs.sqlite_statement = nullptr;
@@ -73,9 +73,9 @@ struct prepared_statement_handle_t {
 
   bool operator!() const { return !sqlite_statement; }
 };
-} // namespace detail
-} // namespace sqlite3
-} // namespace sqlpp
+}  // namespace detail
+}  // namespace sqlite3
+}  // namespace sqlpp
 
 #ifdef _MSC_VER
 #pragma warning(pop)

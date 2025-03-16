@@ -30,24 +30,25 @@
 #include <sqlpp23/core/clause/select_flags.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/no_data.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/query/statement.h>
 #include <tuple>
 
 namespace sqlpp {
-template <typename... Flags> struct select_flag_list_t {
+template <typename... Flags>
+struct select_flag_list_t {
   select_flag_list_t(Flags... flags) : _flags(flags...) {}
 
-  select_flag_list_t(const select_flag_list_t &) = default;
-  select_flag_list_t(select_flag_list_t &&) = default;
-  select_flag_list_t &operator=(const select_flag_list_t &) = default;
-  select_flag_list_t &operator=(select_flag_list_t &&) = default;
+  select_flag_list_t(const select_flag_list_t&) = default;
+  select_flag_list_t(select_flag_list_t&&) = default;
+  select_flag_list_t& operator=(const select_flag_list_t&) = default;
+  select_flag_list_t& operator=(select_flag_list_t&&) = default;
   ~select_flag_list_t() = default;
 
-  private:
+ private:
   friend reader_t;
   std::tuple<Flags...> _flags;
 };
@@ -71,7 +72,7 @@ struct no_select_flag_list_t {
   template <typename Statement, typename... Flags>
     requires(
         logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)
-  auto flags(this Statement &&statement, Flags... flags) {
+  auto flags(this Statement&& statement, Flags... flags) {
     SQLPP_STATIC_ASSERT(sizeof...(Flags),
                         "at least one flag required in select_flags()");
     SQLPP_STATIC_ASSERT(
@@ -84,11 +85,10 @@ struct no_select_flag_list_t {
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_select_flag_list_t&)
-      -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_select_flag_list_t&) -> std::string {
+  return "";
+}
 
 template <typename Statement>
 struct consistency_check<Statement, no_select_flag_list_t> {
@@ -101,4 +101,4 @@ auto select_flags(Flags... flags) {
   return statement_t<no_select_flag_list_t>().flags(std::move(flags)...);
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

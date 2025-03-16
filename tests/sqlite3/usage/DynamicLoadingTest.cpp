@@ -24,7 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
 #include <sqlpp23/core/clause/insert.h>
 #include <sqlpp23/core/clause/remove.h>
 #include <sqlpp23/core/clause/select.h>
@@ -33,6 +32,7 @@
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/functions.h>
 #include <sqlpp23/sqlite3/database/connection.h>
+#include "TabSample.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -54,7 +54,8 @@ int main() {
   config.debug = true;
 
   sql::connection db(config);
-  db.execute("CREATE TABLE tab_sample (\
+  db.execute(
+      "CREATE TABLE tab_sample (\
         alpha bigint(20) DEFAULT NULL,\
             beta varchar(255) DEFAULT NULL,\
             gamma bool\
@@ -85,7 +86,7 @@ int main() {
                .where(true);
   s.selected_columns.add(tab.beta);
   s.selected_columns.add(tab.gamma);
-  for (const auto &row : db(s)) {
+  for (const auto& row : db(s)) {
     std::cerr << "row.alpha: " << row.left << ", row.beta: " << row.at("beta")
               << ", row.gamma: " << row.at("gamma") << std::endl;
   };

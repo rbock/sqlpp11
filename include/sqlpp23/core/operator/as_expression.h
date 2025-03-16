@@ -34,13 +34,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expression, typename NameTag> struct as_expression {
+template <typename Expression, typename NameTag>
+struct as_expression {
   constexpr as_expression(Expression expression)
       : _expression(std::move(expression)) {}
-  as_expression(const as_expression &) = default;
-  as_expression(as_expression &&) = default;
-  as_expression &operator=(const as_expression &) = default;
-  as_expression &operator=(as_expression &&) = default;
+  as_expression(const as_expression&) = default;
+  as_expression(as_expression&&) = default;
+  as_expression& operator=(const as_expression&) = default;
+  as_expression& operator=(as_expression&&) = default;
   ~as_expression() = default;
 
   Expression _expression;
@@ -64,8 +65,8 @@ struct is_as_expression<as_expression<Expression, NameTag>>
     : public std::true_type {};
 
 template <typename Context, typename Expression, typename NameTag>
-auto to_sql_string(Context &context,
-                   const as_expression<Expression, NameTag> &t) -> std::string {
+auto to_sql_string(Context& context,
+                   const as_expression<Expression, NameTag>& t) -> std::string {
   return operand_to_sql_string(context, t._expression) + " AS " +
          name_to_sql_string(context, NameTag{});
 }
@@ -74,15 +75,15 @@ template <typename Expr, typename NameTagProvider>
   requires(has_value_type_v<Expr> and not is_dynamic<Expr>::value and
            not is_as_expression<Expr>::value and
            has_name_tag_v<NameTagProvider>)
-constexpr auto as(Expr expr, const NameTagProvider &)
+constexpr auto as(Expr expr, const NameTagProvider&)
     -> as_expression<Expr, name_tag_of_t<NameTagProvider>> {
   return {std::move(expr)};
 }
 
 template <typename NameTagProvider>
-constexpr auto as(std::nullopt_t expr, const NameTagProvider &)
+constexpr auto as(std::nullopt_t expr, const NameTagProvider&)
     -> as_expression<std::nullopt_t, name_tag_of_t<NameTagProvider>> {
   return {std::move(expr)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

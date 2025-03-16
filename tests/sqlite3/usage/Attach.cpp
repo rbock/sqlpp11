@@ -24,10 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include <cassert>
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <cassert>
+#include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -39,7 +39,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-int Attach(int, char *[]) {
+int Attach(int, char*[]) {
   sql::connection_config config;
   config.path_to_database = ":memory:";
   config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -61,7 +61,7 @@ int Attach(int, char *[]) {
   auto left = test::TabSample{};
   auto right =
       schema_qualified_table(other, test::TabSample{})
-          .as(sqlpp::alias::right); // this is a table in the attached database
+          .as(sqlpp::alias::right);  // this is a table in the attached database
 
   // inserting in one tab_sample
   db(insert_into(left).default_values());

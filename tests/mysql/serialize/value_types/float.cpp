@@ -27,7 +27,7 @@
 #include <sqlpp23/core/basic/value.h>
 #include <sqlpp23/tests/mysql/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::value(10.0000114), "10.0000114");
 
   return 0;

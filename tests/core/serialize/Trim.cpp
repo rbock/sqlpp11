@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-int Trim(int, char *[]) {
+int Trim(int, char*[]) {
   const auto bar = test::TabBar{};
 
   // Single column.

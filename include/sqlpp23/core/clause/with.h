@@ -28,18 +28,19 @@
  */
 
 #include <sqlpp23/core/basic/column_fwd.h>
+#include <sqlpp23/core/clause/cte.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/no_data.h>
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/clause/cte.h>
+#include <sqlpp23/core/tuple_to_sql_string.h>
 
 namespace sqlpp {
 struct no_with_t;
 
-template <typename... Ctes> struct with_t {
+template <typename... Ctes>
+struct with_t {
   with_t(std::tuple<Ctes...> ctes) : _ctes(std::move(ctes)) {}
   with_t(const with_t&) = default;
   with_t(with_t&&) = default;
@@ -47,11 +48,12 @@ template <typename... Ctes> struct with_t {
   with_t& operator=(with_t&&) = default;
   ~with_t() = default;
 
-  template <typename Statement> auto operator()(Statement &&statement) {
+  template <typename Statement>
+  auto operator()(Statement&& statement) {
     return new_statement<no_with_t>(std::forward<Statement>(statement), *this);
   }
 
-  private:
+ private:
   friend reader_t;
   std::tuple<Ctes...> _ctes;
 };
@@ -77,15 +79,18 @@ struct consistency_check<Statement, with_t<Ctes...>> {
 // Note: No nodes are exposed directly. Nothing should be leaked from CTEs by
 // accident.
 
-template <typename... Ctes> struct provided_ctes_of<with_t<Ctes...>> {
+template <typename... Ctes>
+struct provided_ctes_of<with_t<Ctes...>> {
   using type = detail::make_joined_set_t<provided_ctes_of_t<Ctes>...>;
 };
 
-template <typename... Ctes> struct provided_static_ctes_of<with_t<Ctes...>> {
+template <typename... Ctes>
+struct provided_static_ctes_of<with_t<Ctes...>> {
   using type = detail::make_joined_set_t<provided_static_ctes_of_t<Ctes>...>;
 };
 
-template <typename... Ctes> struct parameters_of<with_t<Ctes...>> {
+template <typename... Ctes>
+struct parameters_of<with_t<Ctes...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
 };
 
@@ -109,9 +114,11 @@ struct have_correct_cte_dependencies_impl<AllowedCTEs, CTE, Rest...> {
       have_correct_cte_dependencies_impl<allowed_ctes, Rest...>::value;
 };
 
-template <typename... CTEs> struct have_correct_cte_dependencies {
+template <typename... CTEs>
+struct have_correct_cte_dependencies {
   static constexpr bool value =
-      have_correct_cte_dependencies_impl<detail::type_set<>, detail::type_set<>,
+      have_correct_cte_dependencies_impl<detail::type_set<>,
+                                         detail::type_set<>,
                                          CTEs...>::value;
 };
 
@@ -123,7 +130,8 @@ struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs>
     : public std::true_type {};
 
 template <typename AllowedStaticCTEs, typename CTE, typename... Rest>
-struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs, CTE,
+struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs,
+                                                 CTE,
                                                  Rest...> {
   using allowed_static_ctes =
       detail::make_joined_set_t<AllowedStaticCTEs,
@@ -134,14 +142,17 @@ struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs, CTE,
                                                 Rest...>::value;
 };
 
-template <typename... CTEs> struct have_correct_static_cte_dependencies {
-  static constexpr bool value = have_correct_static_cte_dependencies_impl<
-      detail::type_set<>, detail::type_set<>, CTEs...>::value;
+template <typename... CTEs>
+struct have_correct_static_cte_dependencies {
+  static constexpr bool value =
+      have_correct_static_cte_dependencies_impl<detail::type_set<>,
+                                                detail::type_set<>,
+                                                CTEs...>::value;
 };
 
 struct no_with_t {
   template <typename Statement, DynamicCte... Ctes>
-  auto with(this Statement &&statement, Ctes... ctes) {
+  auto with(this Statement&& statement, Ctes... ctes) {
     SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,
                         "at least one CTE depends on another CTE that is not "
                         "defined left of it");
@@ -160,16 +171,18 @@ struct no_with_t {
   }
 };
 
-  template <typename Context>
-  auto to_sql_string(Context&, const no_with_t&) -> std::string {
-    return "";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const no_with_t&) -> std::string {
+  return "";
+}
 
-template <typename Statement> struct consistency_check<Statement, no_with_t> {
+template <typename Statement>
+struct consistency_check<Statement, no_with_t> {
   using type = consistent_t;
 };
 
-template <DynamicCte... Ctes> auto with(Ctes... ctes) {
+template <DynamicCte... Ctes>
+auto with(Ctes... ctes) {
   return statement_t<no_with_t>{}.with(std::move(ctes)...);
 }
-} // namespace sqlpp
+}  // namespace sqlpp

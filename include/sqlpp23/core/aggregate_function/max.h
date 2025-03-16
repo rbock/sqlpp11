@@ -41,10 +41,10 @@ struct max_t : public enable_as<max_t<Flag, Expr>>,
                public enable_over<max_t<Flag, Expr>> {
   constexpr max_t(Expr expr) : _expr(std::move(expr)) {}
 
-  max_t(const max_t &) = default;
-  max_t(max_t &&) = default;
-  max_t &operator=(const max_t &) = default;
-  max_t &operator=(max_t &&) = default;
+  max_t(const max_t&) = default;
+  max_t(max_t&&) = default;
+  max_t& operator=(const max_t&) = default;
+  max_t& operator=(max_t&&) = default;
   ~max_t() = default;
 
   Expr _expr;
@@ -53,7 +53,8 @@ struct max_t : public enable_as<max_t<Flag, Expr>>,
 template <typename Flag, typename Expr>
 struct is_aggregate_function<max_t<Flag, Expr>> : public std::true_type {};
 
-template <typename Flag, typename Expr> struct nodes_of<max_t<Flag, Expr>> {
+template <typename Flag, typename Expr>
+struct nodes_of<max_t<Flag, Expr>> {
   using type = sqlpp::detail::type_vector<Expr>;
 };
 
@@ -63,7 +64,7 @@ struct value_type_of<max_t<Flag, Expr>> {
 };
 
 template <typename Context, typename Flag, typename Expr>
-auto to_sql_string(Context &context, const max_t<Flag, Expr> &t)
+auto to_sql_string(Context& context, const max_t<Flag, Expr>& t)
     -> std::string {
   return "MAX(" + to_sql_string(context, Flag()) +
          to_sql_string(context, t._expr) + ")";
@@ -80,9 +81,9 @@ auto max(T t) -> max_t<no_flag_t, T> {
 }
 
 template <typename T, typename = check_max_arg<T>>
-auto max(const distinct_t & /*unused*/, T t) -> max_t<distinct_t, T> {
+auto max(const distinct_t& /*unused*/, T t) -> max_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "max() must not be used on an aggregate function");
   return {std::move(t)};
 }
-} // namespace sqlpp
+}  // namespace sqlpp

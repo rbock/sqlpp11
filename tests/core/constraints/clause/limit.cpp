@@ -46,7 +46,7 @@ template <typename... Expressions>
 concept cannot_call_limit_with =
     not(can_call_limit_with_standalone<Expressions...> or
         can_call_limit_with_in_statement<Expressions...>);
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

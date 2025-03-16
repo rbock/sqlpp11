@@ -30,8 +30,8 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
-#include "make_test_connection.h"
 #include <sqlpp23/tests/postgresql/tables.h>
+#include "make_test_connection.h"
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::microseconds>(
@@ -40,7 +40,7 @@ const auto today = std::chrono::floor<std::chrono::days>(now);
 const auto yesterday = today - std::chrono::days{1};
 
 template <typename L, typename R>
-void require_equal(int line, const L &l, const R &r) {
+void require_equal(int line, const L& l, const R& r) {
   if (l != r) {
     std::cerr << line << ": ";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
@@ -50,23 +50,25 @@ void require_equal(int line, const L &l, const R &r) {
   }
 }
 
-template <class Db> void prepare_table(Db &&db, bool with_tz) {
+template <class Db>
+void prepare_table(Db&& db, bool with_tz) {
   db.execute("DROP TABLE IF EXISTS tab_date_time");
   if (with_tz) {
     // prepare test with timezone
-    db.execute("CREATE TABLE tab_date_time (col_day_point DATE, col_time_point "
-               "TIMESTAMP WITH TIME ZONE)");
+    db.execute(
+        "CREATE TABLE tab_date_time (col_day_point DATE, col_time_point "
+        "TIMESTAMP WITH TIME ZONE)");
   } else {
     // prepare  test without timezone
-    db.execute("CREATE TABLE tab_date_time (col_day_point DATE, col_time_point "
-               "TIMESTAMP)");
+    db.execute(
+        "CREATE TABLE tab_date_time (col_day_point DATE, col_time_point "
+        "TIMESTAMP)");
   }
 }
 
-} // namespace
+}  // namespace
 
-int Date(int, char *[]) {
-
+int Date(int, char*[]) {
   namespace sql = sqlpp::postgresql;
 
   sql::connection db = sql::make_test_connection();
@@ -76,7 +78,7 @@ int Date(int, char *[]) {
 
     const auto tab = test::TabDateTime{};
     db(insert_into(tab).default_values());
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.has_value(), false);
       require_equal(__LINE__, row.timePointN.has_value(), false);
       require_equal(__LINE__, row.timePointNTz.has_value(), false);
@@ -87,7 +89,7 @@ int Date(int, char *[]) {
                 tab.timePointNTz = now)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
       require_equal(__LINE__, row.timePointNTz.value(), now);
@@ -98,7 +100,7 @@ int Date(int, char *[]) {
                 tab.timePointNTz = today)
            .where(true));
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
       require_equal(__LINE__, row.timePointN.value(), today);
       require_equal(__LINE__, row.timePointNTz.value(), today);
@@ -117,12 +119,12 @@ int Date(int, char *[]) {
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
 
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), today);
       require_equal(__LINE__, row.timePointN.value(), now);
       require_equal(__LINE__, row.timePointNTz.value(), now);
     }
-  } catch (std::exception &e) {
+  } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   } catch (...) {

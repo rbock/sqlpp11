@@ -30,7 +30,7 @@
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 
-int Connection(int, char *[]) {
+int Connection(int, char*[]) {
   namespace sql = sqlpp::mysql;
   namespace test = sqlpp::test;
 

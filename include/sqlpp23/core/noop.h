@@ -34,8 +34,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 
 namespace sqlpp {
-struct noop {
-};
+struct noop {};
 
 struct no_result_methods_t {
  private:
@@ -55,14 +54,16 @@ struct no_result_methods_t {
   }
 };
 
-template <> struct result_methods_of<noop> {
+template <>
+struct result_methods_of<noop> {
   using type = no_result_methods_t;
 };
 
 template <typename Context>
-auto to_sql_string(Context &, const noop &) -> std::string {
+auto to_sql_string(Context&, const noop&) -> std::string {
   return {};
 }
 
-template <typename T> struct is_noop : std::is_same<T, noop> {};
-} // namespace sqlpp
+template <typename T>
+struct is_noop : std::is_same<T, noop> {};
+}  // namespace sqlpp

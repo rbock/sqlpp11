@@ -24,25 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <iostream>
 
 namespace {
 struct on_duplicate_key_update {
   std::string _serialized;
 
   template <typename Db, typename Assignment>
-  on_duplicate_key_update(Db &, Assignment assignment) {
+  on_duplicate_key_update(Db&, Assignment assignment) {
     typename Db::_context_t context;
     _serialized =
         " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
   }
 
   template <typename Db, typename Assignment>
-  auto operator()(Db &, Assignment assignment) -> on_duplicate_key_update & {
+  auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update& {
     typename Db::_context_t context;
     _serialized += ", " + to_sql_string(context, assignment);
     return *this;
@@ -52,9 +52,9 @@ struct on_duplicate_key_update {
     return ::sqlpp::verbatim(_serialized);
   }
 };
-} // namespace
+}  // namespace
 
-int CustomQuery(int, char *[]) {
+int CustomQuery(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t printer = {};
 
@@ -77,7 +77,7 @@ int CustomQuery(int, char *[]) {
   auto p = db.prepare(select(all_of(t))
                       << from(t) << where(t.id > sqlpp::parameter(t.id)));
   p.params.id = 8;
-  for (const auto &row : db(p)) {
+  for (const auto& row : db(p)) {
     std::cerr << row.id << std::endl;
   }
 
@@ -113,7 +113,7 @@ int CustomQuery(int, char *[]) {
   static_assert(std::is_integral<decltype(j)>::value,
                 "insert yields an integral value");
 
-  for (const auto &row :
+  for (const auto& row :
        db(sqlpp::statement_t{} << sqlpp::verbatim("PRAGMA user_version")
                                << with_result_type_of(select(all_of(t))))) {
     (void)row.id;

@@ -27,7 +27,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   SQLPP_COMPARE("", "''");
   SQLPP_COMPARE(std::string("ab'cd"), "'ab''cd'");
   SQLPP_COMPARE(std::string_view("ab'cd"), "'ab''cd'");

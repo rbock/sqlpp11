@@ -37,15 +37,15 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-struct insert_t {
-};
+struct insert_t {};
 
-  template <typename Context>
-  auto to_sql_string(Context&, const insert_t&) -> std::string {
-    return "INSERT";
-  }
+template <typename Context>
+auto to_sql_string(Context&, const insert_t&) -> std::string {
+  return "INSERT";
+}
 
-template <> struct is_clause<insert_t> : public std::true_type {};
+template <>
+struct is_clause<insert_t> : public std::true_type {};
 
 struct insert_result_methods_t {
  private:
@@ -59,25 +59,30 @@ struct insert_result_methods_t {
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement &&statement, Db &db)
+  auto _prepare(this Statement&& statement, Db& db)
       -> prepared_insert_t<Db, std::decay_t<Statement>> {
     return {{}, db.prepare_insert(std::forward<Statement>(statement))};
   }
 };
 
-template <> struct result_methods_of<insert_t> {
+template <>
+struct result_methods_of<insert_t> {
   using type = insert_result_methods_t;
 };
 
-template <typename Statement> struct consistency_check<Statement, insert_t> {
+template <typename Statement>
+struct consistency_check<Statement, insert_t> {
   using type = consistent_t;
 };
 
-template <> struct is_result_clause<insert_t> : public std::true_type {};
+template <>
+struct is_result_clause<insert_t> : public std::true_type {};
 
 using blank_insert_t = statement_t<insert_t, no_into_t, no_insert_value_list_t>;
 
-inline auto insert() -> blank_insert_t { return {}; }
+inline auto insert() -> blank_insert_t {
+  return {};
+}
 
 template <typename _Table>
 constexpr auto insert_into(_Table table)
@@ -85,4 +90,4 @@ constexpr auto insert_into(_Table table)
   return {blank_insert_t().into(table)};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

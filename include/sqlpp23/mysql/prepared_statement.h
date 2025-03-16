@@ -27,11 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include <memory>
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/mysql/bind_result.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
+#include <iostream>
+#include <memory>
 
 namespace sqlpp {
 namespace mysql {
@@ -41,10 +41,10 @@ class prepared_statement_t {
   friend ::sqlpp::mysql::connection_base;
   std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
-public:
+ public:
   prepared_statement_t() = delete;
   prepared_statement_t(
-      std::shared_ptr<detail::prepared_statement_handle_t> &&handle)
+      std::shared_ptr<detail::prepared_statement_handle_t>&& handle)
       : _handle{std::move(handle)} {
     if (_handle and _handle->debug)
       std::cerr << "MySQL debug: Constructing prepared_statement, "
@@ -52,27 +52,27 @@ public:
                 << _handle.get() << std::endl;
   }
 
-  prepared_statement_t(const prepared_statement_t &) = delete;
-  prepared_statement_t(prepared_statement_t &&rhs) = default;
-  prepared_statement_t &operator=(const prepared_statement_t &) = delete;
-  prepared_statement_t &operator=(prepared_statement_t &&) = default;
+  prepared_statement_t(const prepared_statement_t&) = delete;
+  prepared_statement_t(prepared_statement_t&& rhs) = default;
+  prepared_statement_t& operator=(const prepared_statement_t&) = delete;
+  prepared_statement_t& operator=(prepared_statement_t&&) = default;
   ~prepared_statement_t() = default;
 
-  bool operator==(const prepared_statement_t &rhs) const {
+  bool operator==(const prepared_statement_t& rhs) const {
     return _handle == rhs._handle;
   }
 
   void _pre_bind();
 
-  void _bind_parameter(size_t index, const bool &value) {
+  void _bind_parameter(size_t index, const bool& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding boolean parameter "
                 << (value ? "true" : "false") << " at index: " << index
                 << std::endl;
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_TINY;
-    param.buffer = const_cast<bool *>(&value);
+    param.buffer = const_cast<bool*>(&value);
     param.buffer_length = sizeof(value);
     param.length = &param.buffer_length;
     param.is_null = &_handle->stmt_param_is_null[index].value;
@@ -80,14 +80,14 @@ public:
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const int64_t &value) {
+  void _bind_parameter(size_t index, const int64_t& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding integral parameter " << value
                 << " at index: " << index << std::endl;
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
-    param.buffer = const_cast<int64_t *>(&value);
+    param.buffer = const_cast<int64_t*>(&value);
     param.buffer_length = sizeof(value);
     param.length = &param.buffer_length;
     param.is_null = &_handle->stmt_param_is_null[index].value;
@@ -95,14 +95,14 @@ public:
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const uint64_t &value) {
+  void _bind_parameter(size_t index, const uint64_t& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding unsigned integral parameter " << value
                 << " at index: " << index << std::endl;
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
-    param.buffer = const_cast<uint64_t *>(&value);
+    param.buffer = const_cast<uint64_t*>(&value);
     param.buffer_length = sizeof(value);
     param.length = &param.buffer_length;
     param.is_null = &_handle->stmt_param_is_null[index].value;
@@ -110,14 +110,14 @@ public:
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const double &value) {
+  void _bind_parameter(size_t index, const double& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding floating_point parameter " << value
                 << " at index: " << index << std::endl;
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_DOUBLE;
-    param.buffer = const_cast<double *>(&value);
+    param.buffer = const_cast<double*>(&value);
     param.buffer_length = sizeof(value);
     param.length = &param.buffer_length;
     param.is_null = &_handle->stmt_param_is_null[index].value;
@@ -125,14 +125,14 @@ public:
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const std::string_view &value) {
+  void _bind_parameter(size_t index, const std::string_view& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding text parameter " << value
                 << " at index: " << index << std::endl;
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_STRING;
-    param.buffer = const_cast<char *>(value.data());
+    param.buffer = const_cast<char*>(value.data());
     param.buffer_length = value.size();
     param.length = &param.buffer_length;
     param.is_null = &_handle->stmt_param_is_null[index].value;
@@ -140,12 +140,12 @@ public:
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const sqlpp::chrono::day_point &value) {
+  void _bind_parameter(size_t index, const sqlpp::chrono::day_point& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding date parameter "
                 << " at index: " << index << std::endl;
 
-    auto &bound_time = _handle->stmt_date_time_param_buffer[index];
+    auto& bound_time = _handle->stmt_date_time_param_buffer[index];
     const auto ymd = std::chrono::year_month_day{value};
     bound_time.year =
         static_cast<unsigned>(std::abs(static_cast<int>(ymd.year())));
@@ -162,7 +162,7 @@ public:
                 << bound_time.second << std::endl;
 
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_DATE;
     param.buffer = &bound_time;
     param.buffer_length = sizeof(MYSQL_TIME);
@@ -173,12 +173,12 @@ public:
   }
 
   void _bind_parameter(size_t index,
-                       const sqlpp::chrono::microsecond_point &value) {
+                       const sqlpp::chrono::microsecond_point& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding date_time parameter "
                 << " at index: " << index << std::endl;
 
-    auto &bound_time = _handle->stmt_date_time_param_buffer[index];
+    auto& bound_time = _handle->stmt_date_time_param_buffer[index];
     const auto dp = std::chrono::floor<std::chrono::days>(value);
     const auto time = std::chrono::hh_mm_ss(
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
@@ -199,7 +199,7 @@ public:
                 << bound_time.second << std::endl;
 
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_DATETIME;
     param.buffer = &bound_time;
     param.buffer_length = sizeof(MYSQL_TIME);
@@ -209,12 +209,12 @@ public:
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const ::std::chrono::microseconds &value) {
+  void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: binding time_of_day parameter "
                 << " at index: " << index << std::endl;
 
-    auto &bound_time = _handle->stmt_date_time_param_buffer[index];
+    auto& bound_time = _handle->stmt_date_time_param_buffer[index];
     const auto dp = std::chrono::floor<std::chrono::days>(value);
     const auto time = std::chrono::hh_mm_ss(
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
@@ -232,7 +232,7 @@ public:
                 << bound_time.second_part << std::endl;
 
     _handle->stmt_param_is_null[index] = false;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_TIME;
     param.buffer = &bound_time;
     param.buffer_length = sizeof(MYSQL_TIME);
@@ -244,7 +244,7 @@ public:
 
   template <typename Parameter>
   void _bind_parameter(size_t index,
-                       const std::optional<Parameter> &parameter) {
+                       const std::optional<Parameter>& parameter) {
     if (parameter.has_value()) {
       _bind_parameter(index, parameter.value());
       return;
@@ -255,7 +255,7 @@ public:
                 << " at index: " << index << std::endl;
 
     _handle->stmt_param_is_null[index] = true;
-    MYSQL_BIND &param{_handle->stmt_params[index]};
+    MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_TIME;
     param.buffer = &_handle->stmt_date_time_param_buffer[index];
     param.buffer_length = sizeof(MYSQL_TIME);
@@ -265,5 +265,5 @@ public:
     param.error = nullptr;
   }
 };
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

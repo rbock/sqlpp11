@@ -33,9 +33,12 @@
 
 namespace sqlpp {
 namespace mysql {
-using blank_update_t =
-    statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t,
-                no_order_by_t, no_limit_t>;
+using blank_update_t = statement_t<update_t,
+                                   no_single_table_t,
+                                   no_update_set_list_t,
+                                   no_where_t,
+                                   no_order_by_t,
+                                   no_limit_t>;
 
 template <typename _Table>
 constexpr auto update(_Table table)
@@ -43,5 +46,5 @@ constexpr auto update(_Table table)
   return {blank_update_t().single_table(table)};
 }
 
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp

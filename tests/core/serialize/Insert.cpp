@@ -30,7 +30,7 @@
 
 #include <iostream>
 
-int Insert(int, char *[]) {
+int Insert(int, char*[]) {
   const auto bar = test::TabBar{};
 
   SQLPP_COMPARE(insert_into(bar).default_values(),

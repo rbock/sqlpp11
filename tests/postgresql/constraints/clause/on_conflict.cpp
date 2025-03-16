@@ -58,8 +58,10 @@ concept cannot_call_on_conflict_with =
 
 // Test do_update
 template <typename Lhs, typename... Expressions>
-concept can_call_do_update_with = requires(
-    Lhs lhs, Expressions... expressions) { lhs.do_update(expressions...); };
+concept can_call_do_update_with =
+    requires(Lhs lhs, Expressions... expressions) {
+      lhs.do_update(expressions...);
+    };
 
 template <typename Lhs, typename... Expressions>
 concept cannot_call_do_update_with =
@@ -74,7 +76,7 @@ concept can_call_where_with = requires(Lhs lhs, Expressions... expressions) {
 template <typename Lhs, typename... Expressions>
 concept cannot_call_where_with = not(can_call_where_with<Lhs, Expressions...>);
 
-} // namespace
+}  // namespace
 
 int main() {
   const auto maybe = true;

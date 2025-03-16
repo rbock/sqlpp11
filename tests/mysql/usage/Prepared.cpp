@@ -24,11 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Tables.h"
-#include "make_test_connection.h"
-#include <cassert>
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <cassert>
+#include "Tables.h"
+#include "make_test_connection.h"
 
 #include <iostream>
 #include <vector>
@@ -41,9 +41,9 @@ namespace sql = sqlpp::mysql;
 const auto tab = test::TabSample{};
 
 SQLPP_CREATE_NAME_TAG(something);
-} // namespace
+}  // namespace
 
-void testPreparedStatementResult(sql::connection &db) {
+void testPreparedStatementResult(sql::connection& db) {
   auto preparedInsert =
       db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN)));
   preparedInsert.params.textN = std::nullopt;
@@ -70,14 +70,14 @@ void testPreparedStatementResult(sql::connection &db) {
   db(preparedUpdateAll);
 }
 
-int Prepared(int, char *[]) {
+int Prepared(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
     test::createTabSample(db);
 
     testPreparedStatementResult(db);
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

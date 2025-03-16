@@ -39,27 +39,30 @@ struct concat_t : public enable_comparison<concat_t<Args...>>,
                   public enable_as<concat_t<Args...>> {
   concat_t(const Args... args) : _args(std::move(args)...) {}
 
-  concat_t(const concat_t &) = default;
-  concat_t(concat_t &&) = default;
-  concat_t &operator=(const concat_t &) = default;
-  concat_t &operator=(concat_t &&) = default;
+  concat_t(const concat_t&) = default;
+  concat_t(concat_t&&) = default;
+  concat_t& operator=(const concat_t&) = default;
+  concat_t& operator=(concat_t&&) = default;
   ~concat_t() = default;
 
   std::tuple<Args...> _args;
 };
 
-template <typename... Args> struct value_type_of<concat_t<Args...>> {
+template <typename... Args>
+struct value_type_of<concat_t<Args...>> {
   using type = std::conditional_t<
       logic::any<is_optional<value_type_of_t<Args>>::value...>::value,
-      std::optional<sqlpp::text>, sqlpp::text>;
+      std::optional<sqlpp::text>,
+      sqlpp::text>;
 };
 
-template <typename... Args> struct nodes_of<concat_t<Args...>> {
+template <typename... Args>
+struct nodes_of<concat_t<Args...>> {
   using type = detail::type_vector<Args...>;
 };
 
 template <typename Context, typename... Args>
-auto to_sql_string(Context &context, const concat_t<Args...> &t)
+auto to_sql_string(Context& context, const concat_t<Args...>& t)
     -> std::string {
   return "CONCAT(" +
          tuple_to_sql_string(context, t._args, tuple_operand{", "}) + ")";
@@ -77,4 +80,4 @@ auto concat(Args... args) -> concat_t<Args...> {
   return {std::move(args)...};
 }
 
-} // namespace sqlpp
+}  // namespace sqlpp

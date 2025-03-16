@@ -11,7 +11,8 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace test {
-template <typename Db> void createTabSample(Db &db) {
+template <typename Db>
+void createTabSample(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_sample)+++");
   db.execute(R"+++(CREATE TABLE tab_sample (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +50,8 @@ struct TabSample_ : public ::sqlpp::name_tag_base {
 };
 using TabSample = ::sqlpp::table_t<TabSample_>;
 
-template <typename Db> void createTabDateTime(Db &db) {
+template <typename Db>
+void createTabDateTime(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db.execute(R"+++(CREATE TABLE tab_date_time (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
@@ -88,13 +90,14 @@ struct TabDateTime_ : public ::sqlpp::name_tag_base {
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_date_time, tabDateTime);
   template <typename T>
-  using _table_columns = sqlpp::table_columns<T, Id, DayPointN, TimePointN,
-                                              DateTimePointND, TimeOfDayN>;
+  using _table_columns = sqlpp::
+      table_columns<T, Id, DayPointN, TimePointN, DateTimePointND, TimeOfDayN>;
   using _required_insert_columns = sqlpp::detail::type_set<>;
 };
 using TabDateTime = ::sqlpp::table_t<TabDateTime_>;
 
-template <typename Db> void createTabFoo(Db &db) {
+template <typename Db>
+void createTabFoo(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db.execute(R"+++(CREATE TABLE tab_foo (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
@@ -120,7 +123,8 @@ struct TabFoo_ : public ::sqlpp::name_tag_base {
 };
 using TabFoo = ::sqlpp::table_t<TabFoo_>;
 
-template <typename Db> void createTabJson(Db &db) {
+template <typename Db>
+void createTabJson(Db& db) {
   db.execute(R"+++(DROP TABLE IF EXISTS tab_json)+++");
   db.execute(R"+++(CREATE TABLE tab_json (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
@@ -147,4 +151,4 @@ struct TabJson_ : public ::sqlpp::name_tag_base {
 };
 using TabJson = ::sqlpp::table_t<TabJson_>;
 
-} // namespace test
+}  // namespace test

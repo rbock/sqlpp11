@@ -28,7 +28,7 @@
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   auto ctx = sqlpp::sqlite3::context_t{};
 
   SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");

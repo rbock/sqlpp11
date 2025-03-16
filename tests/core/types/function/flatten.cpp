@@ -45,4 +45,6 @@ void test_flatten() {
   }
 }
 
-int main() { void test_flatten(); }
+int main() {
+  void test_flatten();
+}

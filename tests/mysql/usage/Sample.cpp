@@ -24,18 +24,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/sqlpp23.h>
 #include "Tables.h"
 #include "make_test_connection.h"
 #include "sqlpp23/tests/core/result_helpers.h"
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/sqlpp23.h>
 
 #include <cassert>
 #include <iostream>
 #include <vector>
 
 namespace sql = sqlpp::mysql;
-int Sample(int, char *[]) {
+int Sample(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
@@ -53,7 +53,7 @@ int Sample(int, char *[]) {
     assert(not db(select(exists(select(tab.intN).from(tab).where(true))
                              .as(::sqlpp::alias::a)))
                    .front()
-                   .a); // this is probably the fastest
+                   .a);  // this is probably the fastest
     assert(not db(select(count(tab.intN).as(sqlpp::alias::a))
                       .from(tab)
                       .where(true))
@@ -67,7 +67,7 @@ int Sample(int, char *[]) {
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
     db(select(all_of(tab)).from(tab).where(true));
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-    for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
       std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN
                 << ", row.boolN: " << row.boolN << std::endl;
@@ -76,7 +76,7 @@ int Sample(int, char *[]) {
     db(insert_into(tab).default_values());
     const auto x = select(all_of(tab)).from(tab).where(true);
     const auto y = db.prepare(x);
-    for (const auto &row :
+    for (const auto& row :
          db(db.prepare(select(all_of(tab)).from(tab).where(true)))) {
       std::cerr << "intN: " << row.intN << std::endl;
       std::cerr << "textN: " << row.textN << std::endl;
@@ -99,7 +99,7 @@ int Sample(int, char *[]) {
       db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-      for (const auto &row : db(select(all_of(tab)).from(tab).where(true))) {
+      for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
         std::cerr << __LINE__ << " row.textN: " << row.textN << std::endl;
       }
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
@@ -122,7 +122,7 @@ int Sample(int, char *[]) {
                                      .as(sqlpp::alias::a))
                  .from(tab)
                  .where(true));
-      if (const auto &row = *result.begin()) {
+      if (const auto& row = *result.begin()) {
         const int64_t a = row.intN.value_or(0);
         const std::optional<long> m = row.a;
         std::cerr << __LINE__ << " row.intN: " << a << ", row.max: " << m
@@ -132,13 +132,13 @@ int Sample(int, char *[]) {
     }
 
     test::TabFoo foo;
-    for (const auto &row : db(select(tab.intN)
+    for (const auto& row : db(select(tab.intN)
                                   .from(tab.join(foo).on(tab.intN == foo.intN))
                                   .where(true))) {
       std::cerr << row.intN << std::endl;
     }
 
-    for (const auto &row :
+    for (const auto& row :
          db(select(tab.intN)
                 .from(tab.left_outer_join(foo).on(tab.intN == foo.intN))
                 .where(true))) {
@@ -153,7 +153,7 @@ int Sample(int, char *[]) {
     ps.params.intN = 7;
     ps.params.textN = "wurzelbrunft";
     ps.params.boolN = true;
-    for (const auto &row : db(ps)) {
+    for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
       std::cerr << "bound result: boolN: " << row.boolN << std::endl;
@@ -161,7 +161,7 @@ int Sample(int, char *[]) {
 
     std::cerr << "--------" << std::endl;
     ps.params.boolN = false;
-    for (const auto &row : db(ps)) {
+    for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
       std::cerr << "bound result: boolN: " << row.boolN << std::endl;
@@ -169,7 +169,7 @@ int Sample(int, char *[]) {
 
     std::cerr << "--------" << std::endl;
     ps.params.textN = "kaesekuchen";
-    for (const auto &row : db(ps)) {
+    for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
       std::cerr << "bound result: boolN: " << row.boolN << std::endl;
@@ -191,14 +191,14 @@ int Sample(int, char *[]) {
     pr.params.textN = "prepared cake";
     std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
-    for (const auto &row :
+    for (const auto& row :
          db(select(case_when(tab.boolN).then(tab.intN).else_(foo.intN).as(
                        tab.intN))
                 .from(tab.cross_join(foo))
                 .where(true))) {
       std::cerr << row.intN << std::endl;
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

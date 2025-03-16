@@ -28,22 +28,22 @@
 
 #define SQLPP_TEST_STATIC_ASSERT
 
-#include <iostream>
 #include <sqlpp23/sqlpp23.h>
+#include <iostream>
 
-#define SQLPP_CHECK_STATIC_ASSERT(expression, message)                         \
-  {                                                                            \
-    try {                                                                      \
-      expression;                                                              \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'                         \
-                << "Expected exception!\n";                                    \
-      return -1;                                                               \
-    } catch (const sqlpp::unit_test_exception &e) {                            \
-      if (e.what() != std::string_view(message)) {                             \
-        std::cerr << __FILE__ << " " << __LINE__ << '\n'                       \
-                  << "Expected: -->|" << message << "|<--\n"                   \
-                  << "Received: -->|" << e.what() << "|<--\n";                 \
-        return -1;                                                             \
-      }                                                                        \
-    }                                                                          \
+#define SQLPP_CHECK_STATIC_ASSERT(expression, message)         \
+  {                                                            \
+    try {                                                      \
+      expression;                                              \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'         \
+                << "Expected exception!\n";                    \
+      return -1;                                               \
+    } catch (const sqlpp::unit_test_exception& e) {            \
+      if (e.what() != std::string_view(message)) {             \
+        std::cerr << __FILE__ << " " << __LINE__ << '\n'       \
+                  << "Expected: -->|" << message << "|<--\n"   \
+                  << "Received: -->|" << e.what() << "|<--\n"; \
+        return -1;                                             \
+      }                                                        \
+    }                                                          \
   }

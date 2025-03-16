@@ -34,5 +34,5 @@ namespace mysql {
 #if LIBMYSQL_VERSION_ID >= 80000
 using my_bool = bool;
 #endif
-} // namespace mysql
-} // namespace sqlpp
+}  // namespace mysql
+}  // namespace sqlpp
