@@ -32,6 +32,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/postgresql/reader.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 
 namespace sqlpp {
@@ -60,17 +61,22 @@ struct on_conflict_do_update_where_t {
       default;
   ~on_conflict_do_update_where_t() = default;
 
+  private:
+  friend ::sqlpp::reader_t;
+  friend ::sqlpp::postgresql::reader_t;
   OnConflictUpdate _on_conflict_update;
   Expression _expression;
 };
 
 template <typename OnConflictUpdate, typename Expression>
-  auto to_sql_string(postgresql::context_t& context,
-                     const on_conflict_do_update_where_t<OnConflictUpdate, Expression>& t) -> std::string {
-    // Note: Temporary required to enforce parameter ordering.
-    auto ret_val = to_sql_string(context, t._on_conflict_update) + " WHERE ";
-    return ret_val + to_sql_string(context, t._expression);
-  }
+auto to_sql_string(
+    postgresql::context_t& context,
+    const on_conflict_do_update_where_t<OnConflictUpdate, Expression>& t)
+    -> std::string {
+  // Note: Temporary required to enforce parameter ordering.
+  auto ret_val = to_sql_string(context, read.on_conflict_update(t)) + " WHERE ";
+  return ret_val + to_sql_string(context, read.expression(t));
+}
 
 } // namespace postgresql
 
@@ -134,17 +140,21 @@ struct on_conflict_do_update_t {
         std::forward<Statement>(statement), std::move(new_clause));
   }
 
+  private:
+  friend ::sqlpp::reader_t;
+  friend ::sqlpp::postgresql::reader_t;
   OnConflict _on_conflict;
   std::tuple<Assignments...> _assignments;
 };
 
 template <typename OnConflict, typename... Assignments>
-  auto to_sql_string(postgresql::context_t& context,
-                            const on_conflict_do_update_t<OnConflict, Assignments...>& o) -> std::string {
-    return to_sql_string(context, o._on_conflict) + " DO UPDATE SET " +
-           tuple_to_sql_string(context, o._assignments,
-                               tuple_operand_no_dynamic{", "});
-  }
+auto to_sql_string(postgresql::context_t& context,
+                   const on_conflict_do_update_t<OnConflict, Assignments...>& t)
+    -> std::string {
+  return to_sql_string(context, read.on_conflict(t)) + " DO UPDATE SET " +
+         tuple_to_sql_string(context, read.assignments(t),
+                             tuple_operand_no_dynamic{", "});
+}
 
 } // namespace postgresql
 

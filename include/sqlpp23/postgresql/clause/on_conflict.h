@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/postgresql/reader.h>
 #include <sqlpp23/postgresql/clause/on_conflict_do_nothing.h>
 #include <sqlpp23/postgresql/clause/on_conflict_do_update.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
@@ -97,6 +98,8 @@ struct on_conflict_t {
                                         std::move(new_clause));
   }
 
+  private:
+  friend ::sqlpp::reader_t;
   std::tuple<Columns...> _columns;
 };
 
@@ -104,7 +107,7 @@ template <typename... Columns>
   auto to_sql_string(postgresql::context_t& context, const on_conflict_t<Columns...>& t)
       -> std::string {
     const auto targets = tuple_to_sql_string(
-        context, t._columns, tuple_operand_name_no_dynamic{", "});
+        context, read.columns(t), tuple_operand_name_no_dynamic{", "});
     if (targets.empty()) {
       return " ON CONFLICT";
     }

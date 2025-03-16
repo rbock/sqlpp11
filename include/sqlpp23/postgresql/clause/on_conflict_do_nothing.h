@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp23/postgresql/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -43,14 +44,17 @@ struct on_conflict_do_nothing_t {
   on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
   ~on_conflict_do_nothing_t() = default;
 
+  private:
+  friend ::sqlpp::postgresql::reader_t;
   OnConflict _on_conflict;
 };
 
 template <typename OnConflict>
-  auto to_sql_string(postgresql::context_t& context,
-                            const on_conflict_do_nothing_t<OnConflict>& t) -> std::string {
-    return to_sql_string(context, t._on_conflict) + " DO NOTHING";
-  }
+auto to_sql_string(context_t& context,
+                   const on_conflict_do_nothing_t<OnConflict>& t)
+    -> std::string {
+  return to_sql_string(context, read.on_conflict(t)) + " DO NOTHING";
+}
 
 } // namespace postgresql
 

@@ -34,6 +34,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/field_spec.h>
 #include <sqlpp23/core/noop.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
@@ -57,15 +58,18 @@ template <typename... Columns> struct returning_column_list_t {
   returning_column_list_t& operator=(returning_column_list_t&&) = default;
   ~returning_column_list_t() = default;
 
+  private:
+  friend ::sqlpp::reader_t;
   std::tuple<Columns...> _columns;
 };
 
 template <typename... Columns>
-  auto to_sql_string(context_t& context,
-                            const returning_column_list_t<Columns...>& t) -> std::string {
-    return " RETURNING " +
-           tuple_to_sql_string(context, t._columns, tuple_operand{", "});
-  }
+auto to_sql_string(context_t& context,
+                   const returning_column_list_t<Columns...>& t)
+    -> std::string {
+  return " RETURNING " +
+         tuple_to_sql_string(context, read.columns(t), tuple_operand{", "});
+}
 
 template <typename... Columns> struct returning_column_list_result_methods_t {
   template <typename Statement, typename NameTagProvider>
