@@ -1,15 +1,40 @@
-# Introduction
-_This page explains insert statements with a static structure. If you want to learn about constructing insert statements at runtime, you should still read this page first and then move on to [dynamic insert statements](Dynamic-Insert.md)._
+# Insert
 
-# A Basic example
+# Single row insert
 
-Haven't found the time to document this in any detail, yet, but this is an example:
+You can insert single rows like this:
 
 ```C++
 db(insert_into(tab).set(tab.gamma = true));
+
 db(insert_into(tabDateTime)
       .set(tabDateTime.colTimePoint = std::chrono::system_clock::now()));
 ```
+
+Note that the library will force you to provide assignments for every column that does not have a default value, i.e.
+
+- does not have an explicit default,
+- is not auto-incremented, and
+- cannot be NULL.
+
+# Default values
+
+Default values are implicitly assigned if you don't specify an assignment for the respective column.
+You can also make it explicit by assigning `sqlpp::default_value`, e.g.
+
+```c++
+db(insert_into(tab).set(tab.gamma = true, tab.foo = sqlpp::default_value));
+```
+
+If you want to insert a row with all columns having the default value, you can also use the `.default_values()` clause.
+
+```c++
+db(insert_into(tab).default_values());
+```
+
+Of course, this only works if all columns actually have a default value.
+
+# Multi row insert
 
 This is how you could insert multiple rows at a time:
 
@@ -39,4 +64,4 @@ time point.
 
 Similar for other data types.
 
-See also [dynamic insert statements](Dynamic-Insert.md).
+
