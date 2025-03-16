@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <tuple>
+
 #include <sqlpp23/core/basic/table.h>
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/clause/select_as.h>
@@ -37,6 +39,7 @@
 #include <sqlpp23/core/detail/flat_tuple.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/field_spec.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/group_by_column.h>
 #include <sqlpp23/core/operator/as_expression.h>
 #include <sqlpp23/core/query/dynamic.h>
@@ -44,7 +47,6 @@
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
-#include <tuple>
 
 namespace sqlpp {
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_selected_columns_t,
@@ -67,6 +69,8 @@ template <typename... Columns> struct select_column_list_t {
   select_column_list_t &operator=(select_column_list_t &&) = default;
   ~select_column_list_t() = default;
 
+  private:
+  friend reader_t;
   std::tuple<Columns...> _columns;
 };
 
@@ -77,7 +81,7 @@ template <typename... Columns> struct select_column_list_t {
     // dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake
     // max(something) -> max(something) as _max
     // max(something.as(cheesecake) -> max(something) AS cheesecake
-    return tuple_to_sql_string(context, t._columns,
+    return tuple_to_sql_string(context, read.columns(t),
                                tuple_operand_select_column{", "});
   }
 

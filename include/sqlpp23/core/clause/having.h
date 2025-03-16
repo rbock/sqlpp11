@@ -31,7 +31,8 @@
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -45,20 +46,15 @@ template <typename Expression> struct having_t {
   having_t& operator=(having_t&&) = default;
   ~having_t() = default;
 
+  private:
+  friend reader_t;
   Expression _expression;
 };
 
   template <typename Context, typename Expression>
   auto to_sql_string(Context& context, const having_t<Expression>& t)
       -> std::string {
-    if constexpr (is_dynamic<Expression>::value) {
-      if (t._expression.has_value()) {
-        return " HAVING " + to_sql_string(context, t._expression.value());
-      }
-      return "";
-    } else {
-      return " HAVING " + to_sql_string(context, t._expression);
-    }
+        return dynamic_clause_to_sql_string(context, "HAVING", read.expression(t));
   }
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_having_t,

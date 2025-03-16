@@ -31,6 +31,7 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
 SQLPP_WRAPPED_STATIC_ASSERT(
@@ -51,21 +52,16 @@ template <typename Expression> struct offset_t {
   offset_t& operator=(offset_t&&) = default;
   ~offset_t() = default;
 
+  private:
+  friend reader_t;
   Expression _expression;
 };
 
-  template <typename Context, typename Expression>
-  auto to_sql_string(Context& context, const offset_t<Expression>& t)
-      -> std::string {
-    if constexpr (is_dynamic<Expression>::value) {
-      if (not t._expression.has_value()) {
-        return "";
-      }
-      return " OFFSET " + operand_to_sql_string(context, t._expression.value());
-    } else {
-      return " OFFSET " + operand_to_sql_string(context, t._expression);
-    }
-  }
+template <typename Context, typename Expression>
+auto to_sql_string(Context& context, const offset_t<Expression>& t)
+    -> std::string {
+  return dynamic_clause_to_sql_string(context, "OFFSET", read.expression(t));
+}
 
 template <typename Expression>
 struct is_clause<offset_t<Expression>> : public std::true_type {};

@@ -258,4 +258,18 @@ auto name_to_sql_string(Context &context, const NameTag &) -> std::string {
   }
 }
 
+template <typename Context, typename Data>
+auto dynamic_clause_to_sql_string(Context& context,
+                                  std::string_view name,
+                                  const Data& data) -> std::string {
+  if constexpr (is_dynamic<Data>::value) {
+    if (data.has_value()) {
+      return std::format(" {} {}", name, to_sql_string(context, data.value()));
+    }
+    return {};
+  } else {
+    return std::format(" {} {}", name, to_sql_string(context, data));
+  }
+}
+
 } // namespace sqlpp

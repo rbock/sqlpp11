@@ -32,6 +32,7 @@
 #include <sqlpp23/core/database/prepared_insert.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/no_data.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -45,14 +46,16 @@ template <typename _Table> struct single_table_t {
   single_table_t &operator=(single_table_t &&) = default;
   ~single_table_t() = default;
 
+  private:
+  friend reader_t;
   _Table _table;
 };
 
-  template <typename Context, typename _Table>
-  auto to_sql_string(Context& context, const single_table_t<_Table>& t)
-      -> std::string {
-    return to_sql_string(context, t._table);
-  }
+template <typename Context, typename _Table>
+auto to_sql_string(Context& context, const single_table_t<_Table>& t)
+    -> std::string {
+  return to_sql_string(context, read.table(t));
+}
 
 template <typename _Table>
 struct is_clause<single_table_t<_Table>> : public std::true_type {};

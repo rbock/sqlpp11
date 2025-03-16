@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/basic/enable_join.h>
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/query/statement.h>
 
@@ -48,7 +49,7 @@ template <typename Select, typename NameTag, typename... FieldSpecs>
 struct select_as_t
     : public select_member<NameTag, FieldSpecs>::type...,
       public enable_join<select_as_t<Select, NameTag, FieldSpecs...>> {
-  select_as_t(Select select) : _select(select) {}
+  select_as_t(Select select) : _expression(select) {}
 
   select_as_t(const select_as_t &rhs) = default;
   select_as_t(select_as_t &&rhs) = default;
@@ -59,15 +60,21 @@ struct select_as_t
   using _column_tuple_t =
       std::tuple<column_t<select_ref_t<NameTag>, FieldSpecs>...>;
 
-  Select _select;
+ private:
+  friend reader_t;
+  Select _expression;
 };
 
-  template <typename Context, typename Select, typename NameTag, typename... FieldSpecs>
-  auto to_sql_string(Context& context, const select_as_t<Select, NameTag, FieldSpecs...>& t)
-      -> std::string {
-    return operand_to_sql_string(context, t._select) + " AS " +
-           name_to_sql_string(context, NameTag{});
-  }
+template <typename Context,
+          typename Select,
+          typename NameTag,
+          typename... FieldSpecs>
+auto to_sql_string(Context& context,
+                   const select_as_t<Select, NameTag, FieldSpecs...>& t)
+    -> std::string {
+  return operand_to_sql_string(context, read.expression(t)) + " AS " +
+         name_to_sql_string(context, NameTag{});
+}
 
 // No value_type_of defined. select_as_t represents a table, not a value.
 // Rationale: select.as() requires prepare_check to be used as tbale, whereas

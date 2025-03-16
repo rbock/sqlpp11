@@ -31,6 +31,7 @@
 #include <sqlpp23/core/database/prepared_insert.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/no_data.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/type_traits.h>
@@ -45,12 +46,14 @@ template <typename _Table> struct into_t {
   into_t &operator=(into_t &&) = default;
   ~into_t() = default;
 
+  private:
+  friend reader_t;
   _Table _table;
 };
 
   template <typename Context, typename _Table>
   auto to_sql_string(Context &context, const into_t<_Table> &t) -> std::string {
-    return " INTO " + to_sql_string(context, t._table);
+    return " INTO " + to_sql_string(context, read.table(t));
   }
 
 template <typename _Table>

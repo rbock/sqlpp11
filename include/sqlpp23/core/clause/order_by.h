@@ -35,6 +35,7 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -56,20 +57,16 @@ template <typename... Expressions> struct order_by_t {
   order_by_t &operator=(order_by_t &&) = default;
   ~order_by_t() = default;
 
+  private:
+  friend reader_t;
   std::tuple<Expressions...> _expressions;
 };
 
 template <typename Context, typename... Expressions>
 auto to_sql_string(Context& context, const order_by_t<Expressions...>& t)
     -> std::string {
-  const auto columns = tuple_to_sql_string(context, t._expressions,
-                                           tuple_operand_no_dynamic{", "});
-
-  if (columns.empty()) {
-    return "";
-  }
-
-  return " ORDER BY " + columns;
+  return dynamic_tuple_clause_to_sql_string(context, "ORDER BY",
+                                            read.expressions(t));
 }
 
 template <typename... Expressions>

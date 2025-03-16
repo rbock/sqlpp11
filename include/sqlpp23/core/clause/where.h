@@ -33,6 +33,7 @@
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -44,20 +45,16 @@ template <typename Expression> struct where_t {
   where_t& operator=(where_t&&) = default;
   ~where_t() = default;
 
+  private:
+  friend reader_t;
   Expression _expression;
 };
 
-  template <typename Context, typename Expression>
-  auto to_sql_string(Context& context, const where_t<Expression>& t) -> std::string {
-    if constexpr (is_dynamic<Expression>::value) {
-      if (t._expression.has_value()) {
-        return " WHERE " + to_sql_string(context, t._expression.value());
-      }
-      return "";
-    } else {
-      return " WHERE " + to_sql_string(context, t._expression);
-    }
-  }
+template <typename Context, typename Expression>
+auto to_sql_string(Context& context, const where_t<Expression>& t)
+    -> std::string {
+  return dynamic_clause_to_sql_string(context, "WHERE", read.expression(t));
+}
 
 SQLPP_WRAPPED_STATIC_ASSERT(
     assert_no_unknown_tables_in_where_t,

@@ -30,6 +30,7 @@
 #include <sqlpp23/core/clause/select_flags.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/no_data.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
@@ -46,14 +47,17 @@ template <typename... Flags> struct select_flag_list_t {
   select_flag_list_t &operator=(select_flag_list_t &&) = default;
   ~select_flag_list_t() = default;
 
+  private:
+  friend reader_t;
   std::tuple<Flags...> _flags;
 };
 
-  template <typename Context, typename... Flags>
-  auto to_sql_string(Context& context, const select_flag_list_t<Flags...>& t)
-      -> std::string {
-    return tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{""});
-  }
+template <typename Context, typename... Flags>
+auto to_sql_string(Context& context, const select_flag_list_t<Flags...>& t)
+    -> std::string {
+  return tuple_to_sql_string(context, read.flags(t),
+                             tuple_operand_no_dynamic{""});
+}
 
 template <typename... Flags>
 struct is_clause<select_flag_list_t<Flags...>> : public std::true_type {};

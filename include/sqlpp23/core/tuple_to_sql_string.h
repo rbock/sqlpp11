@@ -174,4 +174,19 @@ auto tuple_to_sql_string(Context &context, const Tuple &t,
       std::make_index_sequence<std::tuple_size<Tuple>::value>{});
 }
 
+template <typename Context, typename... Expressions>
+auto dynamic_tuple_clause_to_sql_string(Context& context,
+                                        std::string_view name,
+                                        const std::tuple<Expressions...>& data)
+    -> std::string {
+  const auto expressions =
+      tuple_to_sql_string(context, data, tuple_operand_no_dynamic{", "});
+
+  if (expressions.empty()) {
+    return "";
+  }
+
+  return std::format(" {} {}", name, expressions);
+}
+
 } // namespace sqlpp

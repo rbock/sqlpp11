@@ -35,6 +35,7 @@
 #include <sqlpp23/core/query/statement_fwd.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
 template <typename Flag, typename Lhs, typename Rhs> struct cte_union_t {
@@ -46,6 +47,8 @@ template <typename Flag, typename Lhs, typename Rhs> struct cte_union_t {
   cte_union_t &operator=(cte_union_t &&) = default;
   ~cte_union_t() = default;
 
+  private:
+  friend reader_t;
   Lhs _lhs;
   Rhs _rhs;
 };
@@ -54,15 +57,15 @@ template <typename Flag, typename Lhs, typename Rhs> struct cte_union_t {
   auto to_sql_string(Context& context, const cte_union_t<Flag, Lhs, Rhs>& t)
       -> std::string {
     if constexpr (is_dynamic<Rhs>::value) {
-      if (t._rhs.has_value()) {
-        return to_sql_string(context, t._lhs) + " UNION " +
+      if (read.rhs(t).has_value()) {
+        return to_sql_string(context, read.lhs(t)) + " UNION " +
                to_sql_string(context, Flag{}) +
-               to_sql_string(context, t._rhs.value());
+               to_sql_string(context, read.rhs(t).value());
       }
-      return to_sql_string(context, t._lhs);
+      return to_sql_string(context, read.lhs(t));
     } else {
-      return to_sql_string(context, t._lhs) + " UNION " +
-             to_sql_string(context, Flag{}) + to_sql_string(context, t._rhs);
+      return to_sql_string(context, read.lhs(t)) + " UNION " +
+             to_sql_string(context, Flag{}) + to_sql_string(context, read.rhs(t));
     }
   }
 

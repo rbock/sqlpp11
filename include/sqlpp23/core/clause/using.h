@@ -34,6 +34,7 @@
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
 // USING is used in DELETE statements in
@@ -50,20 +51,15 @@ template <typename _Table> struct using_t {
   using_t &operator=(using_t &&) = default;
   ~using_t() = default;
 
+  private:
+  friend reader_t;
   _Table _table;
 };
 
-  template <typename Context, typename _Table>
-  auto to_sql_string(Context& context, const using_t<_Table>& t) -> std::string {
-    if constexpr (is_dynamic<_Table>::value) {
-      if (t._table.has_value()) {
-        return " USING " + to_sql_string(context, t._table.value());
-      }
-      return {};
-    } else {
-      return " USING " + to_sql_string(context, t._table);
-    }
-  }
+template <typename Context, typename _Table>
+auto to_sql_string(Context& context, const using_t<_Table>& t) -> std::string {
+  return dynamic_clause_to_sql_string(context, "USING", read.table(t));
+}
 
 template <typename _Table>
 struct is_clause<using_t<_Table>> : public std::true_type {};

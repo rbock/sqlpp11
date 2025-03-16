@@ -31,6 +31,7 @@
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/no_data.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/query/statement.h>
@@ -45,20 +46,15 @@ template <typename _Table> struct from_t {
   from_t& operator=(from_t&&) = default;
   ~from_t() = default;
 
+  private:
+  friend reader_t;
   _Table _table;
 };
 
   template <typename Context, typename _Table>
   auto to_sql_string(Context& context, const from_t<_Table>& t)
       -> std::string {
-    if constexpr (is_dynamic<_Table>::value) {
-      if (t._table.has_value()) {
-        return " FROM " + to_sql_string(context, t._table.value());
-      }
-      return "";
-    } else {
-      return " FROM " + to_sql_string(context, t._table);
-    }
+    return dynamic_clause_to_sql_string(context, "FROM", read.table(t));
   }
 
 template <typename _Table>

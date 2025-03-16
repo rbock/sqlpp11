@@ -31,6 +31,7 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -47,27 +48,30 @@ template <typename Flag, typename Lhs, typename Rhs> struct union_t {
   union_t &operator=(union_t &&) = default;
   ~union_t() = default;
 
+  private:
+  friend reader_t;
   Lhs _lhs;
   Rhs _rhs;
 };
 
-  template <typename Context, typename Flag, typename Lhs, typename Rhs>
-  auto to_sql_string(Context& context, const union_t<Flag, Lhs, Rhs>& t) -> std::string {
-    if constexpr (is_dynamic<Rhs>::value) {
-      if (t._rhs.has_value()) {
-        // Note: Temporary required to enforce parameter ordering.
-        auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
-        ret_val += to_sql_string(context, Flag{});
-        return ret_val += to_sql_string(context, t._rhs.value());
-      }
-      return to_sql_string(context, t._lhs);
-    } else {
+template <typename Context, typename Flag, typename Lhs, typename Rhs>
+auto to_sql_string(Context& context, const union_t<Flag, Lhs, Rhs>& t)
+    -> std::string {
+  if constexpr (is_dynamic<Rhs>::value) {
+    if (read.rhs(t).has_value()) {
       // Note: Temporary required to enforce parameter ordering.
-      auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
+      auto ret_val = to_sql_string(context, read.lhs(t)) + " UNION ";
       ret_val += to_sql_string(context, Flag{});
-      return ret_val += to_sql_string(context, t._rhs);
+      return ret_val += to_sql_string(context, read.rhs(t).value());
     }
+    return to_sql_string(context, read.lhs(t));
+  } else {
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, read.lhs(t)) + " UNION ";
+    ret_val += to_sql_string(context, Flag{});
+    return ret_val += to_sql_string(context, read.rhs(t));
   }
+}
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct has_result_row<union_t<Flag, Lhs, Rhs>> : public std::true_type {};

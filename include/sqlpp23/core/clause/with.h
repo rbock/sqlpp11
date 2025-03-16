@@ -33,8 +33,7 @@
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
-
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/clause/cte.h>
 
 namespace sqlpp {
@@ -52,17 +51,19 @@ template <typename... Ctes> struct with_t {
     return new_statement<no_with_t>(std::forward<Statement>(statement), *this);
   }
 
+  private:
+  friend reader_t;
   std::tuple<Ctes...> _ctes;
 };
 
-  template <typename Context, typename... Ctes>
-  auto to_sql_string(Context& context, const with_t<Ctes...>& t) -> std::string {
-    static constexpr bool _is_recursive =
-        logic::any<is_recursive_cte<Ctes>::value...>::value;
+template <typename Context, typename... Ctes>
+auto to_sql_string(Context& context, const with_t<Ctes...>& t) -> std::string {
+  static constexpr bool _is_recursive =
+      logic::any<is_recursive_cte<Ctes>::value...>::value;
 
-    return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
-           tuple_to_sql_string(context, t._ctes, tuple_operand{", "}) + " ";
-  }
+  return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
+         tuple_to_sql_string(context, read.ctes(t), tuple_operand{", "}) + " ";
+}
 
 template <typename... Ctes>
 struct is_clause<with_t<Ctes...>> : public std::true_type {};

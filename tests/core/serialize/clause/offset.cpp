@@ -35,7 +35,7 @@ int main(int, char *[]) {
   // Without static offset.
   SQLPP_COMPARE(sqlpp::offset(17), " OFFSET 17");
   SQLPP_COMPARE(offset(val), " OFFSET 17");
-  SQLPP_COMPARE(offset(expr), " OFFSET (17 + 4)");
+  SQLPP_COMPARE(offset(expr), " OFFSET 17 + 4");
 
   // With dynamic offset.
   SQLPP_COMPARE(offset(dynamic(true, val)), " OFFSET 17");

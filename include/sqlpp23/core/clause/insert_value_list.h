@@ -36,6 +36,7 @@
 #include <sqlpp23/core/operator/assign_expression.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
@@ -146,24 +147,25 @@ template <typename... Assignments> struct insert_set_t {
   insert_set_t &operator=(insert_set_t &&) = default;
   ~insert_set_t() = default;
 
-  template <typename Context>
-  friend auto to_sql_string(Context& context, const insert_set_t& t)
+private:
+  friend reader_t;
+  std::tuple<Assignments...> _assignments;
+};
+
+  template <typename Context, typename... Assignments>
+  auto to_sql_string(Context& context, const insert_set_t<Assignments...>& t)
       -> std::string {
     auto result = std::string{" ("};
     result += tuple_to_sql_string(
-        context, t._assignments,
+        context, read.assignments(t),
         detail::tuple_lhs_assignment_operand_no_dynamic{", "});
     result += ") VALUES(";
     result += tuple_to_sql_string(
-        context, t._assignments,
+        context, read.assignments(t),
         detail::tuple_rhs_assignment_operand_no_dynamic{", "});
     result += ")";
     return result;
   }
-
-private:
-  std::tuple<Assignments...> _assignments;
-};
 
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_insert_assignments_t,
                             "at least one insert assignment requires a table "
@@ -232,25 +234,25 @@ private:
 
   template <typename... Assignments>
   auto add_values_impl(std::true_type, Assignments... assignments) -> void {
-    _insert_values.emplace_back(
+    _expressions.emplace_back(
         make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
   }
 
-public:
+  friend reader_t;
   std::tuple<make_simple_column_t<Columns>...> _columns;
   using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
-  std::vector<_value_tuple_t> _insert_values;
+  std::vector<_value_tuple_t> _expressions;
 };
 
   template <typename Context, typename... Columns>
   auto to_sql_string(Context &context, const column_list_t<Columns...> &t)
       -> std::string {
     auto result = std::string{" ("};
-    result += tuple_to_sql_string(context, t._columns,
+    result += tuple_to_sql_string(context, read.columns(t),
                                   tuple_operand_no_dynamic{", "});
     result += ")";
     bool first = true;
-    for (const auto &row : t._insert_values) {
+    for (const auto &row : read.expressions(t)) {
       if (first) {
         result += " VALUES ";
         first = false;

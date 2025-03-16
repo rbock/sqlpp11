@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,47 +27,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/to_sql_string.h>
-
 namespace sqlpp {
-template <typename Column> struct simple_column_t {
-
-  simple_column_t(const Column &column) : _column{column} {}
-  simple_column_t(const simple_column_t&) = default;
-  simple_column_t(simple_column_t&&) = default;
-  simple_column_t& operator=(const simple_column_t&) = default;
-  simple_column_t& operator=(simple_column_t&&) = default;
-  ~simple_column_t() = default;
-
-  private:
-  Column _column;
-};
-
-  template <typename Context, typename Column>
-  auto to_sql_string(Context& context, const simple_column_t<Column>&)
-      -> std::string {
-    return name_to_sql_string(context, name_tag_of_t<Column>{});
+struct reader_t {
+  template <typename T>
+  const auto& assignments(const T& t) const {
+    return t._assignments;
   }
-
-template <typename Column> struct make_simple_column {
-  using type = simple_column_t<Column>;
+  template <typename T>
+  const auto& column(const T& t) const {
+    return t._column;
+  }
+  template <typename T>
+  const auto& columns(const T& t) const {
+    return t._columns;
+  }
+  template <typename T>
+  const auto& ctes(const T& t) const {
+    return t._ctes;
+  }
+  template <typename T>
+  const auto& expression(const T& t) const {
+    return t._expression;
+  }
+  template <typename T>
+  const auto& expressions(const T& t) const {
+    return t._expressions;
+  }
+  template <typename T>
+  const auto& flags(const T& t) const {
+    return t._flags;
+  }
+  template <typename T>
+  const auto& lhs(const T& t) const {
+    return t._lhs;
+  }
+  template <typename T>
+  const auto& rhs(const T& t) const {
+    return t._rhs;
+  }
+  template <typename T>
+  const auto& table(const T& t) const {
+    return t._table;
+  }
 };
 
-template <typename Column> struct make_simple_column<dynamic_t<Column>> {
-  using type = dynamic_t<simple_column_t<Column>>;
-};
+inline constexpr auto read = reader_t{};
 
-template <typename Column>
-using make_simple_column_t = typename make_simple_column<Column>::type;
-
-template <typename Column>
-auto simple_column(Column c) -> simple_column_t<Column> {
-  return {std::move(c)};
-}
-
-template <typename Column>
-auto simple_column(dynamic_t<Column> c) -> dynamic_t<simple_column_t<Column>> {
-  return {c.has_value(), std::move(c._value())};
-}
 } // namespace sqlpp

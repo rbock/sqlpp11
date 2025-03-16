@@ -30,6 +30,7 @@
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -51,20 +52,15 @@ template <typename Expression> struct limit_t {
   limit_t& operator=(limit_t&&) = default;
   ~limit_t() = default;
 
+  private:
+  friend reader_t;
   Expression _expression;
 };
 
   template <typename Context, typename Expression>
   auto to_sql_string(Context& context, const limit_t<Expression>& t)
       -> std::string {
-    if constexpr (is_dynamic<Expression>::value) {
-      if (not t._expression.has_value()) {
-        return "";
-      }
-      return " LIMIT " + operand_to_sql_string(context, t._expression.value());
-    } else {
-      return " LIMIT " + operand_to_sql_string(context, t._expression);
-    }
+    return dynamic_clause_to_sql_string(context, "LIMIT", read.expression(t));
   }
 
 template <typename Expression>

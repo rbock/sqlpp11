@@ -32,6 +32,7 @@
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -45,13 +46,15 @@ struct update_set_list_t {
   update_set_list_t& operator=(update_set_list_t&&) = default;
   ~update_set_list_t() = default;
 
+  private:
+  friend reader_t;
   std::tuple<Assignments...> _assignments;
 };
 
   template <typename Context, typename... Assignments>
   auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
       -> std::string {
-    return " SET " + tuple_to_sql_string(context, t._assignments,
+    return " SET " + tuple_to_sql_string(context, read.assignments(t),
                                          tuple_operand_no_dynamic{", "});
   }
 

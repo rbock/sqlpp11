@@ -35,7 +35,7 @@ int main(int, char *[]) {
   // Without static limit.
   SQLPP_COMPARE(sqlpp::limit(17), " LIMIT 17");
   SQLPP_COMPARE(limit(val), " LIMIT 17");
-  SQLPP_COMPARE(limit(expr), " LIMIT (17 + 4)");
+  SQLPP_COMPARE(limit(expr), " LIMIT 17 + 4");
 
   // With dynamic limit.
   SQLPP_COMPARE(limit(dynamic(true, val)), " LIMIT 17");
