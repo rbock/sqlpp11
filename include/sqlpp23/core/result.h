@@ -27,16 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functional>
 #include <iterator>
 #include <utility>
 
 namespace sqlpp {
-template <typename>
-struct iterator_category {
-  using type = std::input_iterator_tag;
-};
-
 namespace detail {
 template <class DbResult, class = void>
 struct result_has_size : std::false_type {};
@@ -84,7 +78,7 @@ class result_t {
   // Iterator
   class iterator {
    public:
-    using iterator_category = typename iterator_category<DbResult>::type;
+    using iterator_category = std::input_iterator_tag;
     using value_type = result_row_t;
     using pointer = const result_row_t*;
     using reference = const result_row_t&;
