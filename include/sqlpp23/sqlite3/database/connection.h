@@ -71,9 +71,16 @@ inline detail::prepared_statement_handle_t prepare_statement(
 
   detail::prepared_statement_handle_t result{nullptr, handle->config->debug};
 
+  // ignore trailing spaces
+  const auto end =
+      std::find_if(statement.rbegin(), statement.rend(), [](char ch) {
+        return !std::isspace(ch);
+      }).base();
+  const auto length = end - statement.begin();
+
   const char* uncompiledTail = nullptr;
   const auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.c_str(),
-                                     static_cast<int>(statement.size()),
+                                     static_cast<int>(length),
                                      &result.sqlite_statement, &uncompiledTail);
 
   if (rc != SQLITE_OK) {
@@ -85,7 +92,7 @@ inline detail::prepared_statement_handle_t prepare_statement(
         "<<\n"};
   }
 
-  if (uncompiledTail != statement.c_str() + statement.size()) {
+  if (uncompiledTail != statement.c_str() + length) {
     throw sqlpp::exception{
         "Sqlite3 connector: Cannot execute multi-statements: >>" + statement +
         "<<\n"};

@@ -37,6 +37,10 @@ int Execute(int, char*[]) {
   // execute supports single statements.
   db.execute(R"(SELECT 1)");
 
+  // execute supports single statements, and trailing spaces are not an issue
+  db.execute(R"(SELECT 1  )");
+  db.execute(R"(SELECT 1;  )");
+
   // execute throws an exception if multiple statements are passed in the
   // string.
   try {
