@@ -90,14 +90,22 @@ class result_t {
     using reference = const result_row_t&;
     using difference_type = std::ptrdiff_t;
 
-     iterator(db_result_t& result, result_row_t& result_row)
-         : _result_ptr(&result), _result_row_ptr(&result_row){}
+    iterator() : _result_ptr(nullptr), _result_row_ptr(nullptr) {}
+
+    iterator(db_result_t& result, result_row_t& result_row)
+        : _result_ptr(&result), _result_row_ptr(&result_row) {}
 
     reference operator*() const { return *_result_row_ptr; }
 
     pointer operator->() const { return _result_row_ptr; }
 
     bool operator==(const iterator& rhs) const {
+      if ((_result_row_ptr != nullptr) != (rhs._result_row_ptr != nullptr)) {
+        return false;
+      }
+      if (_result_row_ptr == nullptr) {
+        return true;
+      }
       return *_result_row_ptr == *rhs._result_row_ptr;
     }
 
