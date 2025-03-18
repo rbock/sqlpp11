@@ -35,6 +35,9 @@
 #include <sqlpp23/core/basic/verbatim_table.h>
 #include <sqlpp23/core/database/parameter_list.h>
 #include <sqlpp23/core/function/concat.h>
+#include <sqlpp23/core/function/current_date.h>
+#include <sqlpp23/core/function/current_time.h>
+#include <sqlpp23/core/function/current_timestamp.h>
 #include <sqlpp23/core/function/lower.h>
 #include <sqlpp23/core/function/trim.h>
 #include <sqlpp23/core/function/upper.h>

@@ -30,6 +30,9 @@ function(create_test name)
 endfunction()
 
 create_test(concat)
+create_test(current_date)
+create_test(current_time)
+create_test(current_timestamp)
 create_test(flatten)
 create_test(get_sql_name)
 

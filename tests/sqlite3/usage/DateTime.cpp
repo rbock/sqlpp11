@@ -35,7 +35,6 @@
 #endif
 #include <cassert>
 #include <iostream>
-#include <vector>
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::milliseconds>(
