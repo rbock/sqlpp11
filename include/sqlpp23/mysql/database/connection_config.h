@@ -43,12 +43,21 @@ struct connection_config {
   bool debug{false};
   unsigned int connect_timeout_seconds{
       0};  // 0 = do not override MySQL library default
+      bool ssl{false};
+      std::string ssl_key, ssl_cert, ssl_ca, ssl_capath, ssl_cipher;
+      unsigned int read_timeout{0};
+
 
   bool operator==(const connection_config& other) const {
     return (other.host == host and other.user == user and
             other.password == password and other.database == database and
             other.charset == charset and other.debug == debug and
-            other.connect_timeout_seconds == connect_timeout_seconds);
+            other.connect_timeout_seconds == connect_timeout_seconds and
+            other.ssl == ssl and other.ssl_key == ssl_key and
+            other.ssl_cert == ssl_cert and other.ssl_ca == ssl_ca and
+            other.ssl_capath == ssl_capath and
+            other.ssl_cipher == ssl_cipher and
+            +other.read_timeout == read_timeout);
   }
 
   bool operator!=(const connection_config& other) const {

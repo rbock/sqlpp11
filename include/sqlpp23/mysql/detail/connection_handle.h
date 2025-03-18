@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
@@ -42,6 +43,37 @@ inline void connect(MYSQL* mysql, const connection_config& config) {
                     &config.connect_timeout_seconds)) {
     throw sqlpp::exception{
         "MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT"};
+  }
+
+  if (config.read_timeout > 0 &&
+      mysql_options(mysql, MYSQL_OPT_READ_TIMEOUT, &config.read_timeout)) {
+    throw sqlpp::exception(
+        "MySQL: could not set option MYSQL_OPT_READ_TIMEOUT");
+  }
+
+  if (config.ssl) {
+    if (!config.ssl_key.empty() &&
+        mysql_options(mysql, MYSQL_OPT_SSL_KEY, config.ssl_key.c_str())) {
+      throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_KEY");
+    }
+    if (!config.ssl_cert.empty() &&
+        mysql_options(mysql, MYSQL_OPT_SSL_CERT, config.ssl_cert.c_str())) {
+      throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CERT");
+    }
+    if (!config.ssl_ca.empty() &&
+        mysql_options(mysql, MYSQL_OPT_SSL_CA, config.ssl_ca.c_str())) {
+      throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CA");
+    }
+    if (!config.ssl_capath.empty() &&
+        mysql_options(mysql, MYSQL_OPT_SSL_CAPATH, config.ssl_capath.c_str())) {
+      throw sqlpp::exception(
+          "MySQL: could not set option MYSQL_OPT_SSL_CAPATH");
+    }
+    if (!config.ssl_cipher.empty() &&
+        mysql_options(mysql, MYSQL_OPT_SSL_CIPHER, config.ssl_cipher.c_str())) {
+      throw sqlpp::exception(
+          "MySQL: could not set option MYSQL_OPT_SSL_CIPHER");
+    }
   }
 
   if (!mysql_real_connect(
