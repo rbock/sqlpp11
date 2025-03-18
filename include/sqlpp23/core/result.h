@@ -109,11 +109,14 @@ class result_t {
       return *this;
     }
 
-    iterator operator++(int) {
-      auto previous_it = *this;
-      _result.next(_result_row.get());
-      return previous_it;
-    }
+    // It is quite difficult to implement a postfix increment operator that
+    // returns the old iterator because the underlying database results work in
+    // a stream fashion not allowing to return to previously-read rows.
+    //
+    // We need the postfix increment mostly for compatibility with C++20 ranges
+    // so we set the return type to "void" which is allowed for C++20 range
+    // iterators.
+    void operator++(int) { ++*this; }
 
     std::reference_wrapper<db_result_t> _result;
     std::reference_wrapper<result_row_t> _result_row;
