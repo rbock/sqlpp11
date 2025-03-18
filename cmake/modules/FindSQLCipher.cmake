@@ -91,8 +91,11 @@ endif()
 
 include(FindPackageHandleStandardArgs)
 
-find_package_handle_standard_args(SQLCipher
-    DEFAULT_MSG SQLCIPHER_INCLUDE_DIR SQLCIPHER_LIBRARY)
+find_package_handle_standard_args(
+    SQLCipher
+    DEFAULT_MSG
+    SQLCIPHER_INCLUDE_DIR
+    SQLCIPHER_LIBRARY)
 
 # show the SQLCIPHER_INCLUDE_DIR and SQLCIPHER_LIBRARIES variables only in the advanced view
 mark_as_advanced(SQLCIPHER_INCLUDE_DIR SQLCIPHER_LIBRARY)
