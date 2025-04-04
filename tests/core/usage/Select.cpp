@@ -76,6 +76,11 @@ int Select(int, char*[])
 
   getColumn(db, t.alpha);
   select(count(t.alpha));
+  select(sqlpp::count(1));
+  select(count(sqlpp::null));
+  select(count(sqlpp::distinct, t.alpha));
+  select(count(sqlpp::distinct, 1));
+  select(count(sqlpp::distinct, sqlpp::null));
 
   std::cerr << serialize(select(sqlpp::value(false).as(sqlpp::alias::a)), printer).str() << std::endl;
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
