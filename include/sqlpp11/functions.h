@@ -54,7 +54,7 @@
 #include <sqlpp11/current_date.h>
 #include <sqlpp11/current_time.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression, typename Db>
   auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of<Expression>>
@@ -144,4 +144,4 @@ namespace sqlpp
   {
     return get_sql_name<T>();
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -30,7 +30,7 @@
 #include <sqlpp11/result.h>
 #include <sqlpp11/data_types/no_value.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Database, typename Statement, typename Composite = Statement>
   struct prepared_select_t
@@ -59,4 +59,4 @@ namespace sqlpp
     _dynamic_names_t _dynamic_names;
     mutable _prepared_statement_t _prepared_statement;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

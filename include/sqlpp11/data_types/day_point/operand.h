@@ -31,7 +31,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct day_point;
 
@@ -41,7 +41,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
     using _is_literal_expression = std::true_type;
 
-    using _value_t = ::sqlpp::chrono::day_point;
+    using _value_t = ::sqlpp::v11::chrono::day_point;
 
     day_point_operand() = default;
 
@@ -65,4 +65,4 @@ namespace sqlpp
     context << "DATE '" << ymd << "'";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

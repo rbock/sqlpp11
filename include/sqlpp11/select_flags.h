@@ -31,7 +31,7 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <tuple>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // standard select flags
   struct all_t
@@ -75,4 +75,4 @@ namespace sqlpp
     context << "STRAIGHT_JOIN";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

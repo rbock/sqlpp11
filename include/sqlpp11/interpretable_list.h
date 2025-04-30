@@ -29,7 +29,7 @@
 #include <sqlpp11/interpretable.h>
 #include <vector>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db>
   struct interpretable_list_t
@@ -90,4 +90,4 @@ namespace sqlpp
   {
       return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

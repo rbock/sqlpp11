@@ -30,7 +30,7 @@
 
 #include <memory>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace compat
   {
@@ -44,4 +44,4 @@ namespace sqlpp
 #endif
     }
   }  // namespace compat
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

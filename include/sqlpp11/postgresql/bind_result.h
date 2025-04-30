@@ -42,7 +42,7 @@
 #include <iso646.h>
 #pragma warning(disable : 4800)  // int to bool
 #endif
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -218,7 +218,7 @@ namespace sqlpp
       // 1992-10-10 01:02:03-06:30 - for some timezones with non-hour offset
       // 1900-01-01 - date only
       // we do not support time-only values !
-      void _bind_date_result(size_t _index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void _bind_date_result(size_t _index, ::sqlpp::v11::chrono::day_point* value, bool* is_null)
       {
         auto index = static_cast<int>(_index);
 
@@ -239,7 +239,7 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: date string: " << date_string << std::endl;
         }
-        if (::sqlpp::detail::parse_date(*value, date_string) == false)
+        if (::sqlpp::v11::detail::parse_date(*value, date_string) == false)
         {
           if (_handle->debug())
           {
@@ -249,7 +249,7 @@ namespace sqlpp
       }
 
       // always returns UTC time for timestamp with time zone
-      void _bind_date_time_result(size_t _index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void _bind_date_time_result(size_t _index, ::sqlpp::v11::chrono::microsecond_point* value, bool* is_null)
       {
         auto index = static_cast<int>(_index);
         if (_handle->debug())
@@ -269,7 +269,7 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: got date_time string: " << date_string << std::endl;
         }
-        if (::sqlpp::detail::parse_timestamp(*value, date_string) == false)
+        if (::sqlpp::v11::detail::parse_timestamp(*value, date_string) == false)
         {
           if (_handle->debug())
           {
@@ -301,7 +301,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
         }
 
-        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        if (::sqlpp::v11::detail::parse_time_of_day(*value, time_string) == false)
         {
           if (_handle->debug()) {
             std::cerr << "PostgreSQL debug: got invalid time '" << time_string << "'" << std::endl;
@@ -335,4 +335,4 @@ namespace sqlpp
       }
     };
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

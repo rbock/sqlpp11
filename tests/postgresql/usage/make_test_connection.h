@@ -27,7 +27,7 @@
 
 #include <sqlpp11/postgresql/postgresql.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -72,4 +72,4 @@ namespace sqlpp
       return db;
     }
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

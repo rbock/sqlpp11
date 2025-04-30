@@ -33,7 +33,7 @@
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename ValueType, typename NameType>
   struct parameter_t : public expression_operators<parameter_t<ValueType, NameType>, ValueType>
@@ -78,4 +78,4 @@ namespace sqlpp
     static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
     return {};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

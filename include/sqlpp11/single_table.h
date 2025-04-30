@@ -32,7 +32,7 @@
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // A SINGLE TABLE DATA
   template <typename Database, typename Table>
@@ -195,4 +195,4 @@ namespace sqlpp
     serialize(t._table, context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

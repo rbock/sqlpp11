@@ -34,7 +34,7 @@
 #include <sqlpp11/join.h>
 #include <sqlpp11/data_types/no_value.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
   //  template <typename Table, typename... ColumnSpec>
@@ -57,33 +57,33 @@ namespace sqlpp
     using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
     template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(std::declval<Table>(), t))
+    auto join(T t) const -> decltype(::sqlpp::v11::join(std::declval<Table>(), t))
     {
-      return ::sqlpp::join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::v11::join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(std::declval<Table>(), t))
+    auto inner_join(T t) const -> decltype(::sqlpp::v11::inner_join(std::declval<Table>(), t))
     {
-      return ::sqlpp::inner_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::v11::inner_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(std::declval<Table>(), t))
+    auto left_outer_join(T t) const -> decltype(::sqlpp::v11::left_outer_join(std::declval<Table>(), t))
     {
-      return ::sqlpp::left_outer_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::v11::left_outer_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(std::declval<Table>(), t))
+    auto right_outer_join(T t) const -> decltype(::sqlpp::v11::right_outer_join(std::declval<Table>(), t))
     {
-      return ::sqlpp::right_outer_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::v11::right_outer_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(std::declval<Table>(), t))
+    auto outer_join(T t) const -> decltype(::sqlpp::v11::outer_join(std::declval<Table>(), t))
     {
-      return ::sqlpp::outer_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::v11::outer_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename AliasProvider>
@@ -93,9 +93,9 @@ namespace sqlpp
     }
 
     template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(std::declval<Table>(), t))
+    auto cross_join(T t) const -> decltype(::sqlpp::v11::cross_join(std::declval<Table>(), t))
     {
-      return ::sqlpp::cross_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::v11::cross_join(*static_cast<const Table*>(this), t);
     }
   };
 
@@ -105,4 +105,4 @@ namespace sqlpp
     context << name_of<Table>::template char_ptr<Context>();
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

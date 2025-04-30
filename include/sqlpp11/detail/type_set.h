@@ -31,7 +31,7 @@
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/logic.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -236,7 +236,7 @@ namespace sqlpp
     struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
     {
       template <typename E>
-      using is_in_both = ::sqlpp::logic::all_t<type_set<LhsElements...>::template count<E>(),
+      using is_in_both = ::sqlpp::v11::logic::all_t<type_set<LhsElements...>::template count<E>(),
                                                type_set<RhsElements...>::template count<E>()>;
       using type = make_type_set_if_t<is_in_both, LhsElements...>;
     };
@@ -275,4 +275,4 @@ namespace sqlpp
     template <typename T>
     using make_name_of_set_t = typename make_name_of_set<T>::type;
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

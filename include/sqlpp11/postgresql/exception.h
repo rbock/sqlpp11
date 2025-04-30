@@ -35,7 +35,7 @@
 #include <sqlpp11/exception.h>
 #include <string>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -55,8 +55,8 @@ namespace sqlpp
      * @{
      */
 
-    /// Run-time failure encountered by sqlpp::postgresql connector, similar to std::runtime_error
-    class DLL_PUBLIC failure : public ::sqlpp::exception
+    /// Run-time failure encountered by ::sqlpp::v11::postgresql connector, similar to std::runtime_error
+    class DLL_PUBLIC failure : public ::sqlpp::v11::exception
     {
       virtual const std::exception& base() const noexcept
       {
@@ -64,7 +64,7 @@ namespace sqlpp
       }
 
     public:
-      explicit failure(std::string whatarg) : sqlpp::exception{std::move(whatarg)}
+      explicit failure(std::string whatarg) : ::sqlpp::v11::exception{std::move(whatarg)}
       {
       }
     };
@@ -457,4 +457,4 @@ namespace sqlpp
       }
     };
   }
-}
+}}  // namespace sqlpp::v11

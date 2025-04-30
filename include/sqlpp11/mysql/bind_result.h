@@ -37,7 +37,7 @@
 #endif
 #include <memory>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -234,7 +234,7 @@ namespace sqlpp
         param.error = &meta_data.bound_error;
       }
 
-      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void _bind_date_result(size_t index, ::sqlpp::v11::chrono::day_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding date result " << static_cast<void*>(value) << " at index: " << index
@@ -257,7 +257,7 @@ namespace sqlpp
         param.error = &meta_data.bound_error;
       }
 
-      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void _bind_date_time_result(size_t index, ::sqlpp::v11::chrono::microsecond_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding date time result " << static_cast<void*>(value) << " at index: " << index
@@ -321,7 +321,7 @@ namespace sqlpp
       void _post_bind_blob_result(size_t /* index */, const uint8_t** /* value */, size_t* /* len */)
       {
       }
-      void _post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void _post_bind_date_result(size_t index, ::sqlpp::v11::chrono::day_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: post binding date result " << static_cast<void*>(value) << " at index: " << index
@@ -332,13 +332,13 @@ namespace sqlpp
           const auto& dt =
               *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
           if (dt.year > std::numeric_limits<int>::max())
-            throw sqlpp::exception{"cannot read year from db: " + std::to_string(dt.year)};
+            throw ::sqlpp::v11::exception{"cannot read year from db: " + std::to_string(dt.year)};
           *is_null = false;
           *value = ::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day);
         }
       }
 
-      void _post_bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void _post_bind_date_time_result(size_t index, ::sqlpp::v11::chrono::microsecond_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: post binding date time result " << static_cast<void*>(value) << " at index: " << index
@@ -349,9 +349,9 @@ namespace sqlpp
           const auto& dt =
               *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
           if (dt.year > std::numeric_limits<int>::max())
-            throw sqlpp::exception{"cannot read year from db: " + std::to_string(dt.year)};
+            throw ::sqlpp::v11::exception{"cannot read year from db: " + std::to_string(dt.year)};
           *is_null = false;
-          *value = ::sqlpp::chrono::day_point(::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day)) +
+          *value = ::sqlpp::v11::chrono::day_point(::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day)) +
                    std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
                    std::chrono::microseconds(dt.second_part);
         }
@@ -380,7 +380,7 @@ namespace sqlpp
 
         if (mysql_stmt_bind_result(_handle->mysql_stmt, _handle->result_params.data()))
         {
-          throw sqlpp::exception{std::string{"MySQL: mysql_stmt_bind_result: "} +
+          throw ::sqlpp::v11::exception{std::string{"MySQL: mysql_stmt_bind_result: "} +
                                  mysql_stmt_error(_handle->mysql_stmt)};
         }
       }
@@ -423,7 +423,7 @@ namespace sqlpp
                     auto err =
                         mysql_stmt_fetch_column(_handle->mysql_stmt, &param, static_cast<unsigned int>(r.index), 0);
                     if (err)
-                      throw sqlpp::exception{std::string{"MySQL: Fetch column after reallocate failed: "} +
+                      throw ::sqlpp::v11::exception{std::string{"MySQL: Fetch column after reallocate failed: "} +
                                              "error-code: " + std::to_string(err) +
                                              ", stmt-error: " + mysql_stmt_error(_handle->mysql_stmt) +
                                              ", stmt-errno: " + std::to_string(mysql_stmt_errno(_handle->mysql_stmt))};
@@ -444,14 +444,14 @@ namespace sqlpp
           }
             return true;
           case 1:
-            throw sqlpp::exception{std::string{"MySQL: Could not fetch next result: "} +
+            throw ::sqlpp::v11::exception{std::string{"MySQL: Could not fetch next result: "} +
                                    mysql_stmt_error(_handle->mysql_stmt)};
           case MYSQL_NO_DATA:
             return false;
           default:
-            throw sqlpp::exception{"MySQL: Unexpected return value for mysql_stmt_fetch()"};
+            throw ::sqlpp::v11::exception{"MySQL: Unexpected return value for mysql_stmt_fetch()"};
         }
       }
     };
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

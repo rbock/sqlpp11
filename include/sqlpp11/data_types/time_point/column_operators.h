@@ -31,7 +31,7 @@
 #include <sqlpp11/data_types/time_point/data_type.h>
 #include <sqlpp11/data_types/column_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Column>
   struct column_operators<Column, time_point>
@@ -39,4 +39,4 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_valid_operand<time_point, T>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -32,7 +32,7 @@
 #include <sqlpp11/data_types/unsigned_integral/data_type.h>
 #include <sqlpp11/field_spec.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename NameType, bool CanBeNull>
   struct result_field_t<Db, field_spec_t<NameType, unsigned_integral, CanBeNull>>
@@ -50,4 +50,4 @@ namespace sqlpp
       target._post_bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

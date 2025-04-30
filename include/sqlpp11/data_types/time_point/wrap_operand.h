@@ -29,11 +29,11 @@
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/data_types/time_point/operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Period>
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, Period>, void>
   {
     using type = time_point_operand<Period>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

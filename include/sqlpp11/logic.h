@@ -29,7 +29,7 @@
 #include <ciso646>  // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace logic
   {
@@ -84,4 +84,4 @@ namespace sqlpp
     template <typename T>
     using identity_t = T;
   }  // namespace logic
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

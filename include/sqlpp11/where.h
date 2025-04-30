@@ -36,7 +36,7 @@
 #include <sqlpp11/unconditional.h>
 #include <sqlpp11/value.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // WHERE DATA
   template <typename Database, typename Expression>
@@ -415,4 +415,4 @@ namespace sqlpp
   {
     return statement_t<void, no_where_t<false>>().unconditionally();
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -31,7 +31,7 @@
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/detail/index_sequence.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Element, typename Separator, typename Context, typename UseBraces>
   static void interpret_tuple_element(
@@ -84,4 +84,4 @@ namespace sqlpp
     return interpret_tuple_impl(t, separator, context, std::false_type{},
                                 detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

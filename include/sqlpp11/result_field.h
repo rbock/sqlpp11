@@ -31,7 +31,7 @@
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename FieldSpec>
   struct result_field_t
@@ -59,4 +59,4 @@ namespace sqlpp
   {
     return serialize(rf, os);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -34,7 +34,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/integral/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression>
   struct expression_operators<Expression, integral> : public basic_expression_operators<Expression>
@@ -145,4 +145,4 @@ namespace sqlpp
     using check = consistent_t;
     using type = shift_right_t<wrap_operand_t<L>, integral, wrap_operand_t<R>>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

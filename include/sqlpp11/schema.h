@@ -28,7 +28,7 @@
 
 #include <string>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct schema_t
   {
@@ -41,4 +41,4 @@ namespace sqlpp
     context << t._name;
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

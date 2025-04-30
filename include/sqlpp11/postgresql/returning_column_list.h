@@ -41,7 +41,7 @@
 #include <sqlpp11/table.h>
 #include <tuple>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_VALUE_TRAIT_GENERATOR(is_returning_column_list)
 
@@ -158,7 +158,7 @@ namespace sqlpp
     struct returning_column_list_t
     {
       using _traits = typename detail::returning_traits<Columns...>::_traits;
-      using _nodes = ::sqlpp::detail::type_vector<Columns...>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<Columns...>;
       using _alias_t = typename detail::returning_traits<Columns...>::_alias_t;
       using _is_dynamic = is_database<Database>;
 
@@ -194,8 +194,8 @@ namespace sqlpp
                         "invalid named expression argument in selected_columns::add()");
           static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<named_expression>::value,
                         "named expression uses tables unknown to this statement in selected_columns::add()");
-          using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_alias_t...>;
-          static_assert(not::sqlpp::detail::is_element_of<typename named_expression::_alias_t, column_names>::value,
+          using column_names = ::sqlpp::v11::detail::make_type_set_t<typename Columns::_alias_t...>;
+          static_assert(not::sqlpp::v11::detail::is_element_of<typename named_expression::_alias_t, column_names>::value,
                         "a column of this name is present in the select already");
 
           using ok = logic::all_t<_is_dynamic::value, is_selectable_t<named_expression>::value>;
@@ -258,7 +258,7 @@ namespace sqlpp
                                       consistent_t,
                                       assert_no_unknown_tables_in_returning_columns_t>::type;
 
-        using _consistency_check = ::sqlpp::detail::get_first_if<is_inconsistent_t, consistent_t, _table_check>;
+        using _consistency_check = ::sqlpp::v11::detail::get_first_if<is_inconsistent_t, consistent_t, _table_check>;
       };
 
       // Result methods
@@ -358,7 +358,7 @@ namespace sqlpp
     struct no_returning_column_list_t
     {
       using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
-      using _nodes = ::sqlpp::detail::type_vector<>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<>;
 
       struct _alias_t
       {
@@ -423,9 +423,9 @@ namespace sqlpp
 
         template <typename... T>
         static constexpr auto _check_args(T... args)
-            -> decltype(_check_tuple(sqlpp::detail::column_tuple_merge(args...)))
+            -> decltype(_check_tuple(::sqlpp::v11::detail::column_tuple_merge(args...)))
         {
-          return _check_tuple(sqlpp::detail::column_tuple_merge(args...));
+          return _check_tuple(::sqlpp::v11::detail::column_tuple_merge(args...));
         }
 
         template <typename Check, typename T>
@@ -436,19 +436,19 @@ namespace sqlpp
         template <typename... Args>
         auto returning(Args... args) const -> _new_statement_t<
             decltype(_check_args(args...)),
-            decltype(detail::make_returning_column_list<void>(::sqlpp::detail::column_tuple_merge(args...)))>
+            decltype(detail::make_returning_column_list<void>(::sqlpp::v11::detail::column_tuple_merge(args...)))>
         {
           static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in returning()");
           static_assert(decltype(_check_args(args...))::value,
                         "at least one argument is not a selectable expression in returning()");
 
-          return _returning_impl<void>(decltype(_check_args(args...)){}, ::sqlpp::detail::column_tuple_merge(args...));
+          return _returning_impl<void>(decltype(_check_args(args...)){}, ::sqlpp::v11::detail::column_tuple_merge(args...));
         }
 
         template <typename... Args>
         auto dynamic_returning(Args... args) const
             -> _new_statement_t<decltype(_check_args(args...)),
-            decltype(detail::make_returning_column_list<_database_t>(::sqlpp::detail::column_tuple_merge(args...)))>
+            decltype(detail::make_returning_column_list<_database_t>(::sqlpp::v11::detail::column_tuple_merge(args...)))>
         {
           static_assert(not std::is_same<_database_t, void>::value,
                         "dynamic_columns must not be called in a static statement");
@@ -456,7 +456,7 @@ namespace sqlpp
                         "at least one argument is not a selectable expression in returning()");
 
           return _returning_impl<_database_t>(decltype(_check_args(args...)){},
-                                              ::sqlpp::detail::column_tuple_merge(args...));
+                                              ::sqlpp::v11::detail::column_tuple_merge(args...));
         }
 
       private:
@@ -467,8 +467,8 @@ namespace sqlpp
         auto _returning_impl(consistent_t, std::tuple<Args...> args) const
             -> _new_statement_t<consistent_t, returning_column_list_t<Database, Args...>>
         {
-          static_assert(not::sqlpp::detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
-          static_assert(not::sqlpp::detail::has_duplicates<typename Args::_alias_t...>::value,
+          static_assert(not::sqlpp::v11::detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
+          static_assert(not::sqlpp::v11::detail::has_duplicates<typename Args::_alias_t...>::value,
                         "at least one duplicate name detected");
 
           return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -490,4 +490,4 @@ namespace sqlpp
       return context;
     }
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

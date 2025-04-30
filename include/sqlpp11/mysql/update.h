@@ -30,7 +30,7 @@
 #include <sqlpp11/limit.h>
 #include <sqlpp11/order_by.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -57,4 +57,4 @@ namespace sqlpp
       return {blank_update_t<Database>().single_table(table)};
     }
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

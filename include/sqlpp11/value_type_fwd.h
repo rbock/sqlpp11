@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename ValueType, typename T, typename Enable = void>
   struct is_valid_assignment_operand
@@ -50,4 +50,4 @@ namespace sqlpp
         and ValueType::template _is_valid_assignment_operand<T>::value  // the correct value type is required, of course
         ;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

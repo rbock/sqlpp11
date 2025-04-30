@@ -37,7 +37,7 @@
 #include <sqlpp11/table_ref.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Flag, typename Lhs, typename Rhs>
   struct cte_union_t
@@ -272,4 +272,4 @@ namespace sqlpp
   {
     return {};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

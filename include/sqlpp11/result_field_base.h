@@ -33,7 +33,7 @@
 #include <sqlpp11/type_traits.h>
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename FieldSpec, typename StorageType = typename value_type_of<FieldSpec>::_cpp_value_type>
   struct result_field_base
@@ -108,4 +108,4 @@ namespace sqlpp
     bool _is_null;
     _cpp_storage_type _value;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -29,7 +29,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct floating_point_operand : public alias_operators<floating_point_operand>
   {
@@ -62,4 +62,4 @@ namespace sqlpp
     context << t._t;
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

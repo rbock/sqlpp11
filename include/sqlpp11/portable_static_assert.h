@@ -29,7 +29,7 @@
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/inconsistent.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
 #define SQLPP_PORTABLE_STATIC_ASSERT(name, message) \
   struct name : std::false_type                     \
@@ -92,4 +92,4 @@ namespace sqlpp
 
   template <typename... StaticChecks>
   using static_combined_check_t = typename detail::static_combined_check_impl<StaticChecks...>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

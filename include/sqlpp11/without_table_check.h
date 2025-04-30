@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression>
   struct without_table_check_t: public Expression
@@ -57,4 +57,4 @@ namespace sqlpp
 
     return {expr};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

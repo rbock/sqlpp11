@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct unsigned_integral
   {
@@ -43,4 +43,4 @@ namespace sqlpp
   using smallint_unsigned = unsigned_integral;
   using integer_unsigned = unsigned_integral;
   using bigint_unsigned = unsigned_integral;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

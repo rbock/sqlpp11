@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename ValueType>
   struct value_or_null_t
@@ -82,4 +82,4 @@ namespace sqlpp
                   "value_or_null() is to be called with non-sql-type like int, or string");
     return {t};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

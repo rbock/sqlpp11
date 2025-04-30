@@ -33,7 +33,7 @@
 #include <sqlpp11/join.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
   //  template <typename AliasProvider, typename Table, typename... ColumnSpec>
@@ -61,39 +61,39 @@ namespace sqlpp
     }
 
     template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
+    auto join(T t) const -> decltype(::sqlpp::v11::join(*this, t))
     {
-      return ::sqlpp::join(*this, t);
+      return ::sqlpp::v11::join(*this, t);
     }
 
     template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
+    auto inner_join(T t) const -> decltype(::sqlpp::v11::inner_join(*this, t))
     {
-      return ::sqlpp::inner_join(*this, t);
+      return ::sqlpp::v11::inner_join(*this, t);
     }
 
     template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
+    auto left_outer_join(T t) const -> decltype(::sqlpp::v11::left_outer_join(*this, t))
     {
-      return ::sqlpp::left_outer_join(*this, t);
+      return ::sqlpp::v11::left_outer_join(*this, t);
     }
 
     template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
+    auto right_outer_join(T t) const -> decltype(::sqlpp::v11::right_outer_join(*this, t))
     {
-      return ::sqlpp::right_outer_join(*this, t);
+      return ::sqlpp::v11::right_outer_join(*this, t);
     }
 
     template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
+    auto outer_join(T t) const -> decltype(::sqlpp::v11::outer_join(*this, t))
     {
-      return ::sqlpp::outer_join(*this, t);
+      return ::sqlpp::v11::outer_join(*this, t);
     }
 
     template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
+    auto cross_join(T t) const -> decltype(::sqlpp::v11::cross_join(*this, t))
     {
-      return ::sqlpp::cross_join(*this, t);
+      return ::sqlpp::v11::cross_join(*this, t);
     }
 
     Table _table;
@@ -114,4 +114,4 @@ namespace sqlpp
     context << " AS " << name_of<table_alias_t<AliasProvider, Table, ColumnSpec...>>::template char_ptr<Context>();
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

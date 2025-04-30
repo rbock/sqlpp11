@@ -26,9 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct text
   {
@@ -43,4 +45,4 @@ namespace sqlpp
   using char_ = text;
   using binary = text;
   using varbinary = text;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

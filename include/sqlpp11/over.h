@@ -30,7 +30,7 @@
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/expression_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename AggregateExpr>
   struct over_t : public expression_operators<over_t<AggregateExpr>, integral>,
@@ -62,4 +62,4 @@ namespace sqlpp
     context << " OVER()";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

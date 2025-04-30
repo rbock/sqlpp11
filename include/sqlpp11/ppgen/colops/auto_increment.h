@@ -31,4 +31,4 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_AUTO_INCREMENT \
   PROC_SQLPP_AUTO_INCREMENT
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_AUTO_INCREMENT(...) \
-  ::sqlpp::tag::must_not_insert, ::sqlpp::tag::must_not_update
+  ::sqlpp::v11::tag::must_not_insert, ::sqlpp::tag::must_not_update

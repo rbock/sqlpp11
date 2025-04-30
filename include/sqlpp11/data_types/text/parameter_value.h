@@ -38,7 +38,7 @@
 #include <string_view>
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <>
   struct parameter_value_t<text> : public parameter_value_base<text>
@@ -69,4 +69,4 @@ namespace sqlpp
     }
 #endif
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

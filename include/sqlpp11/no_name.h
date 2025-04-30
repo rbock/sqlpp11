@@ -26,9 +26,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct no_name_t
   {
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

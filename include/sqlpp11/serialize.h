@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T, typename Context>
   auto serialize_operand(const T& t, Context& context) -> Context&
@@ -46,4 +46,4 @@ namespace sqlpp
 
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

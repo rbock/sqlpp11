@@ -36,7 +36,7 @@
 #include <sqlpp11/into.h>
 #include <sqlpp11/insert_value_list.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct insert_name_t
   {
@@ -123,4 +123,4 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_insert_t<Database>().into(table)};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

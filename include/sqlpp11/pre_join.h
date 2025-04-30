@@ -31,7 +31,7 @@
 #include <sqlpp11/on.h>
 #include <sqlpp11/table_ref.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_pre_join_lhs_table_t, "lhs argument of join() has to be a table or a join");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_pre_join_rhs_table_t, "rhs argument of join() has to be a table");
@@ -205,4 +205,4 @@ namespace sqlpp
   {
     return {pre_join_t<cross_join_t, from_table_t<Lhs>, from_table_t<Rhs>>{from_table(lhs), from_table(rhs)}, {}};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

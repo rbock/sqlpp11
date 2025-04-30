@@ -39,7 +39,7 @@
 #include <sqlpp11/postgresql/dynamic_libpq.h>
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -241,4 +241,4 @@ namespace sqlpp
       };
     }
   }
-}
+}}  // namespace sqlpp::v11

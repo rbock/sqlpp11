@@ -31,10 +31,10 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/day_point/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression>
   struct expression_operators<Expression, day_point> : public basic_expression_operators<Expression>
   {
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -30,10 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/connection_pool.h>
 #include <sqlpp11/postgresql/connection.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
-    using connection_pool = sqlpp::connection_pool<connection_base>;
+    using connection_pool = ::sqlpp::v11::connection_pool<connection_base>;
   }  // namespace postgresql
-} // namespace sqlpp
+}} // namespace sqlpp::v11

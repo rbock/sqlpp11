@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T, typename Enable = void>
   struct wrap_operand
@@ -36,4 +36,4 @@ namespace sqlpp
 
   template <typename T>
   using wrap_operand_t = typename wrap_operand<T>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

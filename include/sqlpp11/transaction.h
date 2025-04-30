@@ -30,7 +30,7 @@
 #include <string>
 #include <ciso646>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   static constexpr bool quiet_auto_rollback = false;
   static constexpr bool report_auto_rollback = true;
@@ -119,4 +119,4 @@ namespace sqlpp
   {
     return {db, report_unfinished_transaction, isolation};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

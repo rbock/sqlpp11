@@ -31,4 +31,4 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_PRIMARY_KEY \
   PROC_SQLPP_PRIMARY_KEY
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_PRIMARY_KEY(...) \
-  ::sqlpp::tag::must_not_update
+  ::sqlpp::v11::tag::must_not_update

@@ -32,7 +32,7 @@
 #include <sqlpp11/data_types/floating_point/wrap_operand.h>
 #include <sqlpp11/data_types/floating_point/operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <>
   struct parameter_value_t<floating_point> : public parameter_value_base<floating_point>
@@ -47,4 +47,4 @@ namespace sqlpp
       target._bind_floating_point_parameter(index, &_value, _is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -28,7 +28,7 @@
 
 #include <sqlpp11/detail/type_set.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct no_value_t;
 
@@ -63,4 +63,4 @@ namespace sqlpp
     }
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -31,7 +31,7 @@
 #include <sqlpp11/postgresql/on_conflict_do_update.h>
 #include <sqlpp11/statement.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_VALUE_TRAIT_GENERATOR(is_on_conflict);
 
@@ -72,19 +72,19 @@ namespace sqlpp
       template <typename Assignment>
       struct lhs_must_not_update
       {
-        static constexpr auto value = sqlpp::detail::must_not_update_impl<typename lhs<Assignment>::type>::type::value;
+        static constexpr auto value = ::sqlpp::v11::detail::must_not_update_impl<typename lhs<Assignment>::type>::type::value;
       };
     }  // namespace detail
 
     template <typename... Assignments>
     using check_on_conflict_do_update_set_t = static_combined_check_t<
-        static_check_t<logic::all_t<sqlpp::detail::is_assignment_impl<Assignments>::type::value...>::value,
+        static_check_t<logic::all_t<::sqlpp::v11::detail::is_assignment_impl<Assignments>::type::value...>::value,
                        assert_on_conflict_do_update_set_assignments_t>,
-        static_check_t<not sqlpp::detail::has_duplicates<typename lhs<Assignments>::type...>::value,
+        static_check_t<not ::sqlpp::v11::detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                        assert_on_conflict_do_update_set_no_duplicates_t>,
         static_check_t<logic::none_t<detail::lhs_must_not_update<Assignments>::value...>::value,
                        assert_on_conflict_do_update_set_allowed_t>,
-        static_check_t<sizeof...(Assignments) == 0 or sqlpp::detail::make_joined_set_t<required_tables_of<
+        static_check_t<sizeof...(Assignments) == 0 or ::sqlpp::v11::detail::make_joined_set_t<required_tables_of<
                                                           typename lhs<Assignments>::type>...>::size::value == 1,
                        assert_on_conflict_do_update_set_single_table_t>>;
 
@@ -104,7 +104,7 @@ namespace sqlpp
     struct on_conflict_t
     {
       using _traits = make_traits<no_value_t, tag::is_noop>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<ConflictTarget>;
 
       using _data_t = on_conflict_data_t<ConflictTarget>;
 
@@ -177,7 +177,7 @@ namespace sqlpp
     struct no_on_conflict_t
     {
       using _traits = make_traits<no_value_t, tag::is_on_conflict>;
-      using _nodes = ::sqlpp::detail::type_vector<>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<>;
 
       using _data_t = no_data_t;
 
@@ -258,4 +258,4 @@ namespace sqlpp
       return context;
     }
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

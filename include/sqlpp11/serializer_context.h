@@ -27,7 +27,7 @@
 
 #include <ostream>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct serializer_context_t
   {
@@ -62,4 +62,4 @@ namespace sqlpp
 
     std::ostream& _os;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

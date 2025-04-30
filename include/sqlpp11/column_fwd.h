@@ -26,8 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Table, typename ColumnSpec>
   struct column_t;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

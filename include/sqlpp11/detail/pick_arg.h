@@ -28,7 +28,7 @@
 
 #include <type_traits>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -51,4 +51,4 @@ namespace sqlpp
       return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
     }
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

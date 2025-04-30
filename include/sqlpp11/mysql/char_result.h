@@ -37,7 +37,7 @@
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -51,7 +51,7 @@ namespace sqlpp
       char_result_t(std::unique_ptr<detail::result_handle>&& handle) : _handle{std::move(handle)}
       {
         if (_invalid())
-          throw sqlpp::exception{"MySQL: Constructing char_result without valid handle"};
+          throw ::sqlpp::v11::exception{"MySQL: Constructing char_result without valid handle"};
 
         if (_handle->debug)
           std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
@@ -141,7 +141,7 @@ namespace sqlpp
         *len = (is_null ? 0 : _char_result_row.len[index]);
       }
 
-      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void _bind_date_result(size_t index, ::sqlpp::v11::chrono::day_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
@@ -157,14 +157,14 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: date string: " << date_string << std::endl;
 
-        if (::sqlpp::detail::parse_date(*value, date_string) == false)
+        if (::sqlpp::v11::detail::parse_date(*value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date result: " << date_string << std::endl;
         }
       }
 
-      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void _bind_date_time_result(size_t index, ::sqlpp::v11::chrono::microsecond_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
@@ -180,7 +180,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: date_time string: " << date_time_string << std::endl;
 
-        if (::sqlpp::detail::parse_timestamp(*value, date_time_string) == false)
+        if (::sqlpp::v11::detail::parse_timestamp(*value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date_time result: " << date_time_string << std::endl;
@@ -203,7 +203,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: time of day string: " << time_string << std::endl;
 
-        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        if (::sqlpp::v11::detail::parse_time_of_day(*value, time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid time result: " << time_string << std::endl;
@@ -223,4 +223,4 @@ namespace sqlpp
       }
     };
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

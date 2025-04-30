@@ -31,4 +31,4 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bool \
   PROC_bool
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bool(...) \
-  ::sqlpp::boolean
+  ::sqlpp::v11::boolean

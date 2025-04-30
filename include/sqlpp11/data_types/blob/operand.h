@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct blob;
 
@@ -77,4 +77,4 @@ namespace sqlpp
 
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

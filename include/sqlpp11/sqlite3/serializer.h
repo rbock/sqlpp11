@@ -44,7 +44,7 @@
 
 #include <cmath>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // Serialize parameters
   template <typename ValueType, typename NameType>
@@ -97,7 +97,7 @@ namespace sqlpp
   template <typename Period>
   sqlite3::context_t& serialize(const time_point_operand<Period>& t, sqlite3::context_t& context)
   {
-    const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
+    const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
     const auto ymd = ::date::year_month_day{dp};
     context << "STRFTIME('%Y-%m-%d %H:%M:%f', '" << ymd << ' ' << time << "')";
@@ -134,4 +134,4 @@ namespace sqlpp
     context << static_cast<typename integral_operand::_value_t>(t._t);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

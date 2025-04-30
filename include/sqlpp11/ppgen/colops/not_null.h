@@ -31,4 +31,4 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NOT_NULL \
   PROC_SQLPP_NOT_NULL
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NOT_NULL(...) \
-  ::sqlpp::tag::require_insert
+  ::sqlpp::v11::tag::require_insert

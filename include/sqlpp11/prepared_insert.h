@@ -30,7 +30,7 @@
 #include <sqlpp11/result.h>
 #include <sqlpp11/data_types/no_value.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename Insert>
   struct prepared_insert_t
@@ -56,4 +56,4 @@ namespace sqlpp
     _parameter_list_t params;
     mutable _prepared_statement_t _prepared_statement;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

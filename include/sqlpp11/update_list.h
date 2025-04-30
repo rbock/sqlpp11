@@ -31,7 +31,7 @@
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // UPDATE ASSIGNMENTS DATA
   template <typename Database, typename... Assignments>
@@ -301,4 +301,4 @@ namespace sqlpp
     interpret_list(t._dynamic_assignments, ',', context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

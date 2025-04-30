@@ -36,7 +36,7 @@
 #include <sqlpp11/using.h>
 #include <sqlpp11/where.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct remove_name_t
   {
@@ -121,4 +121,4 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_remove_t<Database>().from(table)};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

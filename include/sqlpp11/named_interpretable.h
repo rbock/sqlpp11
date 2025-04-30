@@ -30,7 +30,7 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/char_sequence.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db>
   struct named_interpretable_t
@@ -109,4 +109,4 @@ namespace sqlpp
 
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

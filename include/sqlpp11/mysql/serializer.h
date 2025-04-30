@@ -29,7 +29,7 @@
 #include <sqlpp11/data_types/text/concat.h>
 #include <sqlpp11/insert_value_list.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename First, typename... Args>
   mysql::context_t& serialize(const concat_t<First, Args...>& t, mysql::context_t& ctx)
@@ -45,4 +45,4 @@ namespace sqlpp
     ctx << " () VALUES()";
     return ctx;
   }
-}
+}}  // namespace sqlpp::v11

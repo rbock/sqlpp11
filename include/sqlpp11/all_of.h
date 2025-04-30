@@ -26,11 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Table>
   auto all_of(Table /*unused*/) -> typename Table::_column_tuple_t
   {
     return {};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

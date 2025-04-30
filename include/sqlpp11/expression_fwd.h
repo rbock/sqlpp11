@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct boolean;
   struct integral;
@@ -278,4 +278,4 @@ namespace sqlpp
 
   template <typename Expr>
   using rhs_t = typename detail::rhs_impl<Expr>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

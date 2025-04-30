@@ -32,7 +32,7 @@
 #include <memory>
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct connection
   {
@@ -155,4 +155,4 @@ namespace sqlpp
       }
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -35,7 +35,7 @@
 
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Table>
   struct schema_qualified_table_t
@@ -82,4 +82,4 @@ namespace sqlpp
 
     return {schema, table};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

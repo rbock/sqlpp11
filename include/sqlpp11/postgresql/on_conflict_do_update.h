@@ -33,7 +33,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/where.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_VALUE_TRAIT_GENERATOR(is_on_conflict_do_update)
 
@@ -85,7 +85,7 @@ namespace sqlpp
     struct on_conflict_do_update_where_t
     {
       using _traits = make_traits<no_value_t, tag::is_on_conflict_do_update>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget, Expression, Assignments...>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<ConflictTarget, Expression, Assignments...>;
       using _is_dynamic = is_database<Database>;
 
       using _data_t = on_conflict_do_update_where_data_t<Database, ConflictTarget, Expression, Assignments...>;
@@ -139,7 +139,7 @@ namespace sqlpp
     struct on_conflict_do_update_t
     {
       using _traits = make_traits<no_value_t, tag::is_on_conflict_do_update>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget, Assignments...>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<ConflictTarget, Assignments...>;
       using _is_dynamic = is_database<Database>;
 
       // Data
@@ -226,4 +226,4 @@ namespace sqlpp
       return context;
     }
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

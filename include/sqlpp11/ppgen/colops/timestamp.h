@@ -31,4 +31,4 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_timestamp \
   PROC_timestamp
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_timestamp(...) \
-  ::sqlpp::time_point
+  ::sqlpp::v11::time_point

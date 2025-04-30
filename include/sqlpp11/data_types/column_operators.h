@@ -28,11 +28,11 @@
 
 #include <sqlpp11/wrong.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Column, typename ValueType>
   struct column_operators
   {
     static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

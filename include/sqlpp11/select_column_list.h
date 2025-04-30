@@ -41,7 +41,7 @@
 #include <sqlpp11/table.h>
 #include <tuple>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -448,4 +448,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

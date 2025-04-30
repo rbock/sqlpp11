@@ -28,7 +28,7 @@
 
 #include <sqlpp11/value_or_null.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expr, typename ValueType>
   struct is_equal_to_or_null_t: public expression_operators<is_equal_to_or_null_t<Expr, ValueType>, boolean>,
@@ -73,4 +73,4 @@ namespace sqlpp
     return {expr, value};
   }
 
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

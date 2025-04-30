@@ -31,7 +31,7 @@
 #include <sqlpp11/no_name.h>
 #include <sqlpp11/named_interpretable.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db>
   struct dynamic_select_column_list
@@ -99,4 +99,4 @@ namespace sqlpp
   {
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

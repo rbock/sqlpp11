@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Clause>
   struct hidden_t : Clause
@@ -53,4 +53,4 @@ namespace sqlpp
   {
     return {part};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

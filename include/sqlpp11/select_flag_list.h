@@ -34,7 +34,7 @@
 #include <sqlpp11/type_traits.h>
 #include <tuple>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // SELECTED FLAGS DATA
   template <typename Database, typename... Flags>
@@ -263,4 +263,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

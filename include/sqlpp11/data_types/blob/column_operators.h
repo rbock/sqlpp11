@@ -31,7 +31,7 @@
 #include <sqlpp11/data_types/blob/data_type.h>
 #include <sqlpp11/data_types/column_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename... Args>
   struct concat_t;
@@ -52,4 +52,4 @@ namespace sqlpp
               concat_t<Column, wrap_operand_t<T>>{*static_cast<const Column*>(this), rhs{t}}};
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -30,7 +30,7 @@
 
 #include <sqlpp11/auto_alias.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -52,4 +52,4 @@ namespace sqlpp
       return std::tuple_cat(as_column_tuple(columns)...);
     }
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

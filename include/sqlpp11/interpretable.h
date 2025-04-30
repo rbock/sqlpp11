@@ -30,7 +30,7 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/serialize.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db>
   struct interpretable_t
@@ -98,4 +98,4 @@ namespace sqlpp
 
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -26,10 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Operand, typename... Args>
   struct in_t;
   template <typename Operand, typename... Args>
   struct not_in_t;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

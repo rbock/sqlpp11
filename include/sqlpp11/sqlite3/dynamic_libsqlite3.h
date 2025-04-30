@@ -35,12 +35,12 @@
 
 // namespace for internal sqlite function wrappers - when using this instead of sqlite3 direct linking
 // do this:
-//    using namespace sqlpp::sqlite3::dyn;
+//    using namespace ::sqlpp::v11::sqlite3::dyn;
 // to override the libsqlite3 functions with these function pointers
 
 #ifdef SQLPP_DYNAMIC_LOADING
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -229,7 +229,7 @@ namespace sqlpp
       //    DYNDEFINE(sqlite3_rtree_query_callback);
     }  // namespace dynamic
   }    // namespace sqlite3
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #undef DYNDEFINE
 

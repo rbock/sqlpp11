@@ -34,7 +34,7 @@
 #include <sqlpp11/type_traits.h>
 #include <tuple>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // GROUP BY DATA
   template <typename Database, typename... Expressions>
@@ -276,4 +276,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

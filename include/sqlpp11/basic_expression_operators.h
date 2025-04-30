@@ -40,7 +40,7 @@
 #include <sqlpp11/logic.h>
 #include <sqlpp11/expression_return_types.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_rhs_is_expression_t, "rhs operand in comparison is not an expression");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_rhs_is_valid_operand_t, "invalid rhs operand in comparison");
@@ -313,4 +313,4 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

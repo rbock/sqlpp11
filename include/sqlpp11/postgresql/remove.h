@@ -29,7 +29,7 @@
 #include <sqlpp11/remove.h>
 #include <sqlpp11/postgresql/returning.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -62,4 +62,4 @@ namespace sqlpp
       return {blank_remove_t<Database>().from(table)};
     }
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

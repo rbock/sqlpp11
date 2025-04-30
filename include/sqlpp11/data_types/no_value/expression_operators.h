@@ -30,10 +30,10 @@
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression>
   struct expression_operators<Expression, no_value_t> : public basic_expression_operators<Expression>
   {
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -30,7 +30,7 @@
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/char_sequence.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Select>
   struct some_t
@@ -68,4 +68,4 @@ namespace sqlpp
                   "some() requires a single column select expression as argument");
     return {t};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

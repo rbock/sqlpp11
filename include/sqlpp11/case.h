@@ -31,7 +31,7 @@
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_else_expression_t, "argument is not a value expression in else()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_else_same_type_t,
@@ -179,4 +179,4 @@ namespace sqlpp
   {
     return detail::case_when_impl(check_case_when_t<When>{}, when);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

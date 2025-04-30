@@ -31,14 +31,14 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/detail/type_set.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct is_not_null_alias_t
   {
     struct _alias_t
     {
       static constexpr const char _literal[] = "is_not_null_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t
       {
@@ -76,4 +76,4 @@ namespace sqlpp
     context << " IS NOT NULL";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

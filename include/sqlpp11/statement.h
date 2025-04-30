@@ -37,7 +37,7 @@
 #include <sqlpp11/detail/get_last.h>
 #include <sqlpp11/detail/pick_arg.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename... Policies>
   struct statement_t;
@@ -315,4 +315,4 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

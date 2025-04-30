@@ -28,7 +28,7 @@ Copyright (c) 2023, Vesselin Atanasov
 
 #include <sqlpp11/mysql/mysql.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -62,4 +62,4 @@ namespace sqlpp
       return db;
     }
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

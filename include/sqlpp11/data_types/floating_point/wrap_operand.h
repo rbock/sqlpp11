@@ -29,7 +29,7 @@
 #include <utility>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct floating_point_operand;
 
@@ -38,4 +38,4 @@ namespace sqlpp
   {
     using type = floating_point_operand;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

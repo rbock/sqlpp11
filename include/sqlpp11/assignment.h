@@ -31,7 +31,7 @@
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/simple_column.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Lhs, typename Rhs>
   struct assignment_t
@@ -67,4 +67,4 @@ namespace sqlpp
     serialize_operand(t._rhs, context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -33,7 +33,7 @@
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // A SINGLE TABLE DATA
   template <typename Database, typename Table>
@@ -202,4 +202,4 @@ namespace sqlpp
   {
     return statement_t<void, no_into_t>().into(std::forward<T>(t));
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

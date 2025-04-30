@@ -34,7 +34,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/unsigned_integral/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct integral;
 
@@ -126,4 +126,4 @@ namespace sqlpp
     using check = consistent_t;
     using type = shift_right_t<wrap_operand_t<L>, unsigned_integral, wrap_operand_t<R>>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

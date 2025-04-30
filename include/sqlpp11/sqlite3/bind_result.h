@@ -41,7 +41,7 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -157,7 +157,7 @@ namespace sqlpp
         *len = static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
-      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void _bind_date_result(size_t index, ::sqlpp::v11::chrono::day_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
@@ -173,14 +173,14 @@ namespace sqlpp
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date string: " << date_string << std::endl;
-        if (::sqlpp::detail::parse_date(*value, date_string) == false)
+        if (::sqlpp::v11::detail::parse_date(*value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date result: " << date_string << std::endl;
         }
       }
 
-      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void _bind_date_time_result(size_t index, ::sqlpp::v11::chrono::microsecond_point* value, bool* is_null)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
@@ -197,7 +197,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date_time string: " << date_time_string << std::endl;
         // We treat DATETIME fields as containing either date+time or just date.
-        if (::sqlpp::detail::parse_date_or_timestamp(*value, date_time_string) == false)
+        if (::sqlpp::v11::detail::parse_date_or_timestamp(*value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date_time result: " << date_time_string << std::endl;
@@ -220,7 +220,7 @@ namespace sqlpp
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: time string: " << time_string << std::endl;
-        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        if (::sqlpp::v11::detail::parse_time_of_day(*value, time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid time result: " << time_string << std::endl;
@@ -242,12 +242,12 @@ namespace sqlpp
           case SQLITE_DONE:
             return false;
           default:
-            throw sqlpp::exception{"Sqlite3 error: Unexpected return value for sqlite3_step()"};
+            throw ::sqlpp::v11::exception{"Sqlite3 error: Unexpected return value for sqlite3_step()"};
         }
       }
     };
   }  // namespace sqlite3
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #ifdef _MSC_VER
 #pragma warning(pop)

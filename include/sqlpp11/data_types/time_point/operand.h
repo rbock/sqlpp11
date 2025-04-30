@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct time_point;
 
@@ -63,10 +63,10 @@ namespace sqlpp
   template <typename Context, typename Period>
   Context& serialize(const time_point_operand<Period>& t, Context& context)
   {
-    const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
+    const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
     const auto ymd = ::date::year_month_day{dp};
     context << "TIMESTAMP '" << ymd << ' ' << time << "'";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

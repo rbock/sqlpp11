@@ -34,7 +34,7 @@
 #include <sqlpp11/logic.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct text;
 
@@ -43,7 +43,7 @@ namespace sqlpp
     struct _alias_t
     {
       static constexpr const char _literal[] = "concat_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t
       {
@@ -91,4 +91,4 @@ namespace sqlpp
 
     return {args...};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

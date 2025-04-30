@@ -113,7 +113,7 @@
     {                                                                        \
       static constexpr const char _literal[] =                               \
         BOOST_PP_STRINGIZE(SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem));      \
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>; \
+      using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>; \
                                                                              \
       template <typename T>                                                  \
       struct _member_t                                                       \
@@ -131,7 +131,7 @@
       }; /* struct _member_t */                                              \
     };   /* struct _alias_t */                                               \
                                                                              \
-    using _traits = sqlpp::make_traits<                                      \
+    using _traits = ::sqlpp::v11::make_traits<                                      \
       SQLPP_DECLARE_COLUMN_GEN_TRAITS(SQLPP_BOOST_PP_TUPLE_POP_FRONT(elem))  \
     >;                                                                       \
   }; /* struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem) */
@@ -168,7 +168,7 @@
     } /* namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) */ \
                                                                                  \
     struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)                             \
-      : sqlpp::table_t<                                                          \
+      : ::sqlpp::v11::table_t<                                                          \
         SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)                                \
         BOOST_PP_SEQ_FOR_EACH(                                                   \
            SQLPP_DECLARE_TABLE_ENUM_COLUMNS                                      \
@@ -187,7 +187,7 @@
       {                                                                          \
         static constexpr const char _literal[] =                                 \
           BOOST_PP_STRINGIZE(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table));         \
-        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;   \
+        using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>;   \
                                                                                  \
         template <typename T>                                                    \
         struct _member_t                                                         \

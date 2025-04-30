@@ -29,7 +29,7 @@
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_operands, "Invalid operand(s)");
 
@@ -46,4 +46,4 @@ namespace sqlpp
 
   template <typename Context, typename ValueType>
   Context serialize(const bad_expression<ValueType>& t, Context& context);
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

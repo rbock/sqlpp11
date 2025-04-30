@@ -30,7 +30,7 @@
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/prepared_execute.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct noop
   {
@@ -89,4 +89,4 @@ namespace sqlpp
   struct is_noop : std::is_same<T, noop>
   {
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

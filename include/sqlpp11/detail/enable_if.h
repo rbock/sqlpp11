@@ -28,11 +28,11 @@
 
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
     template <bool B, typename T = void>
     using enable_if_t = typename std::enable_if<B, T>::type;
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

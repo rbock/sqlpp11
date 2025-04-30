@@ -37,7 +37,7 @@
 #include <sqlpp11/union_data.h>
 #include <sqlpp11/union_flags.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct no_union_t;
 
@@ -265,4 +265,4 @@ namespace sqlpp
     return statement_t<void, no_union_t>().union_distinct(std::forward<T>(t));
   }
   */
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

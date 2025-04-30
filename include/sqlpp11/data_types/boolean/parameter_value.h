@@ -30,7 +30,7 @@
 #include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/boolean/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <>
   struct parameter_value_t<boolean> : public parameter_value_base<boolean, signed char>
@@ -45,4 +45,4 @@ namespace sqlpp
       target._bind_boolean_parameter(index, &_value, _is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

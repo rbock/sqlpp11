@@ -32,7 +32,7 @@
 #include <sqlpp11/data_types/time_point/wrap_operand.h>
 #include <sqlpp11/data_types/time_point/operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <>
   struct parameter_value_t<time_of_day> : public parameter_value_base<time_of_day>
@@ -47,4 +47,4 @@ namespace sqlpp
       target._bind_time_of_day_parameter(index, &_value, _is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

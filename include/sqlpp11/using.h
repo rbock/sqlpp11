@@ -32,7 +32,7 @@
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // USING DATA
   template <typename Database, typename... Tables>
@@ -251,4 +251,4 @@ namespace sqlpp
     interpret_list(t._dynamic_tables, ',', context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

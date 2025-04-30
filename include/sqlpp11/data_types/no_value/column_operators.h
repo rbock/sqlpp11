@@ -28,7 +28,7 @@
 
 #include <sqlpp11/data_types/column_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct no_value_t;
 
@@ -36,4 +36,4 @@ namespace sqlpp
   struct column_operators<Base, no_value_t>
   {
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -37,7 +37,7 @@
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Table, typename ColumnSpec>
   struct column_t : public expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>,
@@ -116,4 +116,4 @@ namespace sqlpp
             << name_of<T>::template char_ptr<Context>();
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -31,7 +31,7 @@
 #include <sqlpp11/select_column_list.h>
 #include <sqlpp11/statement.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_VALUE_TRAIT_GENERATOR(is_returning)
 
@@ -56,7 +56,7 @@ namespace sqlpp
     struct no_returning_t
     {
       using _traits = make_traits<no_value_t, tag::is_returning>;
-      using _nodes = ::sqlpp::detail::type_vector<>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<>;
 
       using _data_t = no_data_t;
 
@@ -109,7 +109,7 @@ namespace sqlpp
 
         template <typename... T>
         static constexpr auto _check_args(T... args)
-            -> decltype(_check_tuple(sqlpp::detail::column_tuple_merge(args...)))
+            -> decltype(_check_tuple(::sqlpp::v11::detail::column_tuple_merge(args...)))
         {
           return {};
         }
@@ -170,4 +170,4 @@ namespace sqlpp
       };
     };
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

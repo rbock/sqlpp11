@@ -37,7 +37,7 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -87,7 +87,7 @@ namespace sqlpp
       };
     }
   }  // namespace sqlite3
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #ifdef _MSC_VER
 #pragma warning(pop)

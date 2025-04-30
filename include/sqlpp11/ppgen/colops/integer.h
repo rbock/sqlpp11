@@ -31,19 +31,19 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyint \
   PROC_tinyint
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyint(...) \
-  ::sqlpp::tinyint
+  ::sqlpp::v11::tinyint
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_smallint \
   PROC_smallint
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_smallint(...) \
-  ::sqlpp::smallint
+  ::sqlpp::v11::smallint
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_int \
   PROC_int
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_int(...) \
-  ::sqlpp::integer
+  ::sqlpp::v11::integer
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bigint \
   PROC_bigint
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bigint(...) \
-  ::sqlpp::bigint
+  ::sqlpp::v11::bigint

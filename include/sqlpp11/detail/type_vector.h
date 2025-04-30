@@ -28,7 +28,7 @@
 
 #include <sqlpp11/wrong.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -83,4 +83,4 @@ namespace sqlpp
       static constexpr std::size_t value = sizeof...(T);
     };
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

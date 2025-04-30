@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TabDepartment.h"
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace test
   {
@@ -287,4 +287,4 @@ namespace sqlpp
       test_destruction_order<Pool>(config);
     }
   }  // namespace test
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

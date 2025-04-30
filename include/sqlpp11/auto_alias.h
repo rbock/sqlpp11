@@ -28,7 +28,7 @@
 
 #include <sqlpp11/alias.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T, typename Enable = void>
   struct has_auto_alias_t
@@ -59,4 +59,4 @@ namespace sqlpp
 
   template <typename T>
   using auto_alias_t = typename detail::auto_alias_impl<T>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

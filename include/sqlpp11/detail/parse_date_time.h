@@ -31,7 +31,7 @@
 
 #include <cctype>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -62,7 +62,7 @@ namespace sqlpp
       return true;
     }
 
-    inline bool parse_yyyy_mm_dd(sqlpp::chrono::day_point& dp, const char*& input)
+    inline bool parse_yyyy_mm_dd(::sqlpp::v11::chrono::day_point& dp, const char*& input)
     {
       auto new_input = input;
       int year, month, day;
@@ -184,9 +184,9 @@ namespace sqlpp
     // Parse timestamp formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
     // The microseconds and timezone offset are optional
     //
-    inline bool parse_timestamp(sqlpp::chrono::microsecond_point& tp, const char* date_time_string)
+    inline bool parse_timestamp(::sqlpp::v11::chrono::microsecond_point& tp, const char* date_time_string)
     {
-      sqlpp::chrono::day_point parsed_ymd;
+      ::sqlpp::v11::chrono::day_point parsed_ymd;
       std::chrono::microseconds parsed_tod;
       if ((parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) ||
           (parse_character(date_time_string, ' ') == false) ||
@@ -204,7 +204,7 @@ namespace sqlpp
 
     // Parse date string formatted as YYYY-MM-DD
     //
-    inline bool parse_date(sqlpp::chrono::day_point& dp, const char* date_string)
+    inline bool parse_date(::sqlpp::v11::chrono::day_point& dp, const char* date_string)
     {
       if (parse_yyyy_mm_dd(dp, date_string) == false)
       {
@@ -220,9 +220,9 @@ namespace sqlpp
     // Parse time string formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
     // The time-of-day part is optional
     //
-    inline bool parse_date_or_timestamp(sqlpp::chrono::microsecond_point& tp, const char* date_time_string)
+    inline bool parse_date_or_timestamp(::sqlpp::v11::chrono::microsecond_point& tp, const char* date_time_string)
     {
-      sqlpp::chrono::day_point parsed_ymd;
+      ::sqlpp::v11::chrono::day_point parsed_ymd;
       if (parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false)
       {
         return false;
@@ -262,4 +262,4 @@ namespace sqlpp
       return true;
     }
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

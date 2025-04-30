@@ -35,7 +35,7 @@
 #include <sqlpp11/table_ref.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // FROM DATA
   template <typename Database, typename Table>
@@ -311,4 +311,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t));
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

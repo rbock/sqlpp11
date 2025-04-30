@@ -28,7 +28,7 @@
 
 #include <sqlpp11/data_types/no_value.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct null_t
   {
@@ -44,4 +44,4 @@ namespace sqlpp
   }
 
   constexpr null_t null = {};
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

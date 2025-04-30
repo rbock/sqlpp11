@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct boolean
   {
@@ -39,5 +39,5 @@ namespace sqlpp
     using _is_valid_operand = is_boolean_t<T>;
   };
 
-  using bit = sqlpp::boolean;
-}  // namespace sqlpp
+  using bit = ::sqlpp::v11::boolean;
+}} // namespace sqlpp::v11

@@ -31,19 +31,19 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyint_unsigned \
   PROC_tinyint_unsigned
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyint_unsigned(...) \
-  ::sqlpp::tinyint_unsigned
+  ::sqlpp::v11::tinyint_unsigned
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_smallint_unsigned \
   PROC_smallint_unsigned
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_smallint_unsigned(...) \
-  ::sqlpp::smallint_unsigned
+  ::sqlpp::v11::smallint_unsigned
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_int_unsigned \
   PROC_int_unsigned
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_int_unsigned(...) \
-  ::sqlpp::integer_unsigned
+  ::sqlpp::v11::integer_unsigned
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bigint_unsigned \
   PROC_bigint_unsigned
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bigint_unsigned(...) \
-  ::sqlpp::bigint_unsigned
+  ::sqlpp::v11::bigint_unsigned

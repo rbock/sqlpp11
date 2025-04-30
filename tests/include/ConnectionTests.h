@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdexcept>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace test
   {
@@ -66,4 +66,4 @@ namespace sqlpp
       test_conn_connected<Connection>(connection_config);
     }
   }  // namespace test
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -31,7 +31,7 @@
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/index_sequence.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T>
   struct parameter_list_t
@@ -64,4 +64,4 @@ namespace sqlpp
 
   template <typename Exp>
   using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

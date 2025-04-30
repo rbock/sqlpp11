@@ -28,7 +28,7 @@
 
 #include <sqlpp11/alias.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expr>
   struct alias_operators
@@ -39,4 +39,4 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

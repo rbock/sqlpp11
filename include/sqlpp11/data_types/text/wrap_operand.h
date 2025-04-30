@@ -35,7 +35,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct text_operand;
 
@@ -52,4 +52,4 @@ namespace sqlpp
   {
     using type = text_operand;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

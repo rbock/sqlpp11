@@ -28,7 +28,7 @@
 
 #include <stdexcept>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   class exception : public std::runtime_error
   {
@@ -40,4 +40,4 @@ namespace sqlpp
     {
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -30,7 +30,7 @@
 #include <sqlpp11/data_types/no_value/data_type.h>
 #include <sqlpp11/field_spec.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename NameType, bool CanBeNull>
   struct result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull>>
@@ -67,4 +67,4 @@ namespace sqlpp
     os << "NULL";
     return os;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

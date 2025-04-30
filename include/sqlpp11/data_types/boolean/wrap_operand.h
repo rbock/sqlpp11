@@ -28,7 +28,7 @@
 
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct boolean_operand;
 
@@ -37,4 +37,4 @@ namespace sqlpp
   {
     using type = boolean_operand;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

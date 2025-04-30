@@ -31,13 +31,13 @@
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct day_point_operand;
 
   template <>
-  struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>, void>
+  struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, ::sqlpp::v11::chrono::days>, void>
   {
     using type = day_point_operand;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

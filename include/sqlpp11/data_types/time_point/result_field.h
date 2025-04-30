@@ -34,7 +34,7 @@
 #include <sqlpp11/field_spec.h>
 #include <ostream>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename NameType, bool CanBeNull>
   struct result_field_t<Db, field_spec_t<NameType, time_point, CanBeNull>>
@@ -63,11 +63,11 @@ namespace sqlpp
     }
     else
     {
-      const auto dp = ::sqlpp::chrono::floor<::date::days>(e.value());
+      const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(e.value());
       const auto time = ::date::make_time(e.value() - dp);
       const auto ymd = ::date::year_month_day{dp};
       os << ymd << 'T' << time;
     }
     return os;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

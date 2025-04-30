@@ -99,10 +99,10 @@ struct pg_result
 
 // namespace for internal PQ function wrappers - when using this instead of libpq direct linking
 // do this:
-//    using namespace sqlpp::postgresql::dyn_pg;
+//    using namespace ::sqlpp::v11::postgresql::dyn_pg;
 // to override the libpq functions with these function pointers
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
 namespace postgresql
 {

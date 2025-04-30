@@ -30,7 +30,7 @@
 #include <sqlpp11/postgresql/on_conflict.h>
 #include <sqlpp11/postgresql/returning.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -63,4 +63,4 @@ namespace sqlpp
       return {blank_insert_t<Database>().into(table)};
     }
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

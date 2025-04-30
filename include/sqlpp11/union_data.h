@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Database, typename Flag, typename Lhs, typename Rhs>
   struct union_data_t
@@ -56,4 +56,4 @@ namespace sqlpp
     serialize(t._rhs, context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

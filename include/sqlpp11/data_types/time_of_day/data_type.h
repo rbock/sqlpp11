@@ -29,7 +29,7 @@
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct time_of_day
   {
@@ -39,4 +39,4 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_time_of_day_t<T>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

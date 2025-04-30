@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct floating_point
   {
@@ -38,4 +38,4 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_numeric_t<T>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

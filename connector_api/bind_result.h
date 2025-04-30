@@ -28,7 +28,7 @@
 
 #include <memory>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace database
   {

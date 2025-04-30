@@ -40,7 +40,7 @@
 
 #include <sqlpp11/cte.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Database, typename... Expressions>
   struct with_data_t
@@ -213,4 +213,4 @@ namespace sqlpp
                   "at least one expression in with is an incomplete common table expression");
     return {{cte...}};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

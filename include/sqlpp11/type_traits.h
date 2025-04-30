@@ -35,7 +35,7 @@
 #include <sqlpp11/detail/void.h>
 #include <sqlpp11/detail/get_first.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct no_value_t;
   namespace detail
@@ -565,4 +565,4 @@ namespace sqlpp
 
   template <typename Db>
   using serializer_context_of = typename serializer_context_of_impl<Db>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

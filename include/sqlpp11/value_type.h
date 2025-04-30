@@ -29,8 +29,8 @@
 #include <type_traits>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T>
   using value_type_t = value_type_of<wrap_operand_t<T>>;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -35,7 +35,7 @@
 #include <sqlpp11/statement.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -148,4 +148,4 @@ namespace sqlpp
       return context;
     }
   }
-}
+}}  // namespace sqlpp::v11

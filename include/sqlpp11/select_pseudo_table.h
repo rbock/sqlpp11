@@ -29,7 +29,7 @@
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/table.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // FIXME: We might use field specs here (same as with cte)
   //
@@ -99,4 +99,4 @@ namespace sqlpp
     serialize(t._select, context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

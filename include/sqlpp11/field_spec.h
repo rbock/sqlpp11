@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename NameType, typename ValueType, bool CanBeNull>
   struct field_spec_t
@@ -81,4 +81,4 @@ namespace sqlpp
 
   template <typename Select, typename NamedExpr>
   using make_field_spec_t = typename detail::make_field_spec_impl<Select, NamedExpr>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

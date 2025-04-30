@@ -30,7 +30,7 @@
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // FOR_UPDATE DATA
   struct for_update_data_t
@@ -166,4 +166,4 @@ namespace sqlpp
   {
     return statement_t<void, no_for_update_t>().for_update();
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

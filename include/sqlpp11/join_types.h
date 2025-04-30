@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct inner_join_t
   {
@@ -67,4 +67,4 @@ namespace sqlpp
 
     static constexpr const char* _name = " CROSS";
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

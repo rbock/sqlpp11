@@ -28,7 +28,7 @@
 
 #include <type_traits>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -51,4 +51,4 @@ namespace sqlpp
     template <template <typename> class Predicate, typename Default, typename... T>
     using get_first_if = typename get_first_if_impl<Predicate, Default, T...>::type;
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

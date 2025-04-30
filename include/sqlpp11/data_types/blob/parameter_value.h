@@ -32,7 +32,7 @@
 #include <sqlpp11/data_types/blob/wrap_operand.h>
 #include <sqlpp11/data_types/blob/operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <>
   struct parameter_value_t<blob> : public parameter_value_base<blob>
@@ -47,4 +47,4 @@ namespace sqlpp
       target._bind_blob_parameter(index, &_value, _is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

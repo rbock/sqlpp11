@@ -33,7 +33,7 @@
 #include <sqlpp11/data_types/floating_point/data_type.h>
 #include <sqlpp11/field_spec.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename NameType, bool CanBeNull>
   struct result_field_t<Db, field_spec_t<NameType, floating_point, CanBeNull>>
@@ -51,4 +51,4 @@ namespace sqlpp
       target._post_bind_floating_point_result(index, &this->_value, &this->_is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

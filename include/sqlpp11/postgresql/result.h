@@ -42,7 +42,7 @@
 #include <sqlpp11/postgresql/dynamic_libpq.h>
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -325,7 +325,7 @@ namespace sqlpp
           case PGRES_PIPELINE_ABORTED:
   #endif
           default:
-            throw sqlpp::exception{"pqxx::result: Unrecognized response code " +
+            throw ::sqlpp::v11::exception{"pqxx::result: Unrecognized response code " +
                                   std::to_string(PQresultStatus(m_result))};
         }
         return err;
@@ -360,4 +360,4 @@ namespace sqlpp
       std::string m_query;
     };
   }
-}
+}}  // namespace sqlpp::v11

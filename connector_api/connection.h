@@ -33,7 +33,7 @@
 #include <sqlpp11/database/char_result.h>  // You may use char result or bind result or both
 #include <sqlpp11/database/bind_result.h>  // to represent results of select and prepared select
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace database
   {
@@ -224,6 +224,6 @@ namespace sqlpp
     // Pooled connections that are created by the thread pool
     using pooled_connection = sqlpp::pooled_connection<connection_base>;
   }  // namespace database
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #include <sqlpp11/database/interpreter.h>

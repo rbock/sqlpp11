@@ -36,7 +36,7 @@
 #include <sqlpp11/noop.h>
 #include <sqlpp11/where.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct update_name_t
   {
@@ -110,4 +110,4 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_update_t<Database>().single_table(table)};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

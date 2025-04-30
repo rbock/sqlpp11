@@ -28,7 +28,7 @@
 
 #include <sqlpp11/wrong.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Needle, typename Replacement>
   struct policy_update_impl
@@ -66,4 +66,4 @@ namespace sqlpp
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
   using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

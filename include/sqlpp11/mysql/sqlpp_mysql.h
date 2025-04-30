@@ -28,7 +28,7 @@
 
 #include <mysql.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -36,4 +36,4 @@ namespace sqlpp
     using my_bool = bool;
 #endif
   }
-}
+}} // namespace sqlpp::v11

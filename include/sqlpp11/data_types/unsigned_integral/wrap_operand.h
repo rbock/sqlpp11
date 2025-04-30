@@ -29,7 +29,7 @@
 #include <utility>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct unsigned_integral_operand;
 
@@ -40,4 +40,4 @@ namespace sqlpp
   {
     using type = unsigned_integral_operand;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

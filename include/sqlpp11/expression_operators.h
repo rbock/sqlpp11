@@ -28,11 +28,11 @@
 
 #include <sqlpp11/wrong.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expr, typename ValueType>
   struct expression_operators
   {
     static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

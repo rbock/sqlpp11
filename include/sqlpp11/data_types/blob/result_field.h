@@ -34,7 +34,7 @@
 #include <ostream>
 #include <string>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename NameType, bool CanBeNull>
   struct result_field_t<Db, field_spec_t<NameType, blob, CanBeNull>>
@@ -81,4 +81,4 @@ namespace sqlpp
       return os << value_str;
     }
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

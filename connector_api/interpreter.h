@@ -38,7 +38,7 @@
  *
  * For example, this specialization will produce indexed parameters instead of just '?'
  */
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace vendor
   {

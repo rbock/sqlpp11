@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdexcept>
 #include <vector>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -147,4 +147,4 @@ namespace sqlpp
       pos = (pos + 1) % _capacity;
     }
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

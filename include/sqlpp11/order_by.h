@@ -34,7 +34,7 @@
 #include <sqlpp11/type_traits.h>
 #include <tuple>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // ORDER BY DATA
   template <typename Database, typename... Expressions>
@@ -274,4 +274,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_order_by_t>().dynamic_order_by(std::forward<T>(t)...);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

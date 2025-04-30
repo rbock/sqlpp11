@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Column>
   struct simple_column_t
@@ -58,4 +58,4 @@ namespace sqlpp
   {
     return {c};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

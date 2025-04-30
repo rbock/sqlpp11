@@ -32,7 +32,7 @@
 #include <sqlpp11/noop.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Lhs, typename Rhs>
   struct binary_expression_t<Lhs, op::equal_to, Rhs>
@@ -197,4 +197,4 @@ namespace sqlpp
     context << ")";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

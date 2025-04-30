@@ -33,7 +33,7 @@
 
 #include <sqlpp11/detail/enable_if.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -69,4 +69,4 @@ namespace sqlpp
       }
     };
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

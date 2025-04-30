@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -39,4 +39,4 @@ namespace sqlpp
     template <typename T>
     using void_t = typename void_impl<T>::type;
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

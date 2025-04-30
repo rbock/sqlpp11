@@ -29,7 +29,7 @@
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/value_or_null.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename DataType, typename StorageType = typename DataType::_cpp_value_type>
   struct parameter_value_base
@@ -88,4 +88,4 @@ namespace sqlpp
     _cpp_storage_type _value;
     bool _is_null;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -28,7 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression, typename AliasProvider>
   struct expression_alias_t
@@ -62,4 +62,4 @@ namespace sqlpp
     context << name_of<expression_alias_t<Expression, AliasProvider>>::template char_ptr<Context>();
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

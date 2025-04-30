@@ -34,7 +34,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/value.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // HAVING DATA
   template <typename Database, typename Expression>
@@ -312,4 +312,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_having_t>().dynamic_having(std::forward<T>(t));
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

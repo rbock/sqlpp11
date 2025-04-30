@@ -29,7 +29,7 @@
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/on.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_dynamic_pre_join_table_t, "argument of dynamic_join() has to be a table");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_dynamic_pre_join_no_join_t, "argument of dynamic_join() must not be a table");
@@ -160,4 +160,4 @@ namespace sqlpp
   {
     return {dynamic_pre_join_t<cross_join_t, Table>{table}, {}};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -29,7 +29,7 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/time_point/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct current_timestamp_t : public expression_operators<current_timestamp_t, time_point>, public alias_operators<current_timestamp_t>
   {
@@ -51,4 +51,4 @@ namespace sqlpp
   }
 
   constexpr current_timestamp_t current_timestamp{};
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -31,7 +31,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct boolean;
 
@@ -47,7 +47,7 @@ namespace sqlpp
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2100550
       //      static constexpr const char _literal[] = "like_";
       static constexpr const char _literal[6] = "like_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t
       {
@@ -86,4 +86,4 @@ namespace sqlpp
     context << ")";
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

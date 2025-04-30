@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct time_of_day;
 
@@ -66,4 +66,4 @@ namespace sqlpp
     context << '\'' << ::date::make_time(t._t) << '\'';
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

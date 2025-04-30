@@ -28,7 +28,7 @@
 
 #include <type_traits>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T>
   struct is_regular
@@ -56,4 +56,4 @@ namespace sqlpp
 #endif
         ;
   };
-}
+}}  // namespace sqlpp::v11

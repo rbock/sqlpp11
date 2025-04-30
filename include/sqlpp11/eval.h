@@ -31,7 +31,7 @@
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/verbatim.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename Expr>
   struct eval_t
@@ -60,4 +60,4 @@ namespace sqlpp
   {
     return eval(db, verbatim<ValueType>(sql_code));
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

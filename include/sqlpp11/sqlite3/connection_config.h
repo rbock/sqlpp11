@@ -29,7 +29,7 @@
 #include <string>
 #include <iostream>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -67,4 +67,4 @@ namespace sqlpp
       std::string password;
     };
   }
-}
+}}  // namespace sqlpp::v11

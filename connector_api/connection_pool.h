@@ -30,10 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/connection_pool.h>
 #include <sqlpp11/database/connection.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace database
   {
     using connection_pool = sqlpp::connection_pool<pooled_connection>;
   }  // namespace database
-} // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -35,7 +35,7 @@
 #include <sqlpp11/no_name.h>
 #include <sqlpp11/result_row_fwd.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -361,4 +361,4 @@ namespace sqlpp
   {
     row._apply(callable);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

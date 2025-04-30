@@ -31,7 +31,7 @@
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expression>
   struct expression_operators<Expression, boolean> : public basic_expression_operators<Expression>
@@ -58,4 +58,4 @@ namespace sqlpp
     using check = consistent_t;
     using type = logical_not_t<wrap_operand_t<T>>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

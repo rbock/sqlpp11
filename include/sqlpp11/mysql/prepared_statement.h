@@ -35,7 +35,7 @@
 #include <string>
 #include <sqlpp11/chrono.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -43,7 +43,7 @@ namespace sqlpp
 
     class prepared_statement_t
     {
-      friend ::sqlpp::mysql::connection_base;
+      friend ::sqlpp::v11::mysql::connection_base;
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
     public:
@@ -147,7 +147,7 @@ namespace sqlpp
         param.error = nullptr;
       }
 
-      void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
+      void _bind_date_parameter(size_t index, const ::sqlpp::v11::chrono::day_point* value, bool is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding date parameter "
@@ -180,7 +180,7 @@ namespace sqlpp
         param.error = nullptr;
       }
 
-      void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null)
+      void _bind_date_time_parameter(size_t index, const ::sqlpp::v11::chrono::microsecond_point* value, bool is_null)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding date_time parameter "
@@ -189,7 +189,7 @@ namespace sqlpp
         auto& bound_time = _handle->stmt_date_time_param_buffer[index];
         if (not is_null)
         {
-          const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
+          const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(*value);
           const auto time = ::date::make_time(*value - dp);
           const auto ymd = ::date::year_month_day{dp};
           bound_time.year = static_cast<unsigned>(std::abs(static_cast<int>(ymd.year())));
@@ -249,4 +249,4 @@ namespace sqlpp
       }
     };
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

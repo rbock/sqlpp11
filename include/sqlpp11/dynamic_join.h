@@ -28,7 +28,7 @@
 
 #include <sqlpp11/dynamic_pre_join.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename PreJoin, typename On>
   struct dynamic_join_t
@@ -54,4 +54,4 @@ namespace sqlpp
     serialize(t._on, context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

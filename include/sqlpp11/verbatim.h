@@ -32,7 +32,7 @@
 
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename ValueType>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
   struct verbatim_t : public expression_operators<verbatim_t<ValueType>, ValueType>,
@@ -72,4 +72,4 @@ namespace sqlpp
   {
     return {std::move(s)};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

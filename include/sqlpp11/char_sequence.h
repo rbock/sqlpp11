@@ -29,7 +29,7 @@
 #include <type_traits>
 #include <sqlpp11/detail/index_sequence.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Context>
   std::integral_constant<char, '"'> get_quote_left(const Context&);
@@ -64,13 +64,13 @@ namespace sqlpp
   struct make_char_sequence_impl;
 
   template <std::size_t N, const char* s, std::size_t... i>
-  struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
+  struct make_char_sequence_impl<N, s, ::sqlpp::v11::detail::index_sequence<i...>>
   {
     using type = char_sequence<s[i]...>;
   };
 
   template <std::size_t N, const char* Input>
   using make_char_sequence =
-      typename make_char_sequence_impl<N, Input, sqlpp::detail::make_index_sequence<N - 1>>::type;
+      typename make_char_sequence_impl<N, Input, ::sqlpp::v11::detail::make_index_sequence<N - 1>>::type;
 
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

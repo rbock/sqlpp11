@@ -31,7 +31,7 @@
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // Serialize parameters
   template <typename ValueType, typename NameType>
@@ -58,7 +58,7 @@ namespace sqlpp
   template <typename Period>
   postgresql::context_t& serialize(const time_point_operand<Period>& t, postgresql::context_t& context)
   {
-    const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
+    const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
     const auto ymd = ::date::year_month_day{dp};
     context << "TIMESTAMP WITH TIME ZONE '" << ymd << ' ' << time << "+00'";
@@ -71,4 +71,4 @@ namespace sqlpp
     context << "TIME WITH TIME ZONE '" << ::date::make_time(t._t) << "+00'";
     return context;
   }
-}
+}}  // namespace sqlpp::v11

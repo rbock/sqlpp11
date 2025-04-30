@@ -28,11 +28,11 @@
 
 #include <sqlpp11/wrong.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename ValueType>
   struct parameter_value_t
   {
     static_assert(wrong_t<parameter_value_t>::value, "Missing parameter value type for ValueType");
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

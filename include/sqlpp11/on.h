@@ -31,7 +31,7 @@
 #include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_on_is_expression_t, "argument is not an expression in on()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_on_is_boolean_expression_t, "argument is not a boolean expression in on()");
@@ -75,4 +75,4 @@ namespace sqlpp
     serialize(t._expression, context);
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

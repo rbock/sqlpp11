@@ -32,7 +32,7 @@
 #include <iterator>
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -187,4 +187,4 @@ namespace sqlpp
       return _result.size();
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

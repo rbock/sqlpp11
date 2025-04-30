@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expr>
   struct aggregate_function_operators
@@ -36,4 +36,4 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

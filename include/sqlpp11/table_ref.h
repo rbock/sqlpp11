@@ -28,7 +28,7 @@
 
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T>
   auto from_table(T t) -> T
@@ -49,4 +49,4 @@ namespace sqlpp
   {
     return t;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

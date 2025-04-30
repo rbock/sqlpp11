@@ -30,14 +30,14 @@
 #include <sqlpp11/data_types/integral/data_type.h>
 #include <sqlpp11/data_types/text/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct upper_alias_t
   {
     struct _alias_t
     {
       static constexpr const char _literal[] = "upper_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t
       {
@@ -93,4 +93,4 @@ namespace sqlpp
     return {t};
   }
 
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

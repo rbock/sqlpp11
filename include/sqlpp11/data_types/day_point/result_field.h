@@ -33,7 +33,7 @@
 #include <sqlpp11/field_spec.h>
 #include <ostream>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename NameType, bool CanBeNull>
   struct result_field_t<Db, field_spec_t<NameType, day_point, CanBeNull>>
@@ -67,4 +67,4 @@ namespace sqlpp
     }
     return os;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -32,7 +32,7 @@
 
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename ValueType, typename Expr>
   struct parameterized_verbatim_t : public expression_operators<parameterized_verbatim_t<ValueType, Expr>, ValueType>,
@@ -74,4 +74,4 @@ namespace sqlpp
     return {expr, lhs, rhs};
   }
 
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

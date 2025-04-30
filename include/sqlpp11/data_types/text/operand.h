@@ -36,7 +36,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct text;
 
@@ -79,4 +79,4 @@ namespace sqlpp
     context << '\'' << context.escape(t._t) << '\'';
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

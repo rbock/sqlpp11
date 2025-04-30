@@ -53,7 +53,7 @@
 struct pg_conn;
 typedef struct pg_conn PGconn;
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -72,7 +72,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
         }
 
-        return sqlpp::compat::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
+        return ::sqlpp::v11::compat::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
       }
 
       inline void execute_prepared_statement(std::unique_ptr<connection_handle>& handle, std::shared_ptr<detail::prepared_statement_handle_t>& prepared)
@@ -125,12 +125,12 @@ namespace sqlpp
       }
 
       const connection_base& _db;
-      sqlpp::detail::float_safe_ostringstream _os;
+      ::sqlpp::v11::detail::float_safe_ostringstream _os;
       size_t _count{1};
     };
 
     // Base connection class
-    class connection_base : public sqlpp::connection
+    class connection_base : public ::sqlpp::v11::connection
     {
     private:
       bool _transaction_active{false};
@@ -225,13 +225,13 @@ namespace sqlpp
       template <typename T>
       static _context_t& _serialize_interpretable(const T& t, _context_t& context)
       {
-        return ::sqlpp::serialize(t, context);
+        return ::sqlpp::v11::serialize(t, context);
       }
 
       template <typename T>
       static _context_t& _interpret_interpretable(const T& t, _context_t& context)
       {
-        return ::sqlpp::serialize(t, context);
+        return ::sqlpp::v11::serialize(t, context);
       }
 
       // Select stmt (returns a result)
@@ -392,7 +392,7 @@ namespace sqlpp
 
       //! call run on the argument
       template <typename T>
-      auto _run(const T& t, sqlpp::consistent_t) -> decltype(t._run(*this))
+      auto _run(const T& t, ::sqlpp::v11::consistent_t) -> decltype(t._run(*this))
       {
         return t._run(*this);
       }
@@ -401,14 +401,14 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, ::sqlpp::v11::run_check_t<_serializer_context_t, T>{}))
       {
-        return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+        return _run(t, ::sqlpp::v11::run_check_t<_serializer_context_t, T>{});
       }
 
       //! call prepare on the argument
       template <typename T>
-      auto _prepare(const T& t, ::sqlpp::consistent_t) -> decltype(t._prepare(*this))
+      auto _prepare(const T& t, ::sqlpp::v11::consistent_t) -> decltype(t._prepare(*this))
       {
         return t._prepare(*this);
       }
@@ -417,9 +417,9 @@ namespace sqlpp
       auto _prepare(const T& t, Check) -> Check;
 
       template <typename T>
-      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
+      auto prepare(const T& t) -> decltype(this->_prepare(t, ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>{}))
       {
-        return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+        return _prepare(t, ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>{});
       }
 
       //! set the default transaction isolation level to use for new transactions
@@ -442,7 +442,7 @@ namespace sqlpp
             level_str = "serializable";
             break;
           default:
-            throw sqlpp::exception{"Invalid isolation level"};
+            throw ::sqlpp::v11::exception{"Invalid isolation level"};
         }
         std::string cmd = "SET default_transaction_isolation to '" + level_str + "'";
         execute(cmd);
@@ -455,7 +455,7 @@ namespace sqlpp
         auto status = res->result.status();
         if ((status != PGRES_TUPLES_OK) && (status != PGRES_COMMAND_OK))
         {
-          throw sqlpp::exception{"PostgreSQL error: could not read default_transaction_isolation"};
+          throw ::sqlpp::v11::exception{"PostgreSQL error: could not read default_transaction_isolation"};
         }
 
         auto in = res->result.get_string_value(0, 0);
@@ -504,7 +504,7 @@ namespace sqlpp
       {
         if (_transaction_active)
         {
-          throw sqlpp::exception{"PostgreSQL error: transaction already open"};
+          throw ::sqlpp::v11::exception{"PostgreSQL error: transaction already open"};
         }
         switch (level)
         {
@@ -542,7 +542,7 @@ namespace sqlpp
       {
         if (!_transaction_active)
         {
-          throw sqlpp::exception{"PostgreSQL error: transaction failed or finished."};
+          throw ::sqlpp::v11::exception{"PostgreSQL error: transaction failed or finished."};
         }
         execute("COMMIT");
         _transaction_active = false;
@@ -553,7 +553,7 @@ namespace sqlpp
       {
         if (!_transaction_active)
         {
-          throw sqlpp::exception{"PostgreSQL error: transaction failed or finished."};
+          throw ::sqlpp::v11::exception{"PostgreSQL error: transaction failed or finished."};
         }
         if (report)
         {
@@ -584,7 +584,7 @@ namespace sqlpp
         {
           std::string err{PQresultErrorMessage(res)};
           PQclear(res);
-          throw sqlpp::postgresql::undefined_table{err, sql};
+          throw ::sqlpp::v11::postgresql::undefined_table{err, sql};
         }
 
         // Parse the number and return.
@@ -614,9 +614,9 @@ namespace sqlpp
       return _db.escape(arg);
     }
 
-    using connection = sqlpp::normal_connection<connection_base>;
-    using pooled_connection = sqlpp::pooled_connection<connection_base>;
+    using connection = ::sqlpp::v11::normal_connection<connection_base>;
+    using pooled_connection = ::sqlpp::v11::pooled_connection<connection_base>;
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #include <sqlpp11/postgresql/serializer.h>

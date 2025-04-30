@@ -30,7 +30,7 @@
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // OFFSET DATA
   template <typename Offset>
@@ -329,4 +329,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_offset_t>().dynamic_offset();
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

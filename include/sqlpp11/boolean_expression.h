@@ -29,7 +29,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpretable.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Database>
   struct boolean_expression_t : public expression_operators<boolean_expression_t<Database>, boolean>
@@ -71,4 +71,4 @@ namespace sqlpp
   {
     return serialize(t._expr, context);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

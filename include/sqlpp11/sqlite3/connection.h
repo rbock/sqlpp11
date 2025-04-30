@@ -56,7 +56,7 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -85,14 +85,14 @@ namespace sqlpp
 
         if (rc != SQLITE_OK)
         {
-          throw sqlpp::exception{
+          throw ::sqlpp::v11::exception{
               "Sqlite3 error: Could not prepare statement: " + std::string(sqlite3_errmsg(handle->native_handle())) +
               " ,statement was >>" + (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) + "<<\n"};
         }
 
         if (uncompiledTail != statement.c_str() + length)
         {
-          throw sqlpp::exception{"Sqlite3 connector: Cannot execute multi-statements: >>" + statement + "<<\n"};
+          throw ::sqlpp::v11::exception{"Sqlite3 connector: Cannot execute multi-statements: >>" + statement + "<<\n"};
         }
 
         return result;
@@ -110,7 +110,7 @@ namespace sqlpp
           default:
             if (handle->config->debug)
               std::cerr << "Sqlite3 debug: sqlite3_step return code: " << rc << std::endl;
-            throw sqlpp::exception{"Sqlite3 error: Could not execute statement: " +
+            throw ::sqlpp::v11::exception{"Sqlite3 error: Could not execute statement: " +
                                    std::string(sqlite3_errmsg(handle->native_handle()))};
         }
       }
@@ -149,12 +149,12 @@ namespace sqlpp
       }
 
       const connection_base& _db;
-      sqlpp::detail::float_safe_ostringstream _os;
+      ::sqlpp::v11::detail::float_safe_ostringstream _os;
       size_t _count;
     };
 
     // Base connection class
-    class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection
+    class SQLPP11_SQLITE3_EXPORT connection_base : public ::sqlpp::v11::connection
     {
     private:
       bool _transaction_active{false};
@@ -166,7 +166,7 @@ namespace sqlpp
             new detail::prepared_statement_handle_t(prepare_statement(_handle, statement))};
         if (!prepared)
         {
-          throw sqlpp::exception{"Sqlite3 error: Could not store result set"};
+          throw ::sqlpp::v11::exception{"Sqlite3 error: Could not store result set"};
         }
 
         return {std::move(prepared)};
@@ -254,13 +254,13 @@ namespace sqlpp
       template <typename T>
       static _context_t& _serialize_interpretable(const T& t, _context_t& context)
       {
-        return ::sqlpp::serialize(t, context);
+        return ::sqlpp::v11::serialize(t, context);
       }
 
       template <typename T>
       static _context_t& _interpret_interpretable(const T& t, _context_t& context)
       {
-        return ::sqlpp::serialize(t, context);
+        return ::sqlpp::v11::serialize(t, context);
       }
 
       //! select returns a result (which can be iterated row by row)
@@ -375,10 +375,10 @@ namespace sqlpp
       template <
           typename Execute,
           typename std::enable_if<not std::is_convertible<Execute, std::string>::value 
-                                  and not sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+                                  and not ::sqlpp::v11::is_prepared_statement_t<Execute>::value, int>::type = 0>
       size_t execute(const Execute& x)
       {
-        static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+        static_assert(not ::sqlpp::v11::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
 
         _context_t context{*this};
         serialize(x, context);
@@ -387,10 +387,10 @@ namespace sqlpp
 
       template <
           typename Execute,
-          typename std::enable_if<sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+          typename std::enable_if<::sqlpp::v11::is_prepared_statement_t<Execute>::value, int>::type = 0>
       size_t execute(const Execute& x)
       {
-        static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+        static_assert(not ::sqlpp::v11::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
 
         operator()(x);
         return static_cast<size_t>(sqlite3_changes(native_handle()));
@@ -430,7 +430,7 @@ namespace sqlpp
 
       //! call run on the argument
       template <typename T>
-      auto _run(const T& t, ::sqlpp::consistent_t) -> decltype(t._run(*this))
+      auto _run(const T& t, ::sqlpp::v11::consistent_t) -> decltype(t._run(*this))
       {
         return t._run(*this);
       }
@@ -439,9 +439,9 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, ::sqlpp::v11::run_check_t<_serializer_context_t, T>{}))
       {
-        return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+        return _run(t, ::sqlpp::v11::run_check_t<_serializer_context_t, T>{});
       }
 
       //! call prepare on the argument
@@ -456,16 +456,16 @@ namespace sqlpp
 
       template <typename T>
       auto prepare(const T& t)
-          -> decltype(this->_prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{}))
+          -> decltype(this->_prepare(t, typename ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>::type{}))
       {
-        (void) sqlpp::prepare_check_t<_serializer_context_t, T>{};
-        return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+        (void) ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>{};
+        return _prepare(t, ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>{});
       }
 
       //! set the transaction isolation level for this connection
       void set_default_isolation_level(isolation_level level)
       {
-        if (level == sqlpp::isolation_level::read_uncommitted)
+        if (level == ::sqlpp::v11::isolation_level::read_uncommitted)
         {
           execute("pragma read_uncommitted = true");
         }
@@ -476,14 +476,14 @@ namespace sqlpp
       }
 
       //! get the currently active transaction isolation level
-      sqlpp::isolation_level get_default_isolation_level()
+      ::sqlpp::v11::isolation_level get_default_isolation_level()
       {
         auto stmt = prepare_statement(_handle, "pragma read_uncommitted");
         execute_statement(_handle, stmt);
 
         int level = sqlite3_column_int(stmt.sqlite_statement, 0);
 
-        return level == 0 ? sqlpp::isolation_level::serializable : sqlpp::isolation_level::read_uncommitted;
+        return level == 0 ? ::sqlpp::v11::isolation_level::serializable : sqlpp::isolation_level::read_uncommitted;
       }
 
       //! start transaction
@@ -491,7 +491,7 @@ namespace sqlpp
       {
         if (_transaction_active)
         {
-          throw sqlpp::exception{"Sqlite3 error: Cannot have more than one open transaction per connection"};
+          throw ::sqlpp::v11::exception{"Sqlite3 error: Cannot have more than one open transaction per connection"};
         }
 
         auto prepared = prepare_statement(_handle, "BEGIN");
@@ -504,7 +504,7 @@ namespace sqlpp
       {
         if (!_transaction_active)
         {
-          throw sqlpp::exception{"Sqlite3 error: Cannot commit a finished or failed transaction"};
+          throw ::sqlpp::v11::exception{"Sqlite3 error: Cannot commit a finished or failed transaction"};
         }
         auto prepared = prepare_statement(_handle, "COMMIT");
         execute_statement(_handle, prepared);
@@ -517,7 +517,7 @@ namespace sqlpp
       {
         if (!_transaction_active)
         {
-          throw sqlpp::exception{"Sqlite3 error: Cannot rollback a finished or failed transaction"};
+          throw ::sqlpp::v11::exception{"Sqlite3 error: Cannot rollback a finished or failed transaction"};
         }
         if (report)
         {
@@ -576,10 +576,10 @@ namespace sqlpp
       return _db.escape(arg);
     }
 
-    using connection = sqlpp::normal_connection<connection_base>;
-    using pooled_connection = sqlpp::pooled_connection<connection_base>;
+    using connection = ::sqlpp::v11::normal_connection<connection_base>;
+    using pooled_connection = ::sqlpp::v11::pooled_connection<connection_base>;
   }  // namespace sqlite3
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #ifdef _MSC_VER
 #pragma warning(pop)

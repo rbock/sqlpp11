@@ -31,4 +31,4 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NULL \
   PROC_SQLPP_NULL
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NULL(...) \
-  ::sqlpp::tag::can_be_null
+  ::sqlpp::v11::tag::can_be_null

@@ -29,7 +29,7 @@
 #include <memory>
 #include <string>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace database
   {

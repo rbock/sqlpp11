@@ -28,7 +28,7 @@
 
 #include <sqlpp11/bad_expression.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename L, typename R, typename Enable = void>
   struct return_type_and
@@ -155,4 +155,4 @@ namespace sqlpp
   };
   template <typename T, typename Defer>
   using return_type_unary_minus_t = typename return_type_unary_minus<T, Defer>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

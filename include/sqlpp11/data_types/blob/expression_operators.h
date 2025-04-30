@@ -33,7 +33,7 @@
 #include <sqlpp11/data_types/blob/data_type.h>
 #include <sqlpp11/data_types/text/return_type_like.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Operand, typename Pattern>
   struct like_t;
@@ -65,4 +65,4 @@ namespace sqlpp
       return {*static_cast<const Expression*>(this), wrap_operand_t<R>{r}};
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

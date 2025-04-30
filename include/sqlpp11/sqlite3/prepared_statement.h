@@ -44,7 +44,7 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -60,13 +60,13 @@ namespace sqlpp
           case SQLITE_OK:
             return;
           case SQLITE_RANGE:
-            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) + " bind value out of range"};
+            throw ::sqlpp::v11::exception{"Sqlite3 error: " + std::string(type) + " bind value out of range"};
           case SQLITE_NOMEM:
-            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) + " bind out of memory"};
+            throw ::sqlpp::v11::exception{"Sqlite3 error: " + std::string(type) + " bind out of memory"};
           case SQLITE_TOOBIG:
-            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) + " bind too big"};
+            throw ::sqlpp::v11::exception{"Sqlite3 error: " + std::string(type) + " bind too big"};
           default:
-            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) +
+            throw ::sqlpp::v11::exception{"Sqlite3 error: " + std::string(type) +
                                    " bind returned unexpected value: " + std::to_string(result)};
         }
       }
@@ -74,7 +74,7 @@ namespace sqlpp
 
     class SQLPP11_SQLITE3_EXPORT prepared_statement_t
     {
-      friend class ::sqlpp::sqlite3::connection_base;
+      friend class ::sqlpp::v11::sqlite3::connection_base;
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
     public:
@@ -188,7 +188,7 @@ namespace sqlpp
         detail::check_bind_result(result, "text");
       }
 
-      void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
+      void _bind_date_parameter(size_t index, const ::sqlpp::v11::chrono::day_point* value, bool is_null)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date parameter "
@@ -209,7 +209,7 @@ namespace sqlpp
         detail::check_bind_result(result, "date");
       }
 
-      void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null)
+      void _bind_date_time_parameter(size_t index, const ::sqlpp::v11::chrono::microsecond_point* value, bool is_null)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date_time parameter "
@@ -218,8 +218,8 @@ namespace sqlpp
         int result;
         if (not is_null)
         {
-          const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
-          const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::milliseconds>(*value - dp));
+          const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(*value);
+          const auto time = ::date::make_time(::sqlpp::v11::chrono::floor<::std::chrono::milliseconds>(*value - dp));
           const auto ymd = ::date::year_month_day{dp};
           std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
           os << ymd << ' ' << time;
@@ -269,7 +269,7 @@ namespace sqlpp
       }
     };
   }  // namespace sqlite3
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #ifdef _MSC_VER
 #pragma warning(pop)

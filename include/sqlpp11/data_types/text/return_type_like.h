@@ -28,7 +28,7 @@
 
 #include <sqlpp11/bad_expression.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T, typename Defer, typename Enable = void>
   struct return_type_like
@@ -38,4 +38,4 @@ namespace sqlpp
   };
   template <typename T, typename Defer>
   using return_type_like_t = typename return_type_like<T, Defer>::type;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

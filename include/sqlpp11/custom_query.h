@@ -32,7 +32,7 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/statement.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Database, typename... Parts>
   struct custom_query_t;
@@ -144,4 +144,4 @@ namespace sqlpp
 
     return custom_query_t<Database, wrap_operand_t<Parts>...>(parts...);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

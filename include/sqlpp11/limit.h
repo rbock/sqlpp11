@@ -30,7 +30,7 @@
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   // LIMIT DATA
   template <typename Limit>
@@ -315,4 +315,4 @@ namespace sqlpp
   {
     return statement_t<Database, no_limit_t>().dynamic_limit();
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

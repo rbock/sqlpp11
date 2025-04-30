@@ -29,55 +29,55 @@
 #include <type_traits>
 #include <sqlpp11/char_sequence.h>
 
-#define SQLPP_ALIAS_PROVIDER(name)                                           \
-  struct name##_t                                                            \
-  {                                                                          \
-    struct _alias_t                                                          \
-    {                                                                        \
-      static constexpr const char _literal[] = #name;                        \
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>; \
-      template <typename T>                                                  \
-      struct _member_t                                                       \
-      {                                                                      \
-        T name;                                                              \
-        T& operator()()                                                      \
-        {                                                                    \
-          return name;                                                       \
-        }                                                                    \
-        const T& operator()() const                                          \
-        {                                                                    \
-          return name;                                                       \
-        }                                                                    \
-      };                                                                     \
-    };                                                                       \
-  };                                                                         \
+#define SQLPP_ALIAS_PROVIDER(name)                                                  \
+  struct name##_t                                                                   \
+  {                                                                                 \
+    struct _alias_t                                                                 \
+    {                                                                               \
+      static constexpr const char _literal[] = #name;                               \
+      using _name_t = ::sqlpp::v11::make_char_sequence<sizeof(_literal), _literal>; \
+      template <typename T>                                                         \
+      struct _member_t                                                              \
+      {                                                                             \
+        T name;                                                                     \
+        T& operator()()                                                             \
+        {                                                                           \
+          return name;                                                              \
+        }                                                                           \
+        const T& operator()() const                                                 \
+        {                                                                           \
+          return name;                                                              \
+        }                                                                           \
+      };                                                                            \
+    };                                                                              \
+  };                                                                                \
   constexpr name##_t name = {};
 
-#define SQLPP_QUOTED_ALIAS_PROVIDER(name)                                    \
-  struct name##_t                                                            \
-  {                                                                          \
-    struct _alias_t                                                          \
-    {                                                                        \
-      static constexpr const char _literal[] = "!" #name;                    \
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>; \
-      template <typename T>                                                  \
-      struct _member_t                                                       \
-      {                                                                      \
-        T name;                                                              \
-        T& operator()()                                                      \
-        {                                                                    \
-          return name;                                                       \
-        }                                                                    \
-        const T& operator()() const                                          \
-        {                                                                    \
-          return name;                                                       \
-        }                                                                    \
-      };                                                                     \
-    };                                                                       \
-  };                                                                         \
+#define SQLPP_QUOTED_ALIAS_PROVIDER(name)                                          \
+  struct name##_t                                                                  \
+  {                                                                                \
+    struct _alias_t                                                                \
+    {                                                                              \
+      static constexpr const char _literal[] = "!" #name;                          \
+      using _name_t = ::sqlpp::v1::make_char_sequence<sizeof(_literal), _literal>; \
+      template <typename T>                                                        \
+      struct _member_t                                                             \
+      {                                                                            \
+        T name;                                                                    \
+        T& operator()()                                                            \
+        {                                                                          \
+          return name;                                                             \
+        }                                                                          \
+        const T& operator()() const                                                \
+        {                                                                          \
+          return name;                                                             \
+        }                                                                          \
+      };                                                                           \
+    };                                                                             \
+  };                                                                               \
   constexpr name##_t name = {};
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T, typename Enable = void>
   struct is_alias_provider_t
@@ -124,4 +124,4 @@ namespace sqlpp
     SQLPP_ALIAS_PROVIDER(left)
     SQLPP_ALIAS_PROVIDER(right)
   }  // namespace alias
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

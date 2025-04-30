@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mutex>
 #include <stdexcept>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   enum class connection_check
   {
@@ -49,7 +49,7 @@ namespace sqlpp
   public:
     using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
     using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
-    using _pooled_connection_t = sqlpp::pooled_connection<ConnectionBase>;
+    using _pooled_connection_t = ::sqlpp::v11::pooled_connection<ConnectionBase>;
 
     class pool_core : public std::enable_shared_from_this<pool_core>
     {
@@ -118,7 +118,7 @@ namespace sqlpp
       }
 
       _config_ptr_t _connection_config;
-      sqlpp::detail::circular_buffer<_handle_ptr_t> _handles;
+      ::sqlpp::v11::detail::circular_buffer<_handle_ptr_t> _handles;
       std::mutex _mutex;
     };
 
@@ -158,4 +158,4 @@ namespace sqlpp
   private:
     std::shared_ptr<pool_core> _core;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

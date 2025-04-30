@@ -40,7 +40,7 @@
 #include <sqlpp11/statement.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -685,4 +685,4 @@ namespace sqlpp
   {
     return statement_t<void, no_insert_value_list_t>().columns(cols...);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -28,7 +28,7 @@
 
 #include <utility>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
 #if defined(__clang__) || defined(_MSC_VER)
   template <typename Check>
@@ -39,4 +39,4 @@ namespace sqlpp
   template <typename Check>
   using inconsistent = typename std::enable_if<not std::is_same<consistent_t, Check>::value, Check>::type;
 #endif
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

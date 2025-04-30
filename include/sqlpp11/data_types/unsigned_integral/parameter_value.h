@@ -30,7 +30,7 @@
 #include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/unsigned_integral/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <>
   struct parameter_value_t<unsigned_integral> : public parameter_value_base<unsigned_integral>
@@ -45,4 +45,4 @@ namespace sqlpp
       target._bind_unsigned_integral_parameter(index, &_value, _is_null);
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

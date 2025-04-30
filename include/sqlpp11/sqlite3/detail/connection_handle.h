@@ -37,7 +37,7 @@
 #include <sqlpp11/sqlite3/dynamic_libsqlite3.h>
 #endif
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace sqlite3
   {
@@ -67,7 +67,7 @@ namespace sqlpp
           {
             const std::string msg = sqlite3_errmsg(sqlite_ptr);
             sqlite3_close(sqlite_ptr);
-            throw sqlpp::exception{"Sqlite3 error: Can't open database: " + msg};
+            throw ::sqlpp::v11::exception{"Sqlite3 error: Can't open database: " + msg};
           }
 
           sqlite.reset(sqlite_ptr);
@@ -80,7 +80,7 @@ namespace sqlpp
             {
               const std::string msg = sqlite3_errmsg(native_handle());
               sqlite3_close(native_handle());
-              throw sqlpp::exception{"Sqlite3 error: Can't set password to database: " + msg};
+              throw ::sqlpp::v11::exception{"Sqlite3 error: Can't set password to database: " + msg};
             }
           }
 #endif
@@ -116,4 +116,4 @@ namespace sqlpp
       };
     }  // namespace detail
   }  // namespace sqlite3
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

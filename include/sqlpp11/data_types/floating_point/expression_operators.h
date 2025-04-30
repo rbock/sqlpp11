@@ -33,7 +33,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/floating_point/data_type.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Expr>
   struct expression_operators<Expr, floating_point> : public basic_expression_operators<Expr>
@@ -81,4 +81,4 @@ namespace sqlpp
     using check = consistent_t;
     using type = unary_minus_t<floating_point, wrap_operand_t<T>>;
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

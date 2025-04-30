@@ -28,7 +28,7 @@
 
 #include <date/date.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace chrono
   {
@@ -51,4 +51,4 @@ namespace sqlpp
       return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
     }
   }  // namespace chrono
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -42,7 +42,7 @@
 #include <sstream>
 #include <string>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -54,7 +54,7 @@ namespace sqlpp
         {
           if (!mysql_thread_safe())
           {
-            throw sqlpp::exception{"MySQL error: Operating on a non-threadsafe client"};
+            throw ::sqlpp::v11::exception{"MySQL error: Operating on a non-threadsafe client"};
           }
           mysql_thread_init();
         }
@@ -79,7 +79,7 @@ namespace sqlpp
 
         if (mysql_query(handle->native_handle(), statement.c_str()))
         {
-          throw sqlpp::exception{
+          throw ::sqlpp::v11::exception{
               "MySQL error: Could not execute MySQL-statement: " + std::string{mysql_error(handle->native_handle())} +
               " (statement was >>" + statement + "<<\n"};
         }
@@ -94,13 +94,13 @@ namespace sqlpp
 
         if (mysql_stmt_bind_param(prepared_statement.mysql_stmt, prepared_statement.stmt_params.data()))
         {
-          throw sqlpp::exception{std::string{"MySQL error: Could not bind parameters to statement"} +
+          throw ::sqlpp::v11::exception{std::string{"MySQL error: Could not bind parameters to statement"} +
                                  mysql_stmt_error(prepared_statement.mysql_stmt)};
         }
 
         if (mysql_stmt_execute(prepared_statement.mysql_stmt))
         {
-          throw sqlpp::exception{std::string{"MySQL error: Could not execute prepared statement: "} +
+          throw ::sqlpp::v11::exception{std::string{"MySQL error: Could not execute prepared statement: "} +
                                  mysql_stmt_error(prepared_statement.mysql_stmt)};
         }
       }
@@ -119,11 +119,11 @@ namespace sqlpp
             mysql_stmt_init(handle->native_handle()), no_of_parameters, no_of_columns, handle->config->debug);
         if (not prepared_statement)
         {
-          throw sqlpp::exception{"MySQL error: Could not allocate prepared statement\n"};
+          throw ::sqlpp::v11::exception{"MySQL error: Could not allocate prepared statement\n"};
         }
         if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(), statement.size()))
         {
-          throw sqlpp::exception{
+          throw ::sqlpp::v11::exception{
               "MySQL error: Could not prepare statement: " + std::string{mysql_error(handle->native_handle())} +
               " (statement was >>" + statement + "<<\n"};
         }
@@ -176,14 +176,14 @@ namespace sqlpp
       }
 
       const connection_base& _db;
-      sqlpp::detail::float_safe_ostringstream _os;
+      ::sqlpp::v11::detail::float_safe_ostringstream _os;
     };
 
     std::integral_constant<char, '`'> get_quote_left(const context_t&);
 
     std::integral_constant<char, '`'> get_quote_right(const context_t&);
 
-    class connection_base : public sqlpp::connection
+    class connection_base : public ::sqlpp::v11::connection
     {
     private:
       bool _transaction_active{false};
@@ -196,7 +196,7 @@ namespace sqlpp
             new detail::result_handle(mysql_store_result(_handle->native_handle()), _handle->config->debug));
         if (!*result_handle)
         {
-          throw sqlpp::exception{"MySQL error: Could not store result set: " +
+          throw ::sqlpp::v11::exception{"MySQL error: Could not store result set: " +
                                  std::string{mysql_error(_handle->native_handle())}};
         }
 
@@ -259,7 +259,7 @@ namespace sqlpp
       using _handle_t = detail::connection_handle;
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
-      using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
+      using _prepared_statement_t = ::sqlpp::v11::mysql::prepared_statement_t;
       using _context_t = context_t;
       using _serializer_context_t = _context_t;
       using _interpreter_context_t = _context_t;
@@ -414,7 +414,7 @@ namespace sqlpp
 
       //! call run on the argument
       template <typename T>
-      auto _run(const T& t, ::sqlpp::consistent_t) -> decltype(t._run(*this))
+      auto _run(const T& t, ::sqlpp::v11::consistent_t) -> decltype(t._run(*this))
       {
         return t._run(*this);
       }
@@ -423,14 +423,14 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, ::sqlpp::v11::run_check_t<_serializer_context_t, T>{}))
       {
-        return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+        return _run(t, ::sqlpp::v11::run_check_t<_serializer_context_t, T>{});
       }
 
       //! call prepare on the argument
       template <typename T>
-      auto _prepare(const T& t, ::sqlpp::consistent_t) -> decltype(t._prepare(*this))
+      auto _prepare(const T& t, ::sqlpp::v11::consistent_t) -> decltype(t._prepare(*this))
       {
         return t._prepare(*this);
       }
@@ -439,9 +439,9 @@ namespace sqlpp
       auto _prepare(const T& t, Check) -> Check;
 
       template <typename T>
-      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
+      auto prepare(const T& t) -> decltype(this->_prepare(t, ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>{}))
       {
-        return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+        return _prepare(t, ::sqlpp::v11::prepare_check_t<_serializer_context_t, T>{});
       }
 
       //! start transaction
@@ -449,7 +449,7 @@ namespace sqlpp
       {
         if (_transaction_active)
         {
-          throw sqlpp::exception{"MySQL: Cannot have more than one open transaction per connection"};
+          throw ::sqlpp::v11::exception{"MySQL: Cannot have more than one open transaction per connection"};
         }
         execute_statement(_handle, "START TRANSACTION");
         _transaction_active = true;
@@ -460,7 +460,7 @@ namespace sqlpp
       {
         if (not _transaction_active)
         {
-          throw sqlpp::exception{"MySQL: Cannot commit a finished or failed transaction"};
+          throw ::sqlpp::v11::exception{"MySQL: Cannot commit a finished or failed transaction"};
         }
         execute_statement(_handle, "COMMIT");
         _transaction_active = false;
@@ -471,7 +471,7 @@ namespace sqlpp
       {
         if (not _transaction_active)
         {
-          throw sqlpp::exception{"MySQL: Cannot rollback a finished or failed transaction"};
+          throw ::sqlpp::v11::exception{"MySQL: Cannot rollback a finished or failed transaction"};
         }
         if (report)
         {
@@ -520,9 +520,9 @@ namespace sqlpp
       return _db.escape(arg);
     }
 
-    using connection = sqlpp::normal_connection<connection_base>;
-    using pooled_connection = sqlpp::pooled_connection<connection_base>;
+    using connection = ::sqlpp::v11::normal_connection<connection_base>;
+    using pooled_connection = ::sqlpp::v11::pooled_connection<connection_base>;
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
 
 #include <sqlpp11/mysql/serializer.h>

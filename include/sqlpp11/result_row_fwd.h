@@ -26,11 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Db, typename... FieldSpecs>
   struct result_row_t;
 
   template <typename Db, typename... FieldSpecs>
   struct dynamic_result_row_t;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

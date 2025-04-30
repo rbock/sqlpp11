@@ -34,7 +34,7 @@
 #include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/exception.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -54,7 +54,7 @@ namespace sqlpp
     class prepared_statement_t
     {
     private:
-      friend class sqlpp::postgresql::connection_base;
+      friend class ::sqlpp::v11::postgresql::connection_base;
 
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
@@ -116,7 +116,7 @@ namespace sqlpp
         _handle->null_values[index] = is_null;
         if (!is_null)
         {
-          sqlpp::detail::float_safe_ostringstream out;
+          ::sqlpp::v11::detail::float_safe_ostringstream out;
           out << *value;
           _handle->param_values[index] = out.str();
         }
@@ -154,7 +154,7 @@ namespace sqlpp
         }
       }
 
-      void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
+      void _bind_date_parameter(size_t index, const ::sqlpp::v11::chrono::day_point* value, bool is_null)
       {
         if (_handle->debug())
         {
@@ -199,7 +199,7 @@ namespace sqlpp
         }
       }
 
-      void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null)
+      void _bind_date_time_parameter(size_t index, const ::sqlpp::v11::chrono::microsecond_point* value, bool is_null)
       {
         if (_handle->debug())
         {
@@ -209,8 +209,8 @@ namespace sqlpp
         _handle->null_values[index] = is_null;
         if (not is_null)
         {
-          const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
-          const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::microseconds>(*value - dp));
+          const auto dp = ::sqlpp::v11::chrono::floor<::date::days>(*value);
+          const auto time = ::date::make_time(::sqlpp::v11::chrono::floor<::std::chrono::microseconds>(*value - dp));
           const auto ymd = ::date::year_month_day{dp};
 
           // Timezone handling - always treat the local value as UTC.
@@ -253,4 +253,4 @@ namespace sqlpp
       }
     };
   }
-}
+}}  // namespace sqlpp::v11

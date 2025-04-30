@@ -29,7 +29,7 @@
 #include <sqlpp11/type_traits.h>
 #include <cstdint>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct integral
   {
@@ -44,4 +44,4 @@ namespace sqlpp
   using smallint = integral;
   using integer = integral;
   using bigint = integral;
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

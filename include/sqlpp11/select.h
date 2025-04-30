@@ -45,7 +45,7 @@
 #include <sqlpp11/expression.h>
 #include <sqlpp11/wrong.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct select_name_t
   {
@@ -104,4 +104,4 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return blank_select_t<Database>().columns(columns...);
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

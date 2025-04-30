@@ -32,7 +32,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -110,4 +110,4 @@ namespace sqlpp
     }
     return context;
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -27,7 +27,7 @@
 
 #include <iostream>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace
   {
@@ -328,7 +328,7 @@ namespace sqlpp
     }
 
   }  // namespace
-}  // namespace sqlpp11
+}} // namespace sqlpp::v1111
 
 int main(int, char*[])
 {

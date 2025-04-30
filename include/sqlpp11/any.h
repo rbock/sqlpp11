@@ -30,7 +30,7 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/detail/type_set.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename Select>
   struct any_t
@@ -68,4 +68,4 @@ namespace sqlpp
     // FIXME: can we accept non-values like NULL here?
     return {t};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

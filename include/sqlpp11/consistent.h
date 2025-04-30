@@ -28,7 +28,7 @@
 
 #include <type_traits>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct consistent_t : std::true_type
   {
@@ -37,4 +37,4 @@ namespace sqlpp
     {
     }
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

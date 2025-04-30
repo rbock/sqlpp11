@@ -31,7 +31,7 @@
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/type_traits.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   SQLPP_VALUE_TRAIT_GENERATOR(is_on_conflict_do_nothing)
 
@@ -61,7 +61,7 @@ namespace sqlpp
     struct on_conflict_do_nothing_t
     {
       using _traits = make_traits<no_value_t, tag::is_on_conflict_do_nothing>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget>;
+      using _nodes = ::sqlpp::v11::detail::type_vector<ConflictTarget>;
 
       // Data
       using _data_t = on_conflict_do_nothing_data_t<ConflictTarget>;
@@ -121,4 +121,4 @@ namespace sqlpp
       return context;
     }
   }  // namespace postgresql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

@@ -30,7 +30,7 @@
 #include <sqlpp11/postgresql/visibility.h>
 #include <string>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace postgresql
   {
@@ -90,4 +90,4 @@ namespace sqlpp
       }
     };
   }
-}
+}}  // namespace sqlpp::v11

@@ -28,7 +28,7 @@
 
 #include <sqlpp11/data_types/column_operators.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   struct boolean;
 
@@ -36,4 +36,4 @@ namespace sqlpp
   struct column_operators<Column, boolean>
   {
   };
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

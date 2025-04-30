@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrap_operand.h>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   template <typename T>
   struct value_t : public wrap_operand_t<T>, public expression_operators<value_t<T>, value_type_of<wrap_operand_t<T>>>
@@ -45,4 +45,4 @@ namespace sqlpp
                   "value() is to be called with non-sql-type like int, or string");
     return {t};
   }
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

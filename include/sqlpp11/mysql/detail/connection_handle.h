@@ -32,7 +32,7 @@
 
 #include <memory>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace mysql
   {
@@ -43,36 +43,36 @@ namespace sqlpp
         if (config.connect_timeout_seconds != 0 &&
             mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, &config.connect_timeout_seconds))
         {
-          throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT"};
+          throw ::sqlpp::v11::exception{"MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT"};
         }
 
         if (config.read_timeout > 0 &&
             mysql_options(mysql, MYSQL_OPT_READ_TIMEOUT, &config.read_timeout))
         {
-          throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_READ_TIMEOUT");
+          throw ::sqlpp::v11::exception("MySQL: could not set option MYSQL_OPT_READ_TIMEOUT");
         }
 
         if (config.ssl)
         {
           if (!config.ssl_key.empty() && mysql_options(mysql, MYSQL_OPT_SSL_KEY, config.ssl_key.c_str()))
           {
-            throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_KEY");
+            throw ::sqlpp::v11::exception("MySQL: could not set option MYSQL_OPT_SSL_KEY");
           }
           if (!config.ssl_cert.empty() && mysql_options(mysql, MYSQL_OPT_SSL_CERT, config.ssl_cert.c_str()))
           {
-            throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CERT");
+            throw ::sqlpp::v11::exception("MySQL: could not set option MYSQL_OPT_SSL_CERT");
           }
           if (!config.ssl_ca.empty() && mysql_options(mysql, MYSQL_OPT_SSL_CA, config.ssl_ca.c_str()))
           {
-            throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CA");
+            throw ::sqlpp::v11::exception("MySQL: could not set option MYSQL_OPT_SSL_CA");
           }
           if (!config.ssl_capath.empty() && mysql_options(mysql, MYSQL_OPT_SSL_CAPATH, config.ssl_capath.c_str()))
           {
-            throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CAPATH");
+            throw ::sqlpp::v11::exception("MySQL: could not set option MYSQL_OPT_SSL_CAPATH");
           }
           if (!config.ssl_cipher.empty() && mysql_options(mysql, MYSQL_OPT_SSL_CIPHER, config.ssl_cipher.c_str()))
           {
-            throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CIPHER");
+            throw ::sqlpp::v11::exception("MySQL: could not set option MYSQL_OPT_SSL_CIPHER");
           }
         }
 
@@ -81,17 +81,17 @@ namespace sqlpp
                                 config.password.empty() ? nullptr : config.password.c_str(), nullptr, config.port,
                                 config.unix_socket.empty() ? nullptr : config.unix_socket.c_str(), config.client_flag))
         {
-          throw sqlpp::exception{"MySQL: could not connect to server: " + std::string{mysql_error(mysql)}};
+          throw ::sqlpp::v11::exception{"MySQL: could not connect to server: " + std::string{mysql_error(mysql)}};
         }
 
         if (mysql_set_character_set(mysql, config.charset.c_str()))
         {
-          throw sqlpp::exception{"MySQL error: can't set character set " + config.charset};
+          throw ::sqlpp::v11::exception{"MySQL error: can't set character set " + config.charset};
         }
 
         if (not config.database.empty() and mysql_select_db(mysql, config.database.c_str()))
         {
-          throw sqlpp::exception{"MySQL error: can't select database '" + config.database + "'"};
+          throw ::sqlpp::v11::exception{"MySQL error: can't select database '" + config.database + "'"};
         }
       }
 
@@ -106,7 +106,7 @@ namespace sqlpp
         {
           if (not mysql)
           {
-            throw sqlpp::exception{"MySQL: could not init mysql data structure"};
+            throw ::sqlpp::v11::exception{"MySQL: could not init mysql data structure"};
           }
 
           connect(native_handle(), *config);
@@ -138,4 +138,4 @@ namespace sqlpp
       };
     }  // namespace detail
   }  // namespace mysql
-}  // namespace sqlpp
+}} // namespace sqlpp::v11

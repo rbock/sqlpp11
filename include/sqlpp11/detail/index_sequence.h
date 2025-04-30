@@ -28,7 +28,7 @@
 
 #include <type_traits>
 
-namespace sqlpp
+namespace sqlpp { inline namespace v11
 {
   namespace detail
   {
@@ -57,4 +57,4 @@ namespace sqlpp
     template <std::size_t N>
     using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
   }  // namespace detail
-}  // namespace sqlpp
+}} // namespace sqlpp::v11
