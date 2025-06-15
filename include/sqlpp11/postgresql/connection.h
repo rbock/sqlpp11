@@ -28,9 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <algorithm>
 #include <iostream>
-#include <sstream>
 
 #include <sqlpp11/compat/make_unique.h>
 #include <sqlpp11/connection.h>
@@ -359,7 +357,7 @@ namespace sqlpp
 
         _context_t context{*this};
         serialize(x, context);
-        return execute(context.str());
+        return static_cast<size_t>(execute(context.str())->result.affected_rows());
       }
 
       template <
