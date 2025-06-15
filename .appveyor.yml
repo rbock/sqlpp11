@@ -2,6 +2,10 @@ os:
   - Visual Studio 2015
   - Visual Studio 2022
 
+environment:
+  CTEST_OUTPUT_ON_FAILURE: 1
+  CMAKE_TOOLCHAIN_FILE: -DCMAKE_TOOLCHAIN_FILE="C:\tools\vcpkg\scripts\buildsystems\vcpkg.cmake"
+
 platform:
   - x64
 
@@ -36,4 +40,4 @@ build_script:
   - cmake --build . --config %configuration%
   - cd tests
   - cd core
-  - ctest . --build-config %configuration% --output-on-failure
+  - ctest . --build-config %configuration%
