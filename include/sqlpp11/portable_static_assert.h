@@ -40,9 +40,10 @@ namespace sqlpp
       static_assert(wrong_t<T...>::value, message); \
     }                                               \
     template <typename... T>                        \
-    static constexpr void verify(T&&...)                 \
+    static constexpr int verify(T&&...)             \
     {                                               \
       static_assert(wrong_t<T...>::value, message); \
+      return 0;                                     \
     }                                               \
     auto begin() const -> void;                     \
     auto end() const -> void;                       \

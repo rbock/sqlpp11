@@ -39,7 +39,6 @@
 #include <sqlpp11/mysql/update.h>
 #include <sqlpp11/serialize.h>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 namespace sqlpp
@@ -281,7 +280,10 @@ namespace sqlpp
         return serialize(t, context);
       }
 
-      [[deprecated("Use ping_server() instead")]] bool is_valid() const
+#if SQLPP_CXX_STD >= 201402L
+      [[deprecated("Use ping_server() instead")]]
+#endif
+      bool is_valid() const
       {
         return _handle->ping_server();
       }

@@ -314,6 +314,7 @@ namespace sqlpp
       _impl::_apply(callable);
 
       std::size_t index = sizeof...(FieldSpecs);
+      std::ignore = index; // silence warnings in case _dynamic_field_names is empty
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._apply(callable);
@@ -327,6 +328,7 @@ namespace sqlpp
       _impl::_apply(callable);
 
       std::size_t index = sizeof...(FieldSpecs);
+      std::ignore = index; // silence warnings in case _dynamic_field_names is empty
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._apply(callable);
