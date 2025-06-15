@@ -25,7 +25,6 @@
 
 #include "MockDb.h"
 #include "Sample.h"
-#include "is_regular.h"
 #include <algorithm>
 #include <iostream>
 #include <sqlpp11/alias_provider.h>
@@ -62,7 +61,6 @@ void print_row(Row const& row)
 }
 
 SQLPP_ALIAS_PROVIDER(cheese)
-SQLPP_ALIAS_PROVIDER(param1)
 SQLPP_ALIAS_PROVIDER(param2)
 
 int Select(int, char*[])
