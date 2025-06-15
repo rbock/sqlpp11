@@ -26,6 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <limits>
+
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/detail/prepared_statement_handle.h>
