@@ -1,6 +1,9 @@
 os:
-  - Visual Studio 2015
-  - Visual Studio 2017
+  - Visual Studio 2022
+
+environment:
+  CTEST_OUTPUT_ON_FAILURE: 1
+  CMAKE_TOOLCHAIN_FILE: -DCMAKE_TOOLCHAIN_FILE="C:\tools\vcpkg\scripts\buildsystems\vcpkg.cmake"
 
 platform:
   - x64
@@ -11,6 +14,12 @@ configuration:
 
 matrix:
   fast_finish: true
+
+install:
+  - vcpkg install sqlite3:x64-windows
+
+cache:
+  - c:\tools\vcpkg\installed\
 
 build_script:
   - CD
@@ -26,6 +35,8 @@ build_script:
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH="C:\projects\date"
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH="C:\projects\date" %CMAKE_TOOLCHAIN_FILE% -DBUILD_MYSQL_CONNECTOR=ON -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON
   - cmake --build . --config %configuration%
-  - ctest . --build-config %configuration% --output-on-failure
+  - cd tests
+  - cd core
+  - ctest . --build-config %configuration%
