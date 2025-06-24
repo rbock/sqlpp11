@@ -86,7 +86,7 @@ namespace sqlpp
   class case_then_t
   {
     template <typename Else>
-    auto _else_impl(consistent_t /*unused*/, Else else_) -> case_t<When, Then, Else>
+    auto _else_impl(consistent_t /*unused*/, Else else_) -> case_t<When, Then, wrap_operand_t<Else>>
     {
       return {_when, _then, else_};
     }

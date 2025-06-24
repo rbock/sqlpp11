@@ -197,6 +197,12 @@ int Select(int, char*[])
     std::cerr << row.beta << std::endl;
   }
 
+  for (const auto& row :
+       db(select(sqlpp::case_when(true).then(5).else_(7).as(t.beta)).from(t).unconditionally()))
+  {
+    std::cerr << row.beta << std::endl;
+  }
+
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     for_each_field(row, to_cerr{});
