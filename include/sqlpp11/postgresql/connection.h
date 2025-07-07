@@ -92,7 +92,7 @@ namespace sqlpp
       context_t(const connection_base& db) : _db(db)
       {
       }
-      context_t(const connection_base&&) = delete;
+      context_t(connection_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)

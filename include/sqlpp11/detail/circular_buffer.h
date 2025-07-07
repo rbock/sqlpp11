@@ -64,6 +64,9 @@ namespace sqlpp
     circular_buffer<T>::circular_buffer(std::size_t capacity)
         : _data(capacity), _capacity{capacity}, _size{0}, _back{0}, _front{0}
     {
+      if (capacity == 0) {
+        throw std::invalid_argument("circular_buffer capacity cannot be zero");
+      }
     }
 
     template <typename T>
