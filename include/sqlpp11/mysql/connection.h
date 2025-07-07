@@ -93,7 +93,7 @@ namespace sqlpp
 
         if (mysql_stmt_bind_param(prepared_statement.mysql_stmt, prepared_statement.stmt_params.data()))
         {
-          throw sqlpp::exception{std::string{"MySQL error: Could not bind parameters to statement"} +
+          throw sqlpp::exception{std::string{"MySQL error: Could not bind parameters to statement "} +
                                  mysql_stmt_error(prepared_statement.mysql_stmt)};
         }
 
@@ -159,7 +159,7 @@ namespace sqlpp
       context_t(const connection_base& db) : _db{db}
       {
       }
-      context_t(const connection_base&&) = delete;
+      context_t(connection_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)
