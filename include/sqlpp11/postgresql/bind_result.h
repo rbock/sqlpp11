@@ -27,6 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#include <ciso646>  // Required to support boolean operator aliases
+#endif
+
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/data_types.h>
 #include <sqlpp11/detail/parse_date_time.h>
@@ -39,7 +43,6 @@
 #include "detail/prepared_statement_handle.h"
 
 #ifdef _MSC_VER
-#include <iso646.h>
 #pragma warning(disable : 4800)  // int to bool
 #endif
 namespace sqlpp
