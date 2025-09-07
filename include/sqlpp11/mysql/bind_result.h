@@ -26,18 +26,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#include <ciso646>  // Required to support boolean operator aliases
+#endif
+
 #include <limits>
+#include <iostream>
+#include <memory>
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/detail/prepared_statement_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 
-#include <iostream>
-#ifdef _MSC_VER
-#include <iso646.h>
-#endif
-#include <memory>
 
 namespace sqlpp
 {

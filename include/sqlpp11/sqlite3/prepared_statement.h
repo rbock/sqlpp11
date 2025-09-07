@@ -26,8 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#include <ciso646>  // Required to support boolean operator aliases
+#endif
+
 #include <memory>
-#include <ciso646>
 #include <cmath>
 #include <string>
 #include <vector>

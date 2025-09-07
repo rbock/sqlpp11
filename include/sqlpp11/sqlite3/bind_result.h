@@ -26,6 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#include <ciso646>  // Required to support boolean operator aliases
+#endif
+
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/detail/parse_date_time.h>
 #include <sqlpp11/exception.h>
@@ -36,7 +40,6 @@
 #include <memory>
 
 #ifdef _MSC_VER
-#include <iso646.h>
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif
