@@ -66,14 +66,14 @@ namespace sqlpp
         case 'd':
         case 'e':
         case 'f':
-          return c + 10 - 'a';
+          return static_cast<unsigned char>(c + 10 - 'a');
         case 'A':
         case 'B':
         case 'C':
         case 'D':
         case 'E':
         case 'F':
-          return c + 10 - 'A';
+          return static_cast<unsigned char>(c + 10 - 'A');
       }
       throw sqlpp::exception{std::string{"Unexpected hex char: "} + static_cast<char>(c)};
     }
