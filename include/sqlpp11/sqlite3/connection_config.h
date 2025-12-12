@@ -35,7 +35,7 @@ namespace sqlpp
   {
     struct connection_config
     {
-      connection_config() : path_to_database{}, flags{0}, vfs{}, debug{false},password{}
+      connection_config() : path_to_database{}, flags{0}, vfs{}, debug{false}, password{}
       {
       }
       connection_config(const connection_config&) = default;
@@ -43,8 +43,8 @@ namespace sqlpp
       connection_config& operator=(const connection_config&) = default;
       connection_config& operator=(connection_config&&) = default;
 
-      connection_config(std::string path, int fl = 0, std::string vf = "", bool dbg = false,std::string password="")
-          : path_to_database{std::move(path)}, flags{fl}, vfs{std::move(vf)}, debug{dbg},password{password}
+      connection_config(std::string path, int fl = 0, std::string vf = "", bool dbg = false, std::string db_password="")
+          : path_to_database{std::move(path)}, flags{fl}, vfs{std::move(vf)}, debug{dbg}, password{db_password}
       {
       }
 
