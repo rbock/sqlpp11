@@ -247,7 +247,7 @@ namespace sqlpp
         }
 
         template <typename T>
-        static auto _get_member(T t) -> decltype(t.returning_columms)
+        static auto _get_member(T t) -> decltype(t.returning_columns)
         {
           return t.returning_columns;
         }
